@@ -1,0 +1,44 @@
+<launch>
+  <arg name="imu_name" default="front_camera"/>
+
+  <!-- Complemetary filter works only with NED frame -->
+  <!-- So we republish imu data with frame_id matching the NED frame -->
+  <node name="imu_ned_republisher" pkg="topic_tools" type="transform">
+    <param name="in_topic" value="/$(arg imu_name)/imu/data" />
+    <param name="out_topic" value="/$(arg imu_name)/imu_ned/data" />
+    <param name="type" value="sensor_msgs/Imu" />
+    <param name="expression" value="sensor_msgs.msg.Imu(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp,frame_id='$(arg imu_name)_imu_link_ned'),orientation=m.orientation,orientation_covariance=m.orientation_covariance,angular_velocity=m.angular_velocity,angular_velocity_covariance=m.angular_velocity_covariance,linear_acceleration=m.linear_acceleration,linear_acceleration_covariance=m.linear_acceleration_covariance)" />
+    <param name="imports" value="sensor_msgs std_msgs" />
+  </node>
+  <!-- We have to do the same for magnetometer data -->
+  <node name="imu_ned_mag_republisher" pkg="topic_tools" type="transform">
+    <param name="in_topic" value="/$(arg imu_name)/imu/mag" />
+    <param name="out_topic" value="/$(arg imu_name)/imu_ned/mag" />
+    <param name="type" value="sensor_msgs/MagneticField" />
+    <param name="expression" value="sensor_msgs.msg.MagneticField(header=std_msgs.msg.Header(seq=m.header.seq,stamp=m.header.stamp,frame_id='$(arg imu_name)_imu_link_ned'),magnetic_field=m.magnetic_field,magnetic_field_covariance=m.magnetic_field_covariance)" />
+    <param name="imports" value="sensor_msgs std_msgs" />
+  </node>
+
+  <!-- Actualy run complementary filter -->
+  <node pkg="imu_complementary_filter" type="complementary_filter_node"
+      name="imu_fusion" output="screen">
+    <param name="do_bias_estimation" value="true"/>
+    <param name="do_adaptive_gain" value="true"/>
+    <param name="use_mag" value="true"/>
+    <param name="gain_acc" value="0.01"/>
+    <param name="gain_mag" value="0.03"/>
+    <param name="publish_tf" value="false"/>
+    <param name="orientation_stddev" value="$(eval 3.5 * pi/180)"/>
+    <remap from="imu/data_raw" to="/$(arg imu_name)/imu_ned/data"/>
+    <remap from="imu/mag" to="/$(arg imu_name)/imu_ned/mag"/>
+    <remap from="imu/mag" to="/$(arg imu_name)/imu_ned/mag"/>
+  </node>
+
+  <!-- Now transform orientation to base_link frame -->
+  <node pkg="imu_transformer" type="imu_transformer_node" name="imu_data_transformer" output="screen">
+    <remap from="imu_in/data" to="/$(arg imu_name)/imu_ned/data"/>
+    <remap from="imu_out/data" to="/imu/data"/>
+    <param name="target_frame" value="base_link"/>
+  </node>
+  
+</launch>

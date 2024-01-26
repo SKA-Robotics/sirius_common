@@ -1,0 +1,11 @@
+#Accelerometer
+accelerometer_noise_density: 0.010244178296533723 # Inflated 5  times
+accelerometer_random_walk: 0.004161810308932516   # Inflated 60 times
+
+#Gyroscope
+gyroscope_noise_density: 0.001553952358385786     # Inflated 8  times
+gyroscope_random_walk: 2.501600029485788e-06      # Not inflated
+
+rostopic: '/front_camera/imu/data' 
+update_rate: 200 
+

@@ -1,0 +1,24 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+<xacro:macro name="rim" params="prefix:='' material mechanical:=${xacro.load_yaml('$(find sirius_description)/config/mechanical.yaml')}">
+  <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
+  <link name="${_prefix}rim">
+    <visual>
+      <material name="${material}" />
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/sirius/rim.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>    
+      <geometry>
+        <cylinder length="${mechanical['rim_width']}" radius="${mechanical['wheel_radius'] * 0.8}"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="${pi/2} 0 0" />
+    </collision>
+  </link>    
+  <gazebo reference="${_prefix}rim">
+    <visual>  
+      <xacro:element xacro:name="xacro:${material}" />
+    </visual> 
+  </gazebo>    
+</xacro:macro>
+</robot>

@@ -1,0 +1,20 @@
+gnss_height: 0.0584
+gnss_radius: 0.075
+indicator_light_height: 0.372
+indicator_light_radius: 0.025
+platform_angle: 43.0 # Angle of the profiles at the front of the frame
+platform_box_length: 0.462
+platform_box_x: -0.197
+platform_height: 0.193
+platform_mast_5g_length: 0.35
+platform_mast_5g_radius: 0.02
+platform_mast_5g_xyz: -0.411 0.081 0.949
+platform_mast_height: 0.995
+platform_mast_x: -0.45
+platform_mast_y: 0.081
+platform_profile_size: 0.02 # Width of the frame profiles (beams)
+suspension_angle: -33.80
+suspension_length: 0.31
+suspension_thickness: 0.0225
+suspension_width: 0.091
+suspension_x_shift: 0.015

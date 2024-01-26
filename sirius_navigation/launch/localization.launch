@@ -1,0 +1,4 @@
+<launch>
+    <include file="$(find sirius_navigation)/launch/odom_sensor_fusion.launch"/>
+    <include file="$(find sirius_navigation)/launch/map_sensor_fusion.launch"/>
+</launch>

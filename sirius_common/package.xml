@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>sirius_common</name>
+  <version>1.0.0</version>
+  <description>Sirius simulator metapackage</description>
+  <maintainer email="gabriel@gabrielb.dev">Gabriel Brzeziński</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>sirius_calibration</exec_depend>
+  <exec_depend>sirius_control</exec_depend>
+  <exec_depend>sirius_description</exec_depend>
+  <exec_depend>sirius_navigation</exec_depend>
+  
+  <export>
+    <metapackage/>
+  </export>
+</package>

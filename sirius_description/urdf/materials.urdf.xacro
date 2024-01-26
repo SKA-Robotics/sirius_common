@@ -1,0 +1,50 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <!-- URDF colors -->
+  <material name="black">       <color rgba="0 0 0 1" /></material>
+  <material name="dark_bronze"> <color rgba=".36 .29 .22 1" /></material>
+  <material name="dark_gray">   <color rgba="0.35 0.35 0.35 1"/></material>
+  <material name="gray">        <color rgba=".796 .824 .937 1" /></material>
+  <material name="white">       <color rgba="1 1 1 1" /></material>
+  
+  <!-- Gazebo colors -->
+  <xacro:macro name="black">
+    <material>  
+      <ambient>0 0 0 1</ambient>  
+      <diffuse>0 0 0 1</diffuse>  
+      <specular>0 0 0 1</specular>  
+      <emissive>0.0 0.0 0.0 0.0</emissive>  
+    </material>  
+  </xacro:macro>
+  <xacro:macro name="dark_bronze">
+    <material>  
+      <ambient>.36 .29 .22 1</ambient>  
+      <diffuse>.36 .29 .22 1</diffuse>  
+      <specular>1 1 1 1</specular>  
+      <emissive>0.0 0.0 0.0 0.0</emissive>  
+    </material>  
+  </xacro:macro>
+  <xacro:macro name="dark_gray">
+    <material>  
+      <ambient>0.25 0.25 0.25 1</ambient>  
+      <diffuse>0.25 0.25 0.25 1</diffuse>  
+      <specular>0 0 0 1</specular>  
+      <emissive>0.0 0.0 0.0 0.0</emissive>  
+    </material>  
+  </xacro:macro>
+  <xacro:macro name="gray">
+    <material>  
+      <ambient>0.92 0.95 1 1</ambient>  
+      <diffuse>0.92 0.95 1 1</diffuse>  
+      <specular>1 1 1 1</specular>  
+      <emissive>0.0 0.0 0.0 0.0</emissive>  
+    </material>  
+  </xacro:macro>
+  <xacro:macro name="white">
+    <material>  
+      <ambient>0.8 0.8 0.8 1</ambient>  
+      <diffuse>0.8 0.8 0.8 1</diffuse>  
+      <specular>0.1 0.1 0.1 1</specular>  
+      <emissive>0.0 0.0 0.0 0.0</emissive>  
+    </material>  
+  </xacro:macro>
+</robot>

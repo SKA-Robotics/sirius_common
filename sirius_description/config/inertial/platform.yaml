@@ -1,0 +1,12 @@
+platform_mass: 16.73
+platform_center_of_mass: 
+  x: -0.17
+  y: 0.0
+  z: 0.23
+platform_inertia: 
+  ixx: 1.50
+  ixy: -0.03
+  ixz: -0.39
+  iyy: 2.20
+  iyz: 0.04
+  izz: 0.93

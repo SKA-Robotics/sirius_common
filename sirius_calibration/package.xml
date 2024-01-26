@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>sirius_calibration</name>
+  <version>1.0.0</version>
+  <description>Sirius calibration data</description>
+  <maintainer email="gabriel@gabrielb.dev">Gabriel Brzeziński</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>

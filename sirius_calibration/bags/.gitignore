@@ -1,0 +1,6 @@
+# Ignore everything in this directory except gitignore
+# We don't want to commit bags, because they are large
+# and not really needed after calibration. This folder
+# is just for convenience.
+*
+!.gitignore

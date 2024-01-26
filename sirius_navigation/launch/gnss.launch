@@ -1,0 +1,17 @@
+<launch>
+  <!-- ERC: Marsyard -->
+  <arg name="datum" default="[50.878151, 20.642273]"/>
+  <!-- URC: The Mars Desert Research Station  -->
+  <!-- <arg name="datum" default="[38.4190235, -110.7823884]"/> -->
+
+  <node pkg="ublox_gps" type="ublox_gps" name="ublox_gps" output="screen">
+    <param name="device" value="/dev/serial/by-id/usb-u-blox_AG_-_www.u-blox.com_u-blox_GNSS_receiver-if00"/>
+    <param name="frame_id" value="gnss"/>
+    <param name="config_on_startup" value="false"/>
+    <remap from="/ublox_gps/fix" to="/gps/fix"/>
+    <remap from="/ublox_gps/fix_velocity" to="/gps/fix_velocity"/>
+  </node>
+  <include file="$(find sirius_navigation)/launch/navsat_transform.launch">
+    <arg name="datum" value="$(arg datum)"/>
+  </include>
+</launch>

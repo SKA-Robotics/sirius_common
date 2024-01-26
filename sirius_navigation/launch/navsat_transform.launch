@@ -1,0 +1,21 @@
+<launch>
+    <!-- ERC: Marsyard -->
+    <arg name="datum" default="[50.878151, 20.642273]"/>
+    <!-- URC: The Mars Desert Research Station  -->
+    <!-- <arg name="datum" default="[38.4190235, -110.7823884]"/> -->
+
+    <node pkg="robot_localization" type="navsat_transform_node" name="navsat_transform_node" clear_params="true">
+        <remap from="odometry/filtered" to="/pose"/>
+        <remap from="odometry/gps" to="/gps/pose"/>
+        <param name="frequency" value="20"/>
+        <param name="delay" value="0.0"/>
+        <param name="transform_timeout" value="0.05" />
+        <param name="zero_altitude" value="true"/>
+        <param name="broadcast_cartesian_transform" value="true"/>
+        <param name="broadcast_cartesian_transform_as_parent_frame" value="true"/>
+        <param name="publish_filtered_gps" value="true"/>
+        <param name="wait_for_datum" value="true"/>
+        <!-- map frame is in ENU, so we ignore heading if given -->
+        <rosparam param="datum" subst_value="True">$(eval ','.join(datum.split(',')[0:2]) + ', 0]')</rosparam>
+    </node> 
+</launch>

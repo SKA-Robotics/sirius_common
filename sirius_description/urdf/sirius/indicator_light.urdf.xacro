@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+<xacro:macro name="indicator_light" params="material prefix:='' collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')}">
+  <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
+  <link name="${_prefix}indicator_light">
+    <visual>
+      <material name="${material}">
+      </material>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/sirius/indicator_light.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <collision>    
+      <geometry>
+          <cylinder length="${collisions['indicator_light_height']}" radius="${collisions['indicator_light_radius']}"/>
+      </geometry>
+      <origin xyz="0 0 ${collisions['indicator_light_height']/2}" />
+    </collision>
+  </link>
+  <gazebo reference="${_prefix}indicator_light">
+      <visual>  
+        <xacro:element xacro:name="xacro:${material}" />
+      </visual> 
+  </gazebo>
+</xacro:macro>
+</robot>

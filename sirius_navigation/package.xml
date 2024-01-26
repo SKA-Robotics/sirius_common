@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>sirius_navigation</name>
+  <version>1.0.0</version>
+  <description>Sirius navigation nodes, configuration and launch files</description>
+  <maintainer email="gabriel@gabrielb.dev">Gabriel Brzeziński</maintainer>
+  <license>Apache-2.0</license>
+
+  <build_depend>rospy</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>imu_complementary_filter</exec_depend>
+  <exec_depend>imu_filter_madgwick</exec_depend>
+  <exec_depend>imu_transformer</exec_depend>
+  <exec_depend>robot_localization</exec_depend>
+  <exec_depend>topic_tools</exec_depend>
+  <exec_depend>ublox_gps</exec_depend>
+</package>

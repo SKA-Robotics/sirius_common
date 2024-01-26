@@ -1,0 +1,19 @@
+<launch>  
+  <arg name="imu_name"            default="front_camera"/>
+  <node name="imu_fusion" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
+    <param name="use_mag" value="true"/>
+    <param name="orientation_stddev" value="$(eval 3.5 * pi/180)"/> <!-- standard deviation in radians -->
+    <param name="world_frame" value="enu"/>
+    <param name="publish_tf" value="false"/>
+    <param name="remove_gravity_vector" value="true"/>
+    <remap from="imu/data_raw" to="/$(arg imu_name)/imu/data"/>
+    <remap from="imu/mag" to="/$(arg imu_name)/imu/mag"/>
+    <remap from="imu/data" to="/$(arg imu_name)/imu_compensated/data"/>
+  </node>
+
+  <node name="imu_data_transformer" pkg="imu_transformer" type="imu_transformer_node" output="screen">
+    <remap from="imu_in/data" to="/$(arg imu_name)/imu_compensated/data"/>
+    <remap from="imu_out/data" to="/imu_compensated/data"/>
+    <param name="target_frame" value="base_link"/>
+  </node>
+</launch>

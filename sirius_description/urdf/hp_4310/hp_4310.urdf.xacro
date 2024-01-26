@@ -1,0 +1,58 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+<xacro:macro name="hp_4310" params="prefix:=hp_4310 material cameras:=${xacro.load_yaml('$(find sirius_description)/urdf/hp_4310/collisions.yaml')}">
+  <link name="${prefix}_camera">
+    <visual>
+      <material name="${material}"/>
+      <geometry>
+        <box size="${cameras['hp_4310_thickness']} ${cameras['hp_4310_width']} ${cameras['hp_4310_height']}"/>
+      </geometry>
+      <origin xyz="${-cameras['hp_4310_thickness']/2} 0 0"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${cameras['hp_4310_thickness']} ${cameras['hp_4310_width']} ${cameras['hp_4310_height']}"/>
+      </geometry>
+      <origin xyz="${-cameras['hp_4310_thickness']/2} 0 0"/>
+    </collision>
+  </link>
+  <gazebo reference="${prefix}_camera">
+      <visual>  
+        <xacro:element xacro:name="xacro:${material}" />
+      </visual> 
+      <sensor type="camera" name="${prefix}_camera">
+      <update_rate>30.0</update_rate>
+      <camera name="${prefix}_camera">
+        <horizontal_fov>${78*pi/180}</horizontal_fov>
+        <image>
+          <width>1920</width>
+          <height>1080</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>/${prefix}_camera</cameraName>
+        <imageTopicName>image_raw</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>/${prefix}_camera</frameName>
+        <hackBaseline>0.0</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </gazebo>
+</xacro:macro>
+</robot>

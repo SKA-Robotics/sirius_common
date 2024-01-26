@@ -1,0 +1,10 @@
+<launch>
+    <rosparam file="$(find sirius_control)/config/controllers.yaml" command="load"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+        args="
+             /sirius/controller/wheels_left_state
+             /sirius/controller/wheels_right_state
+             /sirius/controller/wheels
+    "/>
+</launch>

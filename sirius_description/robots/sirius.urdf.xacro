@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sirius">
+  <!-- User arguments -->
+  <xacro:arg name="calibration_path" default=""/>
+  <xacro:arg name="datum" default="[50.878151, 20.642273, 144.41]"/>
+  <xacro:arg name="elevation" default="0.0"/>
+  <xacro:arg name="imu_frequency" default="200.0"/>
+  <xacro:arg name="stereo_fps" default="30"/>
+  <xacro:arg name="year" default=""/>
+  
+  <!-- Parse arguments -->
+  <xacro:property name="calibration_path" value="$(arg calibration_path)" /> 
+  <xacro:if value="${calibration_path != ''}">
+    <xacro:property name="calibration" value="${xacro.load_yaml(calibration_path)}" /> 
+  </xacro:if>
+  <xacro:property name="datum" value="${$(arg datum)}" />
+  <xacro:property name="elevation" value="$(arg elevation)" />
+  <xacro:property name="imu_frequency" value="$(arg imu_frequency)" />  
+  <xacro:property name="stereo_fps" value="$(arg stereo_fps)" /> 
+  <xacro:property name="year" value="$(arg year)" />
+
+  <!-- Load model parameters -->
+  <xacro:property name="mechanical" value="${xacro.load_yaml('$(find sirius_description)/config/mechanical.yaml')}" /> 
+  
+  <!-- Load materials -->
+  <xacro:include filename="$(find sirius_description)/urdf/materials.urdf.xacro" />
+
+  <!-- Load subcomponents xacro -->
+  <xacro:include filename="$(find sirius_description)/urdf/sirius/indicator_light.urdf.xacro" />
+  <xacro:include filename="$(find sirius_description)/urdf/sirius/platform.urdf.xacro" />
+  <xacro:include filename="$(find sirius_description)/urdf/sirius/suspension.urdf.xacro" />
+  <xacro:include filename="$(find sirius_description)/urdf/sirius/wheel.urdf.xacro" />
+
+  <!-- Load sensors and cameras xacro -->
+  <xacro:include filename="$(find sirius_description)/urdf/hp_4310/hp_4310.urdf.xacro" />
+  <xacro:include filename="$(find sirius_description)/urdf/oak-d-w/oak-d-w.urdf.xacro" />
+  <xacro:include filename="$(find sirius_description)/urdf/sirius/gnss.urdf.xacro" />
+
+  <!-- Macro to simplify joint definition -->
+  <xacro:macro name="joint" params="type:='fixed' parent:='base_link' child:='' xyz:='0 0 0' rpy:='0 0 0' axis:='0 0 1' limit_effort:='0.0' limit_velocity:='0.0'">
+    <joint name="${child}_joint" type="${type}">
+      <parent link="${parent}"/>
+      <child link="${child}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+      <axis xyz="${axis}"/>
+      <xacro:if value="${type != 'fixed'}">
+        <limit effort="${limit_effort}" velocity="${limit_velocity}"/>
+      </xacro:if>
+    </joint>
+  </xacro:macro>
+
+    <!-- Macro to combine suspension and wheel -->
+  <xacro:macro name="drive_system" params="prefix flip_y_plane:=false flip_x_plane:=false mechanical:=^">
+    <xacro:suspension prefix="${prefix}" material="dark_bronze" flip_x_plane="${flip_x_plane}" flip_y_plane="${flip_y_plane}" />
+    <xacro:wheel prefix="${prefix}" material="dark_gray" material_rim="white" flip="${flip_y_plane}" />
+
+    <xacro:joint  type="continuous" 
+                  parent="${prefix}_suspension" 
+                  child="${prefix}_wheel" 
+                  xyz="${(1 - 2 * flip_x_plane)  * (mechanical['wheel_base'] - mechanical['suspension_separation_x'])/2 } ${(1 - 2 * flip_y_plane)  * (mechanical['wheel_track'] - mechanical['suspension_separation_y'])/2} ${-mechanical['suspension_height']}" 
+                  rpy="0 0 0" 
+                  axis="0 1 0"
+                  limit_effort="80.0"
+                  limit_velocity="8.0" />
+
+    <transmission name="${prefix}_wheel_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${prefix}_wheel_motor">
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+      <joint name="${prefix}_wheel_joint">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      </joint>
+    </transmission>
+  </xacro:macro>
+
+  <!-- Define subcomponents links -->
+  <link name="base_link" />
+  <xacro:platform material="white" />
+  <xacro:drive_system prefix="back_left" flip_x_plane="true" />
+  <xacro:drive_system prefix="back_right" flip_y_plane="true" flip_x_plane="true"/>
+  <xacro:drive_system prefix="front_left" />
+  <xacro:drive_system prefix="front_right"  flip_y_plane="true"/>
+  <xacro:indicator_light material="gray" />
+
+  <!-- Define sensors and cameras links -->
+  <xacro:hp_4310 prefix="mast_back" material="black" />
+  <xacro:hp_4310 prefix="mast_front" material="black" />
+  <xacro:oak-d-w prefix="front"/>
+  <xacro:gnss material="gray" />
+
+  <!-- Define subcomponents joints -->
+  <xacro:joint child="platform" 
+               xyz="0 0 ${mechanical['wheel_radius'] + mechanical['suspension_height'] - mechanical['suspension_z']}" />
+  <xacro:joint parent="platform" 
+               child="back_left_suspension" 
+               xyz="${-mechanical['suspension_separation_x']/2} ${mechanical['suspension_separation_y']/2} ${mechanical['suspension_z']}" />
+  <xacro:joint parent="platform" 
+               child="back_right_suspension" 
+               xyz="${-mechanical['suspension_separation_x']/2} ${-mechanical['suspension_separation_y']/2} ${mechanical['suspension_z']}" />
+  <xacro:joint parent="platform" 
+               child="front_left_suspension" 
+               xyz="${mechanical['suspension_separation_x']/2} ${mechanical['suspension_separation_y']/2} ${mechanical['suspension_z']}" /> 
+  <xacro:joint parent="platform" 
+               child="front_right_suspension" 
+               xyz="${mechanical['suspension_separation_x']/2} ${-mechanical['suspension_separation_y']/2} ${mechanical['suspension_z']}" /> 
+  <xacro:joint parent="platform" 
+               child="indicator_light" 
+               xyz="${mechanical['indicator_light_xyz']}"/>
+
+  <!-- Define sensors and cameras joints -->
+  <xacro:joint parent="platform" 
+               child="mast_front_camera" 
+               xyz="${mechanical['front_mast_camera_xyz']}" 
+               rpy="${mechanical['front_mast_camera_rpy']}"/>
+  <xacro:joint parent="platform" 
+               child="mast_back_camera" 
+               xyz="${mechanical['back_mast_camera_xyz']}" 
+               rpy="${mechanical['back_mast_camera_rpy']}"/>
+  <xacro:joint parent="platform" 
+               child="front_camera" 
+               xyz="${mechanical['front_camera_xyz']}" 
+               rpy="${mechanical['front_camera_rpy']}"/>
+  <xacro:joint parent="platform"  child="gnss" xyz="${mechanical['gnss_xyz']}" />
+
+  <!-- Gazebo plugins -->
+  <gazebo> 
+    <!-- hardware interfaces for wheels -->
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+    <!-- Ground truth pose for base_link -->
+    <plugin name="p3d_plugin" filename="libsirius_gazebo_ros_p3d.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>200.0</updateRate>
+      <bodyName>base_link</bodyName>
+      <topicName>ground_truth</topicName>
+      <frameName>map</frameName>
+      <frameRpyOffset>0 0 ${datum[2] * pi/180}</frameRpyOffset>
+    </plugin>
+  </gazebo>
+</robot>

@@ -1,0 +1,318 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+<xacro:macro name="oak-d-w" params="prefix:=oak-d-w collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/oak-d-w/collisions.yaml')} stereo_fps:=^|30 imu_frequency:=^|200 datum:=^ elevation:=^ year:=^ calibration:=${xacro.load_yaml('$(find sirius_calibration)/kalibr/camimu/inflated/camimu-camchain-imucam.yaml')} imu_calibration:=${xacro.load_yaml('$(find sirius_calibration)/kalibr/camimu/inflated/camimu-imu.yaml')}"> 
+  <xacro:property name="optical_offset_x" value="-0.01" />
+  <xacro:property name="baseline" value="${sqrt(calibration.cam1.T_cn_cnm1[0][3]**2 + calibration.cam1.T_cn_cnm1[1][3]**2 + calibration.cam1.T_cn_cnm1[2][3]**2)}"/>
+  <xacro:property name="accelerometer_stddev" value="${imu_calibration.imu0.accelerometer_noise_density * sqrt(imu_calibration.imu0.update_rate)}"/>
+  <xacro:property name="gyroscope_stddev" value="${imu_calibration.imu0.gyroscope_noise_density * sqrt(imu_calibration.imu0.update_rate)}"/>
+  <xacro:property name="accelerometer_bias_stddev" value="${imu_calibration.imu0.accelerometer_random_walk * sqrt(imu_calibration.imu0.update_rate)}"/>
+  <xacro:property name="gyroscope_bias_stddev" value="${imu_calibration.imu0.gyroscope_random_walk * sqrt(imu_calibration.imu0.update_rate)}"/>
+
+  <link name="${prefix}_camera">
+    <visual>
+      <material name="oak-d-w-material">
+        <color rgba="0.35 0.35 0.35 1"/>
+      </material>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/cameras/OAK-D-W.stl"/>
+      </geometry>
+      <origin xyz="${collisions['oak-d-w_thickness']/2} 0 0" rpy="-${pi/2} ${pi} ${-pi/2}"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${collisions['oak-d-w_thickness']} ${collisions['oak-d-w_width']} ${collisions['oak-d-w_height']}"/>
+      </geometry>
+    </collision>
+  </link>
+  <link name="${prefix}_rgb_camera_optical"/>
+  <link name="${prefix}_left_camera_optical"/>
+  <link name="${prefix}_left_camera"/>
+  <link name="${prefix}_right_camera_optical"/>
+  <link name="${prefix}_right_camera"/>
+  <link name="${prefix}_camera_imu_link"/>
+  <link name="${prefix}_camera_imu_link_ned"/>
+
+  <joint name="${prefix}_rgb_camera_optical_joint" type="fixed">
+    <origin xyz="${optical_offset_x} 0 0" rpy="${-pi/2} 0.0 ${-pi/2}"/>
+    <parent link="${prefix}_camera"/>
+    <child link="${prefix}_rgb_camera_optical"/>
+  </joint>
+  
+  <joint name="${prefix}_left_camera_joint" type="fixed">
+    <origin xyz="${calibration.cam1.T_cn_cnm1[0][3]} ${calibration.cam1.T_cn_cnm1[1][3]} ${calibration.cam1.T_cn_cnm1[2][3] - optical_offset_x}" rpy="${atan2(calibration.cam1.T_cn_cnm1[2][1],calibration.cam1.T_cn_cnm1[2][2]) + pi/2} ${atan2(-calibration.cam1.T_cn_cnm1[2][0],sqrt(calibration.cam1.T_cn_cnm1[2][1]**2 + calibration.cam1.T_cn_cnm1[2][2]**2)) - pi/2} ${atan2(calibration.cam1.T_cn_cnm1[1][0],calibration.cam1.T_cn_cnm1[0][0])}"/>
+    <parent link="${prefix}_right_camera_optical"/>
+    <child link="${prefix}_left_camera"/>
+  </joint>
+
+  <joint name="${prefix}_right_camera_joint" type="fixed">
+    <origin xyz="0 0 ${-optical_offset_x}" rpy="${pi/2} ${-pi/2} 0"/>
+    <parent link="${prefix}_right_camera_optical"/>
+    <child link="${prefix}_right_camera"/>
+  </joint>
+
+  <joint name="${prefix}_right_camera_optical_joint" type="fixed">
+    <origin xyz="${optical_offset_x} ${-baseline/2} 0" rpy="${-pi/2} 0.0 ${-pi/2}"/>
+    <parent link="${prefix}_camera"/>
+    <child link="${prefix}_right_camera_optical"/>
+  </joint>
+
+  <joint name="${prefix}_left_camera_optical_joint" type="fixed">
+    <origin xyz="${calibration.cam1.T_cn_cnm1[0][3]} ${calibration.cam1.T_cn_cnm1[1][3]} ${calibration.cam1.T_cn_cnm1[2][3]}" rpy="${atan2(calibration.cam1.T_cn_cnm1[2][1],calibration.cam1.T_cn_cnm1[2][2])} ${atan2(-calibration.cam1.T_cn_cnm1[2][0],sqrt(calibration.cam1.T_cn_cnm1[2][1]**2 + calibration.cam1.T_cn_cnm1[2][2]**2))} ${atan2(calibration.cam1.T_cn_cnm1[1][0],calibration.cam1.T_cn_cnm1[0][0])}"/>
+    <parent link="${prefix}_right_camera_optical"/>
+    <child link="${prefix}_left_camera_optical"/>
+  </joint>
+  <joint name="${prefix}_camera_imu_link_joint" type="fixed">
+    <origin xyz="${calibration.cam0.T_cam_imu[0][3]} ${calibration.cam0.T_cam_imu[1][3]} ${calibration.cam0.T_cam_imu[2][3]}" rpy="${atan2(calibration.cam0.T_cam_imu[2][1],calibration.cam0.T_cam_imu[2][2])} ${atan2(-calibration.cam0.T_cam_imu[2][0],sqrt(calibration.cam0.T_cam_imu[2][1]**2 + calibration.cam0.T_cam_imu[2][2]**2))} ${atan2(calibration.cam0.T_cam_imu[1][0],calibration.cam0.T_cam_imu[0][0])}"/>
+    <parent link="${prefix}_left_camera_optical"/>
+    <child link="${prefix}_camera_imu_link"/>
+  </joint>
+  <joint name="${prefix}_camera_imu_link_ned_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="0 ${pi} ${-pi/2}"/>
+    <parent link="${prefix}_camera_imu_link"/>
+    <child link="${prefix}_camera_imu_link_ned"/>
+  </joint>
+
+  <!-- Stereo and depth camera -->
+  <gazebo reference="${prefix}_right_camera_optical">
+    <sensor type="multicamera" name="${prefix}_stereo_camera">
+      <always_on>true</always_on>
+      <update_rate>${stereo_fps}</update_rate>
+      <visualize>false</visualize> 
+      <camera name="/${prefix}_camera/left">
+        <pose>${calibration.cam1.T_cn_cnm1[0][3]} ${calibration.cam1.T_cn_cnm1[1][3]} ${calibration.cam1.T_cn_cnm1[2][3] - optical_offset_x} ${atan2(calibration.cam1.T_cn_cnm1[2][1],calibration.cam1.T_cn_cnm1[2][2]) + pi/2} ${atan2(-calibration.cam1.T_cn_cnm1[2][0],sqrt(calibration.cam1.T_cn_cnm1[2][1]**2 + calibration.cam1.T_cn_cnm1[2][2]**2)) - pi/2} ${atan2(calibration.cam1.T_cn_cnm1[1][0],calibration.cam1.T_cn_cnm1[0][0])}</pose>
+        <horizontal_fov>${2*atan2(calibration.cam0.resolution[0], calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])}</horizontal_fov>
+        <image>
+          <width>${calibration.cam0.resolution[0]}</width>
+          <height>${calibration.cam0.resolution[1]}</height>
+          <format>L8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+        <lens>            
+          <intrinsics>
+          <fx>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</fx>
+          <fy>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</fy>
+          <cx>${calibration.cam0.intrinsics[2]}</cx>
+          <cy>${calibration.cam0.intrinsics[3]}</cy>
+          <s>0</s>
+          </intrinsics>
+          <scale_to_hfov>false</scale_to_hfov>
+        </lens>
+      </camera>
+      <camera name="/${prefix}_camera/right">
+        <pose>0 0 ${-optical_offset_x} ${pi/2} ${-pi/2} 0</pose>
+        <horizontal_fov>${2*atan2(calibration.cam0.resolution[0], calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])}</horizontal_fov>
+        <image>
+          <width>${calibration.cam0.resolution[0]}</width>
+          <height>${calibration.cam0.resolution[1]}</height>
+          <format>L8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+        <lens>            
+          <intrinsics>
+          <fx>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</fx>
+          <fy>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</fy>
+          <cx>${calibration.cam0.intrinsics[2]}</cx>
+          <cy>${calibration.cam0.intrinsics[3]}</cy>
+          <s>0</s>
+          </intrinsics>
+          <scale_to_hfov>false</scale_to_hfov>
+        </lens>
+      </camera>
+      <plugin name="stereo_camera_controller" filename="libgazebo_ros_multicamera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>${stereo_fps}</updateRate>
+        <cameraName>/${prefix}_camera</cameraName>
+        <imageTopicName>image_rect</imageTopicName>
+        <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+        <frameName>${prefix}_left_camera_optical</frameName>
+        <rightFrameName>${prefix}_right_camera_optical</rightFrameName>
+        <hackBaseline>${baseline}</hackBaseline>  
+        <focalLength>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</focalLength>
+        <Cx>${calibration.cam0.intrinsics[2]}</Cx>
+        <Cy>${calibration.cam0.intrinsics[3]}</Cy>
+      </plugin>
+    </sensor>
+    
+  </gazebo>
+  <gazebo reference="${prefix}_camera">
+    <!-- Depth image, rgb image, point cloud -->
+    <sensor type="depth" name="${prefix}_camera_depth">
+      <always_on>true</always_on>
+      <update_rate>${stereo_fps}</update_rate>
+      <visualize>false</visualize> 
+      <camera name="/${prefix}_camera/depth">        
+        <horizontal_fov>${2*atan2(calibration.cam0.resolution[0], calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])}</horizontal_fov>
+        <image>
+          <width>${calibration.cam0.resolution[0]}</width>
+          <height>${calibration.cam0.resolution[1]}</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+        <lens>            
+          <intrinsics>
+            <fx>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</fx>
+            <fy>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</fy>
+            <cx>${calibration.cam0.intrinsics[2]}</cx>
+            <cy>${calibration.cam0.intrinsics[3]}</cy>
+            <s>0</s>
+          </intrinsics>
+          <scale_to_hfov>false</scale_to_hfov>
+        </lens>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_openni_kinect.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>${stereo_fps}</updateRate>
+        <cameraName>/${prefix}_camera</cameraName>
+        <imageTopicName>rgb/image_rect_color</imageTopicName>
+        <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
+        <depthImageTopicName>depth_registered/image</depthImageTopicName>
+        <depthImageInfoTopicName>depth_registered/camera_info</depthImageInfoTopicName>
+        <pointCloudTopicName>depth_registered/points</pointCloudTopicName>
+        <pointCloudCutoff>0.35</pointCloudCutoff>
+        <pointCloudCutoffMax>35.0</pointCloudCutoffMax>
+        <frameName>${prefix}_rgb_camera_optical</frameName>
+        <baseline>${baseline}</baseline>
+        <focalLength>${(calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])/2}</focalLength>
+        <Cx>${calibration.cam0.intrinsics[2]}</Cx>
+        <Cy>${calibration.cam0.intrinsics[3]}</Cy>
+        <hackBaseline>0.0</hackBaseline>
+      </plugin>
+    </sensor> 
+  </gazebo>
+
+  <!-- IMU -->
+  <gazebo reference="${prefix}_camera_imu_link">
+    <sensor type="imu" name="imu_sensor">
+      <always_on>true</always_on>
+      <update_rate>${imu_frequency}</update_rate>
+      <imu>
+        <angular_velocity>
+          <x>
+            <noise type="gaussian">
+              <stddev>${gyroscope_stddev}</stddev>
+              <bias_stddev>${gyroscope_bias_stddev}</bias_stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <stddev>${gyroscope_stddev}</stddev>
+              <bias_stddev>${gyroscope_bias_stddev}</bias_stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <stddev>${gyroscope_stddev}</stddev>
+              <bias_stddev>${gyroscope_bias_stddev}</bias_stddev>
+            </noise>
+          </z>
+        </angular_velocity>
+        <linear_acceleration>
+          <x>
+            <noise type="gaussian">
+              <stddev>${accelerometer_stddev}</stddev>
+              <bias_stddev>${accelerometer_bias_stddev}</bias_stddev>
+            </noise>
+          </x>
+          <y>
+            <noise type="gaussian">
+              <stddev>${accelerometer_stddev}</stddev>
+              <bias_stddev>${accelerometer_bias_stddev}</bias_stddev>
+            </noise>
+          </y>
+          <z>
+            <noise type="gaussian">
+              <stddev>${accelerometer_stddev}</stddev>
+              <bias_stddev>${accelerometer_bias_stddev}</bias_stddev>
+            </noise>
+          </z>
+        </linear_acceleration>
+      </imu>
+      <plugin filename="libsirius_gazebo_ros_imu_sensor.so" name="imu_plugin">
+        <topicName>/${prefix}_camera/imu/data</topicName>
+        <frameName>${prefix}_camera_imu_link</frameName>
+        <updateRateHZ>${imu_frequency}</updateRateHZ>
+        <initialOrientationAsReference>false</initialOrientationAsReference>
+        <xyzOffset>0 0.0 0.0</xyzOffset>
+        <rpyOffset>0 0 ${datum[2] * pi/180}</rpyOffset>
+        <orientationCovariance>0.061086523819801536 0.061086523819801536 0.061086523819801536</orientationCovariance> <!-- 3.5deg from datasheet -->
+        <angularVelocityCovariance>${gyroscope_stddev**2} ${gyroscope_stddev**2} ${gyroscope_stddev**2}</angularVelocityCovariance>
+        <linearAccelerationCovariance>${100*accelerometer_stddev**2} ${100*accelerometer_stddev**2} ${100*accelerometer_stddev**2}</linearAccelerationCovariance>
+      </plugin>
+    </sensor>
+  </gazebo>
+  <!-- MAGNETOMETER -->
+  <gazebo reference="${prefix}_camera_imu_link">
+    <sensor type="magnetometer" name="magnetometer_sensor">
+      <always_on>true</always_on>
+      <update_rate>100</update_rate>
+      <magnetometer>
+        <!-- Noise parameters are taken from the datasheet -->
+        <!-- Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmf055-ds000.pdf -->
+        <!-- "Output Noise" for worst case is used -->
+        <x>
+          <noise type="gaussian">
+            <stddev>1.4e-6</stddev>
+          </noise>
+        </x>
+        <y>
+          <noise type="gaussian">
+            <stddev>1.4e-6</stddev>
+          </noise>
+        </y>
+        <z>
+          <noise type="gaussian">
+            <stddev>1.4e-6</stddev>
+          </noise>
+        </z>
+      </magnetometer>
+      <plugin filename="libsirius_gazebo_ros_magnetometer_sensor.so" name="magnetometer_plugin">
+        <topicName>/${prefix}_camera/imu/mag</topicName>
+        <frameName>${prefix}_camera_imu_link</frameName>
+        <updateRateHZ>50.0</updateRateHZ>
+        <sphericalCoordinates>
+          <latitudeDeg>${datum[0]}</latitudeDeg>
+          <longitudeDeg>${datum[1]}</longitudeDeg>
+          <headingDeg>${datum[2]}</headingDeg>
+          <elevation>${elevation}</elevation>
+          <year>${year}</year>
+        </sphericalCoordinates>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+  <gazebo reference="${prefix}_camera">
+      <visual>  
+        <material>  
+          <ambient>0.25 0.25 0.25 1</ambient>  
+          <diffuse>0.25 0.25 0.25 1</diffuse>  
+          <specular>0 0 0 1</specular>  
+          <emissive>0.0 0.0 0.0 0.0</emissive>  
+        </material>  
+      </visual> 
+  </gazebo>
+</xacro:macro>
+</robot>
