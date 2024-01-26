@@ -3,6 +3,8 @@
     <arg name="imu_frequency"         default="200.0" />
     <arg name="model" default="$(find sirius_description)/robots/sirius.urdf.xacro"/>
     <arg name="robot_state_frequency" default="25"  />
+    <!-- Marsyard 2022 map origin offset -->
+    <arg name="gazebo_origin" default="[-9.39, 16.03]"/>
     <!-- ERC: Marsyard -->
     <arg name="spherical_coordinates" default="[50.878151, 20.642273, 144.41]"/>
     <arg name="elevation" default="308.1445"/>
@@ -12,7 +14,7 @@
     <arg name="stereo_fps"            default="30"  />
     <arg name="year" default=""/>
     
-    <param name="robot_description" command="$(find xacro)/xacro '$(arg model)' calibration_path:='$(arg camera_calibration_path)' stereo_fps:='$(arg stereo_fps)' imu_frequency:='$(arg imu_frequency)' datum:='$(arg spherical_coordinates)' elevation:='$(arg elevation)' year:='$(arg year)'" />
+    <param name="robot_description" command="$(find xacro)/xacro '$(arg model)' calibration_path:='$(arg camera_calibration_path)' stereo_fps:='$(arg stereo_fps)' imu_frequency:='$(arg imu_frequency)' datum:='$(arg spherical_coordinates)' elevation:='$(arg elevation)' year:='$(arg year)' gazebo_origin:='$(arg gazebo_origin)'" />
 
     <include file="$(find sirius_calibration)/launch/calibration.launch" />
 

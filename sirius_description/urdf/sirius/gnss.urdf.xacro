@@ -2,7 +2,7 @@
 <!-- Based on Sparkfun Multi-Band antenna. Mesh generated from step provided by Sparkfun
      https://www.sparkfun.com/products/21801 -->
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-<xacro:macro name="gnss" params="prefix:='' material collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')} datum:=^ elevation:=^ horizontal_cep:=1.0 vertical_cep:=1.5 rate:=20.0">
+<xacro:macro name="gnss" params="prefix:='' material collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')} datum:=^ elevation:=^ horizontal_cep:=1.0 vertical_cep:=1.5 rate:=20.0 spawn_origin:=^">
   <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
   <!-- sqrt(-1/(2*ln(0.5))) = 0.8493218002880191 -->
   <!-- This is the ratio needed to convert CEP to std dev of single axis -->
@@ -66,7 +66,8 @@
             <headingDeg>${datum[2]}</headingDeg>
             <elevation>${elevation}</elevation>
         </sphericalCoordinates>
-        <positionCovariance>${horizontal_stddev} 0 0 0 ${horizontal_stddev} 0 0 0 ${vertical_stddev}</positionCovariance>
+        <!-- <positionCovariance>${horizontal_stddev} 0 0 0 ${horizontal_stddev} 0 0 0 ${vertical_stddev}</positionCovariance> -->
+        <spawnOrigin>${spawn_origin[0]} ${spawn_origin[1]}</spawnOrigin>
       </plugin>
     </sensor>
   </gazebo>

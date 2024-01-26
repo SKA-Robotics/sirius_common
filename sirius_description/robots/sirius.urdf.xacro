@@ -5,6 +5,7 @@
   <xacro:arg name="datum" default="[50.878151, 20.642273, 144.41]"/>
   <xacro:arg name="elevation" default="0.0"/>
   <xacro:arg name="imu_frequency" default="200.0"/>
+  <xacro:arg name="gazebo_origin" default="[-9.39, 16.03]"/>
   <xacro:arg name="stereo_fps" default="30"/>
   <xacro:arg name="year" default=""/>
   
@@ -16,6 +17,7 @@
   <xacro:property name="datum" value="${$(arg datum)}" />
   <xacro:property name="elevation" value="$(arg elevation)" />
   <xacro:property name="imu_frequency" value="$(arg imu_frequency)" />  
+  <xacro:property name="gazebo_origin" value="${$(arg gazebo_origin)}" />
   <xacro:property name="stereo_fps" value="$(arg stereo_fps)" /> 
   <xacro:property name="year" value="$(arg year)" />
 
@@ -136,6 +138,7 @@
       <bodyName>base_link</bodyName>
       <topicName>ground_truth</topicName>
       <frameName>map</frameName>
+      <frameXyzOffset>${gazebo_origin[0]} ${gazebo_origin[1]} 0</frameXyzOffset>
       <frameRpyOffset>0 0 ${datum[2] * pi/180}</frameRpyOffset>
     </plugin>
   </gazebo>
