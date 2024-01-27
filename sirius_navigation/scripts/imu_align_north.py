@@ -10,7 +10,7 @@ class ImuAlignNorth:
     def __init__(self):
         rospy.init_node('imu_align_north', anonymous=True)
 
-        self.declination = rospy.get_param('~declination', 0.0)
+        self.declination = rospy.get_param('~declination', 0.0) * pi / 180.0
         self.imu_sub = rospy.Subscriber('imu/data', Imu, self.imu_callback)
         self.imu_pub = rospy.Publisher('imu_aligned/data', Imu, queue_size=10)
 
