@@ -66,7 +66,7 @@
             <headingDeg>${datum[2]}</headingDeg>
             <elevation>${elevation}</elevation>
         </sphericalCoordinates>
-        <!-- <positionCovariance>${horizontal_stddev} 0 0 0 ${horizontal_stddev} 0 0 0 ${vertical_stddev}</positionCovariance> -->
+        <positionCovariance>${horizontal_stddev} 0 0 0 ${horizontal_stddev} 0 0 0 ${vertical_stddev}</positionCovariance>
         <gazeboOrigin>${gazebo_origin[0]} ${gazebo_origin[1]}</gazeboOrigin>
       </plugin>
     </sensor>
