@@ -1,0 +1,30 @@
+<launch>
+    <!-- Coordinates of the `local` reference frame in `map`: X, Y, Heading (yaw in degrees) -->
+    <arg name="local_origin" default="[0, 0, 144.41]"/>
+
+    <!-- Private arguments -->
+    <arg name="local_origin_x" value="$(eval eval(local_origin)[0])"/>
+    <arg name="local_origin_y" value="$(eval eval(local_origin)[1])"/>
+    <arg name="local_origin_Y" value="$(eval eval(local_origin)[2] * pi / 180)"/>
+
+    <!-- Local reference frame -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="map_to_local"       args="$(arg local_origin_x) $(arg local_origin_y) 0 $(arg local_origin_Y) 0 0 map local"/>
+    
+    <!-- Markers -->
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_0"   args="0 0 0 0 0 0 local artag_0"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_1"   args="10 0 0 0 0 0 local artag_1"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_2"   args="10 -10 0 0 0 0 local artag_2"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_3"   args="28.35 -0.04 0 0 0 0 local artag_3"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_4"   args="21.83 -2.8 0 0 0 0 local artag_4"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_5"   args="18.71 -17.19 0 0 0 0 local artag_5"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_6"   args="26.95 -7.44 0 0 0 0 local artag_6"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_7"   args="15.97 7.57 0 0 0 0 local artag_7"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_8"   args="17.87 -7.57 0 0 0 0 local artag_8"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_9"   args="10 10 0 0 0 0 local artag_9"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_10"  args="29.26 -14.52 0 0 0 0 local artag_10"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_11"  args="18.41 -25.83 0 0 0 0 local artag_11"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_12"  args="23.34 -14.11 0 0 0 0 local artag_12"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_13"  args="8.18 -18.63 0 0 0 0 local artag_13"/>
+    <node pkg="tf2_ros" type="static_transform_publisher" name="local_to_artag_15"  args="2.27 -16.84 0 0 0 0 local artag_15"/>
+    
+</launch>
