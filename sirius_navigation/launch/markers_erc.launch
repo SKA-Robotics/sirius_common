@@ -1,0 +1,10 @@
+<launch>
+    <node pkg="marker_based_localization" type="hybrid_localization" name="marker_based_localization" output="screen" ns="marker_based_localization">
+        <remap from="image" to="/front_camera/left/image_rect"/>
+        <remap from="odom" to="/pose"/>
+        <param name="base_link" value="base_link"/>
+        <param name="marker_size" value="0.15"/>
+        <rosparam param="covariance_diagonal">[0.5, 0.5, 0.5, 0, 0, 0,]</rosparam>
+        <rosparam param="marker_offset">[-0.09, 0.0, 0.0]</rosparam>
+    </node>
+</launch>
