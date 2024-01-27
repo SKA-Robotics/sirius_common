@@ -268,7 +268,12 @@
   <gazebo reference="${prefix}_camera_imu_link">
     <sensor type="magnetometer" name="magnetometer_sensor">
       <always_on>true</always_on>
-      <update_rate>100</update_rate>
+        <!-- In practice, the magnetometer runs slower than the IMU, but 
+        hardware fusion handles this and provides orientation at high rate.
+        In simulation, we use software fusion from imu_tools which uses
+        synchronizer that will drop imu messages if magnetometer runs at
+        slower rate. -->
+        <updateRateHZ>${imu_frequency}</updateRateHZ>
       <magnetometer>
         <!-- Noise parameters are taken from the datasheet -->
         <!-- Datasheet: https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmf055-ds000.pdf -->
@@ -292,7 +297,7 @@
       <plugin filename="libsirius_gazebo_ros_magnetometer_sensor.so" name="magnetometer_plugin">
         <topicName>/${prefix}_camera/imu/mag</topicName>
         <frameName>${prefix}_camera_imu_link</frameName>
-        <updateRateHZ>50.0</updateRateHZ>
+        <updateRateHZ>${imu_frequency}</updateRateHZ>
         <sphericalCoordinates>
           <latitudeDeg>${datum[0]}</latitudeDeg>
           <longitudeDeg>${datum[1]}</longitudeDeg>
