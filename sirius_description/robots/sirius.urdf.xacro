@@ -2,10 +2,10 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sirius">
   <!-- User arguments -->
   <xacro:arg name="calibration_path" default=""/>
-  <xacro:arg name="datum" default="[50.878151, 20.642273, 144.41]"/>
+  <xacro:arg name="datum" default="[50.878009, 20.642403, 144.41]"/>
   <xacro:arg name="elevation" default="0.0"/>
   <xacro:arg name="imu_frequency" default="200.0"/>
-  <xacro:arg name="gazebo_origin" default="[-9.39, 16.03]"/>
+  <xacro:arg name="gazebo_origin" default="[-9.396, 16.082]"/>
   <xacro:arg name="stereo_fps" default="30"/>
   <xacro:arg name="year" default=""/>
   
