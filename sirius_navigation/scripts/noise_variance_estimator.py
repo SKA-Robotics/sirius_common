@@ -185,7 +185,7 @@ def odometryError(odom, ground_truth, tf_buffer):
     ]
 
 
-def poseError(pose, ground_truth):
+def poseError(pose, ground_truth, *args, **kwargs):
     # pose can be stamped and with covariance, extract the pose
     while hasattr(pose, 'pose'):
         pose = pose.pose
@@ -348,7 +348,7 @@ def transform_twist_child_frame(twist, target_frame, child_frame, tf_buffer,
     return twist
 
 
-def twistError(twist, ground_truth):
+def twistError(twist, ground_truth, *args, **kwargs):
     # twist can be stamped and with covariance, extract the twist
     while hasattr(twist, 'twist'):
         twist = twist.twist
@@ -367,13 +367,17 @@ localization_error = {
     'nav_msgs/Odometry': odometryError,
     'sensor_msgs/Imu': imuError,
     'geometry_msgs/PoseStamped': poseError,
-    'geometry_msgs/TwistStamped': twistError
+    'geometry_msgs/PoseWithCovarianceStamped': poseError,
+    'geometry_msgs/TwistStamped': twistError,
+    'geometry_msgs/TwistWithCovarianceStamped': twistError
 }
 repr_localization_noise = {
     'nav_msgs/Odometry': reprOdometryNoise,
     'sensor_msgs/Imu': reprImuNoise,
     'geometry_msgs/PoseStamped': reprPoseNoise,
-    'geometry_msgs/TwistStamped': reprTwistNoise
+    'geometry_msgs/PoseWithCovarianceStamped': reprPoseNoise,
+    'geometry_msgs/TwistStamped': reprTwistNoise,
+    'geometry_msgs/TwistWithCovarianceStamped': reprTwistNoise
 }
 
 if __name__ == '__main__':
