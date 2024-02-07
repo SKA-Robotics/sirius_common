@@ -61,6 +61,7 @@ odom0_queue_size: 40
 # Look at the comment in odom ekf config for explanation
 odom1_nodelay: true
 odom0_relative: false
+odom0_twist_rejection_threshold: 4.0
 
 odom1: /gps/pose
 odom1_config: [true,  true,  true,
@@ -90,3 +91,4 @@ pose0_queue_size: 8
 # Don't know If recommendation also applies to pose messages,
 # but it is also quite big, so it's set to true just in case
 pose0_nodelay: true
+pose0_rejection_threshold: 6.0
