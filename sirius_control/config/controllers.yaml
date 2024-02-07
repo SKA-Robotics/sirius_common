@@ -32,20 +32,22 @@ sirius:
           - 'back_right_wheel_joint'
         publish_rate: 100
         pose_covariance_diagonal : [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-        twist_covariance_diagonal: [0.05, 0.05, 0.05, 0.0, 0.0, 1.0]
+        twist_covariance_diagonal: [0.010526287272111141, 0.009523360736596233, 0.05, 0.0, 0.0, 0.016875764784840357]
         wheel_separation : 0.577
+        wheel_separation_multiplier: 1.9962681450961326
         wheel_radius : 0.110
+        wheel_radius_multiplier: 0.8943648186978245
         cmd_vel_timeout: 1.0
         linear:
           x:
             has_velocity_limits: true
-            max_velocity: 1.0
+            max_velocity: 0.8943648186978245 # 1.0 (max velocity with no slip) * wheel_radius_multiplier
             has_acceleration_limits: true
-            max_acceleration: 8
+            max_acceleration: 7.154918549582596 # 8 * linear_max_velocity
         angular:
           z:
             has_velocity_limits: true
-            max_velocity: 1.7699115044247788 # linear_max_velocity/(0.5 * wheel_separation * wheel_separation_multiplier)
+            max_velocity: 1.55292332458067 # linear_max_velocity/(0.5 * wheel_separation * wheel_separation_multiplier)
             has_acceleration_limits: true
-            max_acceleration: 14.15929203539823
+            max_acceleration: 12.42338659664536 # 8 * angular_max_velocity
         enable_odom_tf: false
