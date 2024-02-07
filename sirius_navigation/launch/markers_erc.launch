@@ -4,7 +4,7 @@
         <remap from="odom" to="/pose"/>
         <param name="base_link" value="base_link"/>
         <param name="marker_size" value="0.15"/>
-        <rosparam param="covariance_diagonal">[0.5, 0.5, 0.5, 0, 0, 0,]</rosparam>
+        <rosparam param="covariance_diagonal">[2.779361955257932, 2.779361955257932, 0.1, 0, 0, 0,]</rosparam>
         <rosparam param="marker_offset">[-0.09, 0.0, 0.0]</rosparam>
     </node>
 </launch>

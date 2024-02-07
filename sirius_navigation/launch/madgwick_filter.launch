@@ -2,7 +2,7 @@
   <arg name="imu_name"            default="front_camera"/>
   <node name="imu_fusion" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
     <param name="use_mag" value="true"/>
-    <param name="orientation_stddev" value="$(eval 3.5 * pi/180)"/> <!-- standard deviation in radians -->
+    <param name="orientation_stddev" value="$(eval sqrt(0.0004079370468171413))"/>
     <param name="world_frame" value="enu"/>
     <param name="publish_tf" value="false"/>
     <param name="remove_gravity_vector" value="true"/>
