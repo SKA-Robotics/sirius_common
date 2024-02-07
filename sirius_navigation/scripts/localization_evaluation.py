@@ -12,7 +12,9 @@ import rospy
 import PyKDL
 import bisect
 from tf.transformations import euler_from_quaternion
-from math import pi
+import numpy as np
+import scipy.stats as stats
+import yaml
 
 from geometry_msgs.msg import (PoseWithCovariance, TwistWithCovariance, Pose,
                                Twist, Vector3, Quaternion)
@@ -23,8 +25,9 @@ from textwrap import indent
 # Constants
 LOCALIZATION_TYPES: Final = {
     'geometry_msgs/PoseWithCovarianceStamped',
-    'geometry_msgs/TwistWithCovarianceStamped', 'nav_msgs/Odometry',
-    'sensor_msgs/Imu'
+    'geometry_msgs/TwistWithCovarianceStamped',
+    'nav_msgs/Odometry',
+    'sensor_msgs/Imu',
 }
 
 
@@ -47,7 +50,8 @@ class StampedMessages:
     def __init__(self, bag, topic):
         messages = OrderedDict()
 
-        for _, message, timestamp in bag.read_messages(topics=[topic]):
+        for _, message, _ in bag.read_messages(topics=[topic]):
+            timestamp = message.header.stamp
             messages[timestamp] = message
 
         messages = OrderedDict(sorted(messages.items()))
@@ -73,7 +77,7 @@ class StampedMessages:
 
 def angle_diff(theta1, theta2):
     d = theta2 - theta1
-    d = (d + pi) % (2 * pi) - pi
+    d = (d + np.pi) % (2 * np.pi) - np.pi
     return d
 
 
@@ -90,7 +94,7 @@ def get_localization_topics(bag, ground_truth_topic):
     return localization_topics
 
 
-def imuError(imu, ground_truth, tf_buffer):
+def imuVectors(imu, ground_truth, tf_buffer):
     """Compare the imu message to the ground truth message"""
     ground_truth = transform_odometry_child_frame(ground_truth,
                                                   imu.header.frame_id,
@@ -107,14 +111,14 @@ def imuError(imu, ground_truth, tf_buffer):
         ground_truth.pose.pose.orientation.w
     ])
 
-    return [
-        angle_diff(imu_roll, gt_roll),
-        angle_diff(imu_pitch, gt_pitch),
-        angle_diff(imu_yaw, gt_yaw),
-        imu.angular_velocity.x - ground_truth.twist.twist.angular.x,
-        imu.angular_velocity.y - ground_truth.twist.twist.angular.y,
-        imu.angular_velocity.z - ground_truth.twist.twist.angular.z
-    ]
+    return np.array([
+        [imu_roll, gt_roll],
+        [imu_pitch, gt_pitch],
+        [imu_yaw, gt_yaw],
+        [imu.angular_velocity.x, ground_truth.twist.twist.angular.x],
+        [imu.angular_velocity.y, ground_truth.twist.twist.angular.y],
+        [imu.angular_velocity.z, ground_truth.twist.twist.angular.z],
+    ])
 
 
 def initialize_bag(bag_path, ground_truth_topic):
@@ -151,48 +155,55 @@ def initialize_bag(bag_path, ground_truth_topic):
     return bag
 
 
-def noiseVariance(bag, topic, calculate_error, ground_truth, tf_buffer):
+def metrics(bag, topic, calculate_vectors, calculate_metrics, ground_truth,
+            tf_buffer):
     # Initialize error_squared
     ground_truth_message = None
     bag_iterator = bag.read_messages(topics=[topic])
     while ground_truth_message is None:
-        _, message, stamp = next(bag_iterator)
+        _, message, _ = next(bag_iterator)
+        stamp = message.header.stamp
         ground_truth_message = ground_truth[stamp]
-    error_squared = [0] * len(
-        calculate_error(message, ground_truth_message, tf_buffer))
+    variables_count = len(
+        calculate_vectors(message, ground_truth_message, tf_buffer))
+    # Preallocate memory
+    vectors = np.empty((variables_count, 2, bag.get_message_count(topic)))
     samples = 0
-    for _, message, stamp in bag.read_messages(topics=[topic]):
+    for _, message, _ in bag.read_messages(topics=[topic]):
+        if rospy.is_shutdown():
+            exit()
+        stamp = message.header.stamp
         ground_truth_message = ground_truth[stamp]
         if ground_truth_message is not None:
-            error = calculate_error(message, ground_truth_message, tf_buffer)
-            error_squared = [
-                error_squared[i] + error[i]**2 for i in range(len(error))
-            ]
+            vectors[:, :,
+                    samples] = calculate_vectors(message, ground_truth_message,
+                                                 tf_buffer)
             samples += 1
-    return [error_squared[i] / samples for i in range(len(error_squared))]
+    vectors = vectors[:, :, :samples]
+    return calculate_metrics(vectors)
 
 
-def odometryError(odom, ground_truth, tf_buffer):
+def odometryVectors(odom, ground_truth, tf_buffer):
     """Compare the odometry message to the ground truth message"""
     if odom.child_frame_id != "":
         twist_ground_truth = transform_odometry_child_frame(
             ground_truth, odom.child_frame_id, tf_buffer)
     else:
         twist_ground_truth = ground_truth
-    return [
-        *poseError(odom.pose, ground_truth),
-        *twistError(odom.twist, twist_ground_truth)
-    ]
+    return np.concatenate((poseVectors(odom.pose, ground_truth),
+                           twistVectors(odom.twist, twist_ground_truth)))
 
 
-def poseError(pose, ground_truth, *args, **kwargs):
+def poseVectors(pose, ground_truth, *args, **kwargs):
     # pose can be stamped and with covariance, extract the pose
     while hasattr(pose, 'pose'):
         pose = pose.pose
 
     (pose_roll, pose_pitch, pose_yaw) = euler_from_quaternion([
-        pose.orientation.x, pose.orientation.y, pose.orientation.z,
-        pose.orientation.w
+        pose.orientation.x,
+        pose.orientation.y,
+        pose.orientation.z,
+        pose.orientation.w,
     ])
     (gt_roll, gt_pitch, gt_yaw) = euler_from_quaternion([
         ground_truth.pose.pose.orientation.x,
@@ -201,14 +212,14 @@ def poseError(pose, ground_truth, *args, **kwargs):
         ground_truth.pose.pose.orientation.w
     ])
 
-    return [
-        pose.position.x - ground_truth.pose.pose.position.x,
-        pose.position.y - ground_truth.pose.pose.position.y,
-        pose.position.z - ground_truth.pose.pose.position.z,
-        angle_diff(pose_roll, gt_roll),
-        angle_diff(pose_pitch, gt_pitch),
-        angle_diff(pose_yaw, gt_yaw)
-    ]
+    return np.array([
+        [pose.position.x, ground_truth.pose.pose.position.x],
+        [pose.position.y, ground_truth.pose.pose.position.y],
+        [pose.position.z, ground_truth.pose.pose.position.z],
+        [pose_roll, gt_roll],
+        [pose_pitch, gt_pitch],
+        [pose_yaw, gt_yaw],
+    ])
 
 
 def prepare_tf_buffer(bag):
@@ -229,36 +240,6 @@ def prepare_tf_buffer(bag):
             else:
                 tf_buffer.set_transform(transform, "")
     return tf_buffer
-
-
-def reprImuNoise(variance):
-    return ("roll:".ljust(20) + f"{variance[0]:.4E}\n" + "pitch:".ljust(20) +
-            f"{variance[1]:.4E}\n" + "yaw:".ljust(20) +
-            f"{variance[2]:.4E}\n" + "roll velocity:".ljust(20) +
-            f"{variance[3]:.4E}\n" + "pitch velocity:".ljust(20) +
-            f"{variance[4]:.4E}\n" + "yaw velocity:".ljust(20) +
-            f"{variance[5]:.4E}")
-
-
-def reprOdometryNoise(variance):
-    return f"{reprPoseNoise(variance[:6])} \n" \
-        f"{reprTwistNoise(variance[6:])}"
-
-
-def reprPoseNoise(variance):
-    return ("x:".ljust(20) + f"{variance[0]:.4E}\n" + "y:".ljust(20) +
-            f"{variance[1]:.4E}\n" + "z:".ljust(20) + f"{variance[2]:.4E}\n" +
-            "roll:".ljust(20) + f"{variance[3]:.4E}\n" + "pitch:".ljust(20) +
-            f"{variance[4]:.4E}\n" + "yaw:".ljust(20) + f"{variance[5]:.4E}")
-
-
-def reprTwistNoise(variance):
-    return ("x velocity:".ljust(20) + f"{variance[0]:.4E}\n" +
-            "y velocity:".ljust(20) + f"{variance[1]:.4E}\n" +
-            "z velocity:".ljust(20) + f"{variance[2]:.4E}\n" +
-            "roll velocity:".ljust(20) + f"{variance[3]:.4E}\n" +
-            "pitch velocity:".ljust(20) + f"{variance[4]:.4E}\n" +
-            "yaw velocity:".ljust(20) + f"{variance[5]:.4E}")
 
 
 def transform_odometry_child_frame(msg, target_frame, tf_buffer):
@@ -315,14 +296,22 @@ def transform_twist(twist, transform):
     angular_velocity = PyKDL.Vector(twist.angular.x, twist.angular.y,
                                     twist.angular.z)
 
-    translation = PyKDL.Vector(transform[0, 3], transform[1, 3], transform[2,
-                                                                           3])
-    rotation = PyKDL.Rotation(transform[0, 0], transform[1, 0], transform[2,
-                                                                          0],
-                              transform[0, 1], transform[1, 1], transform[2,
-                                                                          1],
-                              transform[0, 2], transform[1, 2], transform[2,
-                                                                          2])
+    translation = PyKDL.Vector(
+        transform[0, 3],
+        transform[1, 3],
+        transform[2, 3],
+    )
+    rotation = PyKDL.Rotation(
+        transform[0, 0],
+        transform[1, 0],
+        transform[2, 0],
+        transform[0, 1],
+        transform[1, 1],
+        transform[2, 1],
+        transform[0, 2],
+        transform[1, 2],
+        transform[2, 2],
+    )
 
     target_linear_velocity = rotation * \
         linear_velocity + angular_velocity * translation
@@ -348,38 +337,171 @@ def transform_twist_child_frame(twist, target_frame, child_frame, tf_buffer,
     return twist
 
 
-def twistError(twist, ground_truth, *args, **kwargs):
+def twistVectors(twist, ground_truth, *args, **kwargs):
     # twist can be stamped and with covariance, extract the twist
     while hasattr(twist, 'twist'):
         twist = twist.twist
 
-    return [
-        twist.linear.x - ground_truth.twist.twist.linear.x,
-        twist.linear.y - ground_truth.twist.twist.linear.y,
-        twist.linear.z - ground_truth.twist.twist.linear.z,
-        twist.angular.x - ground_truth.twist.twist.angular.x,
-        twist.angular.y - ground_truth.twist.twist.angular.y,
-        twist.angular.z - ground_truth.twist.twist.angular.z
-    ]
+    return np.array([[twist.linear.x, ground_truth.twist.twist.linear.x],
+                     [twist.linear.y, ground_truth.twist.twist.linear.y],
+                     [twist.linear.z, ground_truth.twist.twist.linear.z],
+                     [twist.angular.x, ground_truth.twist.twist.angular.x],
+                     [twist.angular.y, ground_truth.twist.twist.angular.y],
+                     [twist.angular.z, ground_truth.twist.twist.angular.z]])
 
 
-localization_error = {
-    'nav_msgs/Odometry': odometryError,
-    'sensor_msgs/Imu': imuError,
-    'geometry_msgs/PoseStamped': poseError,
-    'geometry_msgs/PoseWithCovarianceStamped': poseError,
-    'geometry_msgs/TwistStamped': twistError,
-    'geometry_msgs/TwistWithCovarianceStamped': twistError
+def poseMetrics(vectors):
+    error = np.concatenate((
+        vectors[0:3, 0, :] - vectors[0:3, 1, :],
+        angle_diff(vectors[3:6, 0, :], vectors[3:6, 1, :]),
+    ))
+    scale, bias = linear_fit(vectors)
+    metrics = np.array([
+        np.sqrt(np.mean(error**2, axis=1)),
+        np.mean(error, axis=1),
+        np.var(error, axis=1),
+        np.max(np.abs(error), axis=1),
+        np.concatenate((np.full([3], np.nan),
+                        stats.circmean(error[3:6, :], np.pi, -np.pi, axis=1))),
+        np.concatenate((np.full([3], np.nan),
+                        stats.circvar(error[3:6, :], np.pi, -np.pi, axis=1))),
+        scale,
+        bias,
+    ]).T
+    return metrics
+
+
+def twistMetrics(vectors):
+    error = vectors[:, 0, :] - vectors[:, 1, :]
+    scale, bias = linear_fit(vectors)
+    metrics = np.array([
+        np.sqrt(np.mean(error**2, axis=1)),
+        np.mean(error, axis=1),
+        np.var(error, axis=1),
+        np.max(np.abs(error), axis=1),
+        np.full([6], np.nan),
+        np.full([6], np.nan),
+        scale,
+        bias,
+    ]).T
+    return metrics
+
+
+def odometryMetrics(vectors):
+    return np.concatenate(
+        (poseMetrics(vectors[:6, :, :]), twistMetrics(vectors[6:, :, :])))
+
+
+def imuMetrics(vectors):
+    error = np.concatenate((
+        angle_diff(vectors[0:3, 0, :], vectors[0:3, 1, :]),
+        vectors[3:6, 0, :] - vectors[3:6, 1, :],
+    ))
+    scale, bias = linear_fit(vectors)
+    metrics = np.array([
+        np.sqrt(np.mean(error**2, axis=1)),
+        np.mean(error, axis=1),
+        np.var(error, axis=1),
+        np.max(np.abs(error), axis=1),
+        np.concatenate((stats.circmean(error[3:6, :], np.pi, -np.pi,
+                                       axis=1), np.full([3], np.nan))),
+        np.concatenate((stats.circvar(error[3:6, :], np.pi, -np.pi,
+                                      axis=1), np.full([3], np.nan))),
+        scale,
+        bias,
+    ]).T
+    return metrics
+
+
+def reprOdometryMetrics(metrics):
+    return f"{reprPoseMetrics(metrics[:6, :])}\n" \
+        f"{reprTwistMetrics(metrics[6:, :])}"
+
+
+def reprPoseMetrics(metrics):
+    return reprMetrics(metrics, ["x", "y", "z", "roll", "pitch", "yaw"])
+
+
+def reprTwistMetrics(metrics):
+    return reprMetrics(metrics, [
+        "x velocity", "y velocity", "z velocity", "roll velocity",
+        "pitch velocity", "yaw velocity"
+    ])
+
+
+def reprImuMetrics(metrics):
+    return reprMetrics(metrics, [
+        "roll", "pitch", "yaw", "roll velocity", "pitch velocity",
+        "yaw velocity"
+    ])
+
+
+# Prints l-justified metrics, with labels on the left
+def reprMetrics(metrics, labels):
+    return '\n'.join([
+        f"{label.ljust(20)}" + ''.join([
+            f"{metric:.4E}".ljust(20) if not np.isnan(metric) else ''.ljust(20)
+            for metric in metric_row
+        ]) for label, metric_row in zip(labels, metrics)
+    ])
+
+
+# TODO: Prepare for yaml
+
+
+def linear_fit(vectors):
+    scale = np.zeros(vectors.shape[0])
+    bias = np.zeros(vectors.shape[0])
+    for i in range(vectors.shape[0]):
+        # Ćheck for nan, inf and all zero
+        if not np.any(np.isnan(vectors[i, :, :])) and not np.any(
+                np.isinf(vectors[i, :, :])) and np.any(vectors[i,
+                                                               0, :] >= 1e-5):
+            with np.errstate(all='ignore'):  # Ignore errors just in case
+                scale[i], bias[i] = np.polyfit(
+                    vectors[i, 0, :],
+                    vectors[i, 1, :],
+                    1,
+                )
+        else:
+            scale[i] = np.nan
+            bias[i] = np.nan
+
+    return scale, bias
+
+
+localization_vectors = {
+    'nav_msgs/Odometry': odometryVectors,
+    'sensor_msgs/Imu': imuVectors,
+    'geometry_msgs/PoseStamped': poseVectors,
+    'geometry_msgs/PoseWithCovarianceStamped': poseVectors,
+    'geometry_msgs/TwistStamped': twistVectors,
+    'geometry_msgs/TwistWithCovarianceStamped': twistVectors
 }
-repr_localization_noise = {
-    'nav_msgs/Odometry': reprOdometryNoise,
-    'sensor_msgs/Imu': reprImuNoise,
-    'geometry_msgs/PoseStamped': reprPoseNoise,
-    'geometry_msgs/PoseWithCovarianceStamped': reprPoseNoise,
-    'geometry_msgs/TwistStamped': reprTwistNoise,
-    'geometry_msgs/TwistWithCovarianceStamped': reprTwistNoise
+localization_metrics = {
+    'nav_msgs/Odometry': odometryMetrics,
+    'sensor_msgs/Imu': imuMetrics,
+    'geometry_msgs/PoseStamped': poseMetrics,
+    'geometry_msgs/PoseWithCovarianceStamped': poseMetrics,
+    'geometry_msgs/TwistStamped': twistMetrics,
+    'geometry_msgs/TwistWithCovarianceStamped': twistMetrics
+}
+repr_localization_metrics = {
+    'nav_msgs/Odometry': reprOdometryMetrics,
+    'sensor_msgs/Imu': reprImuMetrics,
+    'geometry_msgs/PoseStamped': reprPoseMetrics,
+    'geometry_msgs/PoseWithCovarianceStamped': reprPoseMetrics,
+    'geometry_msgs/TwistStamped': reprTwistMetrics,
+    'geometry_msgs/TwistWithCovarianceStamped': reprTwistMetrics
 }
 
+metrics_labels = [['RMSE', 'rmse'], ['Error mean', 'error_mean'],
+                  ['Error variance', 'error_variance'],
+                  ['Max error', 'error_max'],
+                  ['Error circular mean', 'error_circular_mean'],
+                  ['Error circular var.', 'error_circular_variance'],
+                  ['Linear fit scale', 'linear_fit_scale'],
+                  ['Linear fit bias', 'linear_fit_bias']]
 if __name__ == '__main__':
     rospy.init_node("noise_variance_estimator")
     # Parameters
@@ -397,7 +519,6 @@ if __name__ == '__main__':
     except NoiseEstimatorError as error:
         error.log()
         sys.exit()
-
     tf_buffer = prepare_tf_buffer(bag)
 
     max_topic_length = max([len(topic) for topic in localization_topics])
@@ -408,9 +529,26 @@ if __name__ == '__main__':
 
     ground_truth = StampedMessages(bag, ground_truth_topic)
 
+    metrics_yaml = {}
     for topic, message_type in localization_topics.items():
-        variance = noiseVariance(bag, topic, localization_error[message_type],
+        metrics_values = metrics(bag, topic,
+                                 localization_vectors[message_type],
+                                 localization_metrics[message_type],
                                  ground_truth, tf_buffer)
-        rospy.loginfo(f"\nNoise variance for {topic}: \n" +
-                      indent(repr_localization_noise[message_type]
-                             (variance), "\t"))
+        metrics_yaml[topic] = {
+            label[1]: metric.tolist()
+            for label, metric in zip(metrics_labels, metrics_values.T)
+        }
+        rospy.loginfo(
+            f"\tMetrics for {topic}\n" + "\t".ljust(21) +
+            ''.join([label[0].ljust(20) for label in metrics_labels]) + "\n" +
+            indent(repr_localization_metrics[message_type]
+                   (metrics_values), "\t"))
+        if rospy.is_shutdown():
+            exit()
+
+    if rospy.has_param("~output_file"):
+        output_file = rospy.get_param("~output_file")
+        with open(output_file, 'w') as file:
+            yaml.dump(metrics_yaml, file)
+            rospy.loginfo(f"Metrics saved to {output_file}")
