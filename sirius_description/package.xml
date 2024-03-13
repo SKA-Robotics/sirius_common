@@ -8,5 +8,6 @@
   <buildtool_depend>catkin</buildtool_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>sirius_calibration</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
   <exec_depend>xacro</exec_depend>
 </package>
