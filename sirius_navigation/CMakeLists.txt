@@ -4,9 +4,5 @@ find_package(catkin REQUIRED COMPONENTS rospy)
 catkin_package()
 
 catkin_install_python(
-  PROGRAMS
-  scripts/imu_align_north.py
-  scripts/noise_variance_estimator.py
-  scripts/random_traversal.py
-  DESTINATION
-  ${CATKIN_PACKAGE_BIN_DESTINATION})
+  PROGRAMS scripts/imu_align_north.py scripts/localization_evaluation.py
+  scripts/random_traversal.py DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
