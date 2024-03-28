@@ -1,0 +1,20 @@
+max_joint_effort: 100.0
+max_angular_rate: 0.4
+max_linear_rate: 0.1
+
+change_mode_button: back_button
+
+default_gripper_angle: 45.0
+gripper_step: 5.0
+gripper_max_angle: 90.0
+gripper_min_angle: -10.0
+
+# parameters below are controlled by dynamic_reconfigure and these are only default values
+
+mode: 0 # default steering mode
+# normal=0, car=1, tank=2
+
+gear: 1
+gear_1_max_speed: 10
+gear_2_max_speed: 50
+gear_3_max_speed: 100

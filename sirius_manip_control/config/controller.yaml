@@ -1,0 +1,20 @@
+jointstate_topic: /manip_interface/state
+command_topic: /manip_controller/manip_command
+
+
+control_modes:
+  cartesian:
+    max_velocity: 0.05
+    acceleration: 0.01
+    max_error: 0.001
+    interpolation_rate: 10.0
+    velocity_weighing: [1, 1, 1, 0.01, 0.7]
+  jointspace:
+    max_velocity: 0.25
+    acceleration: 0.03
+    max_error: 0.001
+    interpolation_rate: 10.0
+    velocity_weighing: [1, 1, 1, 1, 0.05]
+  incremental:
+    send_rate: 20.0
+

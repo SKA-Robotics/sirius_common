@@ -1,0 +1,13 @@
+feedback_topic: /manipulator/joint_states
+command_topics:
+    base_cyl: manipulator/joint1_position_controller/command
+    cyl_arm1: manipulator/joint2_position_controller/command
+    arm1_arm2: manipulator/joint3_position_controller/command
+    arm2_arm3: manipulator/joint4_position_controller/command
+    arm3_tool: manipulator/joint5_position_controller/command
+
+offset_base_cyl: 0.0
+offset_cyl_arm1: -0.7853981633974483
+offset_arm1_arm2: 2.356194490192345
+offset_arm2_arm3: 0.5
+offset_arm3_tool: 0.0

@@ -1,0 +1,29 @@
+<launch>
+	<arg name="message_rate" default="20"/> <!-- in Hz -->
+	<arg name="joystick_type" default="STANDARD"/>
+		
+	<node name="joy_multiplexer" pkg="joystick_control" type="joy_multiplexer.py" output="screen">
+        <!-- Input config -->
+		<param name="joystick_type" value="$(arg joystick_type)"/>
+		<rosparam file="$(find joystick_control)/config/joysticks.yaml" command="load"/>
+
+        <!-- Output config -->
+		<rosparam file="$(find joystick_control)/config/steering_modes.yaml" command="load"/>
+	</node>
+
+	<node name="joy_diff_drive" pkg="joystick_control" type="joy_diff_drive.py" output="screen">
+		<rosparam file="$(find joystick_control)/config/joysticks.yaml" command="load"/>
+		<rosparam file="$(find joystick_control)/config/diff_drive.yaml" command="load"/>
+		<remap from="~max_angular_rate" to="/sirius/controller/wheels/angular/z/max_velocity"/>
+		<remap from="~max_linear_rate" to="/sirius/controller/wheels/linear/x/max_velocity"/>
+	</node>
+
+	<node name="joy_5dof_manipulator" pkg="joystick_control" type="joy_5dof_manipulator.py" output="screen">
+		<rosparam file="$(find joystick_control)/config/joysticks.yaml" command="load"/>
+		<rosparam file="$(find joystick_control)/config/5dof_manipulator.yaml" command="load"/>
+	</node>
+    
+    <node pkg="rosservice" type="rosservice" name="add_direct_joy_1" args="call --wait /joy_multiplexer/add_joy '{ topic: { name: joy_0 } }'" />
+
+    <!-- <node pkg="rosservice" type="rosservice" name="select_direct_joy_1" args="call -wait /joy_multiplexer/select_joy joy_0" /> -->
+</launch>

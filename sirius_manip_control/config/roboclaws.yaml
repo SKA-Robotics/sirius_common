@@ -1,0 +1,29 @@
+roboclaw_driver:
+  baudrate: 115200
+  "128":
+    motor1:
+      command_timeout: 800
+      ticks_per_revolution: 4096
+      torque_constant: 1.2986
+    motor2:
+      command_timeout: 800
+      ticks_per_revolution: 4096
+      torque_constant: 1.2986
+  "129":
+    motor1:
+      command_timeout: 800
+      ticks_per_revolution: 4096
+      torque_constant: 1.2986
+    motor2:
+      command_timeout: 800
+      ticks_per_revolution: 4096
+      torque_constant: 1.2986
+  "130":
+    motor1:
+      command_timeout: 800
+      ticks_per_revolution: 4096
+      torque_constant: 1.2986
+    motor2:
+      command_timeout: 800
+      ticks_per_revolution: 1024
+      torque_constant: 1.2986
