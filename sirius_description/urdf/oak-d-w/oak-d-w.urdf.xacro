@@ -190,8 +190,7 @@
         <imageTopicName>rgb/image_rect_color</imageTopicName>
         <cameraInfoTopicName>rgb/camera_info</cameraInfoTopicName>
         <depthImageTopicName>depth_registered/image</depthImageTopicName>
-        <depthImageInfoTopicName>depth_registered/camera_info</depthImageInfoTopicName>
-	<depthImageCameraInfoTopicName>depth_registered/camera_info</depthImageCameraInfoTopicName>
+        <depthImageCameraInfoTopicName>depth_registered/camera_info</depthImageCameraInfoTopicName>
         <pointCloudTopicName>depth_registered/points</pointCloudTopicName>
         <pointCloudCutoff>0.35</pointCloudCutoff>
         <pointCloudCutoffMax>35.0</pointCloudCutoffMax>
