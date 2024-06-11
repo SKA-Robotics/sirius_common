@@ -1,7 +1,7 @@
 <launch>  
   <arg name="imu_name"            default="front_camera"/>
   <node name="imu_fusion" pkg="imu_filter_madgwick" type="imu_filter_node" output="screen">
-    <param name="use_mag" value="true"/>
+    <param name="use_mag" value="false"/>
     <param name="orientation_stddev" value="$(eval sqrt(0.0004079370468171413))"/>
     <param name="world_frame" value="enu"/>
     <param name="publish_tf" value="false"/>
