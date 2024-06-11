@@ -1,0 +1,4 @@
+<launch>
+	<node name="joy" pkg="joy" type="joy_node" output="screen"/>
+	<node name="gripper_arduino" pkg="manip_control" type="gripper_arduino.py" output="screen"/>
+</launch>

@@ -1,6 +1,10 @@
 <launch>
   <!-- ERC: Marsyard -->
-  <arg name="datum" default="[50.878151, 20.642273]"/>
+  <!-- <arg name="datum" default="[50.878151, 20.642273]"/> -->
+  <!-- ITC -->
+  <!-- <arg name="datum" default="[52.219450, 21.009582]"/> -->
+  <!-- Goorka kazoorka -->
+  <arg name="datum" default="[52.1367231, 21.0450444]"/>
   <!-- URC: The Mars Desert Research Station  -->
   <!-- <arg name="datum" default="[38.4190235, -110.7823884]"/> -->
 

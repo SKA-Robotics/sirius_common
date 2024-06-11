@@ -1,0 +1,5 @@
+<launch>
+    <node name="manip_interface" pkg="manip_control" type="manip_roboclaw_interface.py" output="screen">
+		<rosparam file="$(find manip_control)/config/manip_roboclaw_interface.yaml" command="load"/>
+    </node>
+</launch>

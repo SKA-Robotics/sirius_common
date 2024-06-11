@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 
   controller_manager::ControllerManager cm(&hw, nh);
 
-  ros::Rate rate(10);  // 200Hz update rate
+  ros::Rate rate(100);  // 200Hz update rate
 
   ROS_INFO("sirius_control_loop started");
   while (ros::ok())

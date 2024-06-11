@@ -41,7 +41,7 @@ sirius:
         linear:
           x:
             has_velocity_limits: true
-            max_velocity: 0.8943648186978245 # 1.0 (max velocity with no slip) * wheel_radius_multiplier
+            max_velocity: 1.0 # 0.8943648186978245 # 1.0 (max velocity with no slip) * wheel_radius_multiplier
             has_acceleration_limits: true
             max_acceleration: 7.154918549582596 # 8 * linear_max_velocity
         angular:
