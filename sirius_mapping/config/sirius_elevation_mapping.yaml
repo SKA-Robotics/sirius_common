@@ -1,9 +1,9 @@
 num_callback_threads:                       2
 
 # Robot.
-map_frame_id:                               odom
+map_frame_id:                               map
 robot_base_frame_id:                        base_link
-robot_pose_with_covariance_topic:           /base_link_pose
+robot_pose_with_covariance_topic:           /elevation_mapping/pose
 robot_pose_cache_size:                      200
 input_sources:
   front: # A name to identify the input source

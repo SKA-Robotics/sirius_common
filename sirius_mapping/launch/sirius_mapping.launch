@@ -1,20 +1,24 @@
 <launch>
   <node pkg="nodelet" type="nodelet" name="point_cloud_xyz" 
-        args="load depth_image_proc/point_cloud_xyz nodelet_manager" output="screen">
-    <remap from="image_rect" to="/front_camera/depth_registered/image"/>
-    <remap from="camera_info" to="/front_camera/depth_registered/camera_info"/>
+        args="load depth_image_proc/point_cloud_xyz pcl_manager" output="screen">
+    <remap from="image_rect" to="/slam/depth"/>
+    <remap from="camera_info" to="/slam/camera_info"/>
     <remap from="points" to="/front_camera/depth_registered/points_converted"/>
   </node>
+  <env name="ROSCONSOLE_CONFIG_FILE"
+       value="$(find sirius_mapping)/config/rosconsole.conf"/>
 
   <node pkg="elevation_mapping" type="elevation_mapping" name="elevation_mapping" output="screen">
     <rosparam command="load" file="$(find sirius_mapping)/config/sirius_elevation_mapping.yaml"/>
     <rosparam command="load" file="$(find sirius_mapping)/config/postprocessor_pipeline.yaml"/>
   </node>
 
-  <node pkg="elevation_mapping_demos" type="tf_to_pose_publisher.py" name="waffle_pose_publisher">
-    <param name="from_frame" type="string" value="odom"/>
-    <param name="to_frame" type="string" value="base_link"/>
-  </node>
+  <node 
+    name="pose_remap"
+    pkg="topic_tools" 
+    type="transform" 
+    args="/pose /elevation_mapping/pose geometry_msgs/PoseWithCovarianceStamped 'geometry_msgs.msg.PoseWithCovarianceStamped(header=m.header,pose=m.pose)' --import geometry_msgs" 
+  />
 
   <node pkg="nodelet" type="nodelet" name="pcl_manager" args="manager" output="screen"/>
   <node pkg="nodelet" type="nodelet" name="voxel_grid" args="load pcl/VoxelGrid pcl_manager" output="screen">
