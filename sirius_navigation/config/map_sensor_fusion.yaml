@@ -1,5 +1,6 @@
 frequency: 20
 transform_timeout: 0.005 # Half the period of odom ekf
+transform_time_offset: 0.05
 smooth_lagged_data: true
 # Should be long enough, so no source of global localization is ignored
 history_length: 0.2

@@ -1,0 +1,16 @@
+<launch>
+
+    <!-- <node name="rviz" pkg="rviz" type="rviz"
+                args="-d $(find sirius_navigation)/rviz/nav.rviz"/> -->
+
+    <node pkg="mbf_costmap_nav" type="mbf_costmap_nav" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find sirius_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" /> 
+        <rosparam file="$(find sirius_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find sirius_navigation)/config/local_costmap.yaml" command="load"  ns="local_costmap" />
+        <rosparam file="$(find sirius_navigation)/config/global_costmap.yaml" command="load" ns="global_costmap" /> 
+        <rosparam file="$(find sirius_navigation)/config/base_local_planner.yaml" command="load" />
+        <rosparam file="$(find sirius_navigation)/config/move_base.yaml" command="load" />
+    </node>
+    
+    <node pkg="sirius_navigation" type="simple_goal_relay.py" name="simple_goal_relay"/>
+</launch>

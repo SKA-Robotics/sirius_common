@@ -1,0 +1,15 @@
+plugins: 
+  - {name: obstacles,        type: "costmap_2d::ObstacleLayer"}    
+  - {name: inflation,        type: "costmap_2d::InflationLayer"}
+global_frame: map
+transform_tolerance: 4
+update_frequency: 4
+width: 20
+height: 20
+resolution: 0.25
+obstacles:
+  obstacle_range: 15
+  raytrace_range: 18
+inflation:
+  inflation_radius: 0.1
+  cost_scaling_factor: 8.0

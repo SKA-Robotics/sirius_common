@@ -2,7 +2,7 @@
 <!-- Based on Sparkfun Multi-Band antenna. Mesh generated from step provided by Sparkfun
      https://www.sparkfun.com/products/21801 -->
 <robot xmlns:xacro="http://wiki.ros.org/xacro">
-<xacro:macro name="gnss" params="prefix:='' material collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')} datum:=^ elevation:=^ horizontal_cep:=1.0 vertical_cep:=1.5 rate:=20.0 gazebo_origin:=^">
+<xacro:macro name="gnss" params="prefix:='' material collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')} datum:=^ elevation:=^ horizontal_cep:=0.01443 vertical_cep:=0.02886 rate:=20.0 gazebo_origin:=^">
   <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
   <!-- sqrt(-1/(2*ln(0.5))) = 0.8493218002880191 -->
   <!-- This is the ratio needed to convert CEP to std dev of single axis -->
