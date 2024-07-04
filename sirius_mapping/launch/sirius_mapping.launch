@@ -5,8 +5,6 @@
     <remap from="camera_info" to="/slam/camera_info"/>
     <remap from="points" to="/front_camera/depth_registered/points_converted"/>
   </node>
-  <env name="ROSCONSOLE_CONFIG_FILE"
-       value="$(find sirius_mapping)/config/rosconsole.conf"/>
 
   <node pkg="elevation_mapping" type="elevation_mapping" name="elevation_mapping" output="screen">
     <rosparam command="load" file="$(find sirius_mapping)/config/sirius_elevation_mapping.yaml"/>
@@ -27,9 +25,19 @@
     <rosparam>
       filter_field_name: z
       filter_limit_min: 0.01
-      filter_limit_max: 6.0
+      filter_limit_max: 3.0
       filter_limit_negative: False
-      leaf_size: 0.05 
+      leaf_size: 0.02
     </rosparam>
+  </node>
+
+  <node pkg="traversability_estimation" type="traversability_estimation_node" name="traversability_estimation" output="screen">
+    <rosparam command="load" file="$(find sirius_mapping)/config/robot.yaml"/>
+    <rosparam command="load" file="$(find sirius_mapping)/config/robot_footprint_parameter.yaml"/>
+    <rosparam command="load" file="$(find sirius_mapping)/config/robot_filter_parameter.yaml"/>
+  </node>
+
+  <node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen">
+    <rosparam command="load" file="$(find sirius_mapping)/config/gridmap_to_costmap.yaml" />
   </node>
 </launch>

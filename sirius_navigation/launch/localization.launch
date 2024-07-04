@@ -1,6 +1,7 @@
 <launch>
     <arg name="markers" default="false"/>
-    <include file="$(find sirius_navigation)/launch/odom_sensor_fusion.launch"/>
+    <!--<include file="$(find sirius_navigation)/launch/odom_sensor_fusion.launch"/>-->
+    <node name="odom_sensor_unfusion" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 map odom 100" />
     <include file="$(find sirius_navigation)/launch/map_sensor_fusion.launch"/>
     <include file="$(find sirius_navigation)/launch/markers_erc.launch" if="$(arg markers)"/>
 </launch>
