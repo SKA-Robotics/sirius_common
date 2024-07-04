@@ -1,8 +1,8 @@
-grid_map_topic: /traversability_estimation/traversability_map
+grid_map_topic: /global_gridmap
 
 grid_map_visualizations:
 
-  - name: traversability_grid
+  - name: traversability
     type: occupancy_grid
     params:
       layer: traversability

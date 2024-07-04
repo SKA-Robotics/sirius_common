@@ -3,8 +3,8 @@
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <string>
 
-std::string input_topic = "/traversability_estimation/traversability_map";
-std::string output_topic = "/constructed_map";
+std::string input_topic = "input_map";
+std::string output_topic = "output_map";
 
 ros::Publisher publisher;
 ros::Subscriber subscriber;
