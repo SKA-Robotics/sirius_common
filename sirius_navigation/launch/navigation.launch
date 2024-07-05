@@ -3,6 +3,8 @@
     <!-- <node name="rviz" pkg="rviz" type="rviz"
                 args="-d $(find sirius_navigation)/rviz/nav.rviz"/> -->
 
+    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find sirius_navigation)/config/rosconsole.config"/>
+
     <node pkg="mbf_costmap_nav" type="mbf_costmap_nav" respawn="false" name="move_base" output="screen">
         <rosparam file="$(find sirius_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" /> 
         <rosparam file="$(find sirius_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />

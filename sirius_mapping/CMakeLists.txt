@@ -5,6 +5,8 @@ find_package(
   catkin REQUIRED
   COMPONENTS rospy
              roscpp
+             pcl_ros
+             pcl_conversions
              std_msgs
              grid_map_ros
              grid_map_msgs)
@@ -12,11 +14,15 @@ find_package(
 catkin_package(
   CATKIN_DEPENDS
   roscpp
+  pcl_ros
+  pcl_conversions
   grid_map_msgs
   grid_map_ros)
 
 include_directories(${catkin_INCLUDE_DIRS})
 
 add_executable(gridmap_builder src/gridmap_builder.cpp)
+add_executable(pointcloud_tranformer src/pointcloud_transformer.cpp)
 target_link_libraries(gridmap_builder PRIVATE ${catkin_LIBRARIES})
-install(TARGETS gridmap_builder DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+target_link_libraries(pointcloud_tranformer PRIVATE ${catkin_LIBRARIES})
+install(TARGETS gridmap_builder pointcloud_tranformer DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

@@ -17,8 +17,8 @@ traversability_map_filters:
     params:
       map_type: traversability_step
       critical_value: 0.12
-      first_window_radius: 0.04
-      second_window_radius: 0.04
+      first_window_radius: 0.1
+      second_window_radius: 0.1
       critical_cell_number: 4
   - name: roughnessFilter
     type: traversabilityFilters/RoughnessFilter
@@ -30,7 +30,7 @@ traversability_map_filters:
     type: gridMapFilters/MathExpressionFilter
     params:
       output_layer: traversability
-      expression: (1.0 / 2.0) * (traversability_slope + traversability_roughness)
+      expression: (1.0 / 1.0) * (traversability_step)
   - name: deletionFilter
     type: gridMapFilters/DeletionFilter
     params:
