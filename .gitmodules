@@ -1,3 +1,4 @@
 [submodule "external/industrial_core"]
-	path = external/industrial_core
-	url = https://github.com/ros-industrial/industrial_core.git
+     path = external/industrial_core
+     url = git@github.com:SKA-Robotics/sirius_common.git
+

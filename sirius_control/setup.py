@@ -11,7 +11,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools',
+                      'industrial_msgs'],
     zip_safe=True,
     maintainer='klaudia',
     maintainer_email='klaudiacoding@gmail.com',
@@ -20,6 +21,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'sirius_status = sirius_control.sirius_status:main'
         ],
     },
 )
