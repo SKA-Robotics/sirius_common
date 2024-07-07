@@ -2,6 +2,7 @@
 #include <grid_map_msgs/GridMap.h>
 #include <grid_map_ros/grid_map_ros.hpp>
 #include <string>
+#include <limits>
 
 std::string input_topic = "input_map";
 std::string output_topic = "output_map";
@@ -15,7 +16,9 @@ grid_map::GridMap localMap;
 void InitializeGlobalMap();
 void GridMapCallback(const grid_map_msgs::GridMap& msg);
 void PublishGlobalMap();
-bool CompareGridNode(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp);
+bool ShouldCopyNewValue(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp);
+bool ShouldClearValue(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp);
+void ProcessMapsAtPosition(grid_map::GridMap& original_map, grid_map::GridMap& new_map, grid_map::Position position, float new_timestamp);
 
 int main(int argc, char** argv)
 {
@@ -30,14 +33,14 @@ int main(int argc, char** argv)
 
 void InitializeGlobalMap()
 {
-  globalMap = grid_map::GridMap({ "elevation", "traversability", "uncertainty_range", "time" });
+  globalMap = grid_map::GridMap({ "traversability", "uncertainty_range", "time" });
   globalMap.setFrameId("map");
   globalMap.setGeometry(grid_map::Length(30, 30), 0.05, grid_map::Position(0, 0));
 }
 
 void GridMapCallback(const grid_map_msgs::GridMap& msg)
 {
-  grid_map::GridMapRosConverter::fromMessage(msg, localMap, { "elevation", "traversability", "uncertainty_range" });
+  grid_map::GridMapRosConverter::fromMessage(msg, localMap, { "traversability", "uncertainty_range" });
 
   for (grid_map::GridMapIterator iterator(localMap); !iterator.isPastEnd(); ++iterator)
   {
@@ -47,21 +50,7 @@ void GridMapCallback(const grid_map_msgs::GridMap& msg)
     {
       continue;
     }
-    float& original_elevation = globalMap.atPosition("elevation", position);
-    float new_elevation = localMap.atPosition("elevation", position);
-    float& original_traversability = globalMap.atPosition("traversability", position);
-    float new_traversability = localMap.atPosition("traversability", position);
-    float& original_uncertainty = globalMap.atPosition("uncertainty_range", position);
-    float new_uncertainty = localMap.atPosition("uncertainty_range", position);
-    float& original_timestamp = globalMap.atPosition("time", position);
-    float new_timestamp = msg.info.header.stamp.toSec();
-    if (CompareGridNode(original_uncertainty, new_uncertainty, original_timestamp, new_timestamp))
-    {
-      original_elevation = new_elevation;
-      original_traversability = new_traversability;
-      original_uncertainty = new_uncertainty;
-      original_timestamp = new_timestamp;
-    }
+    ProcessMapsAtPosition(globalMap, localMap, position, msg.info.header.stamp.toSec());
   }
   PublishGlobalMap();
 }
@@ -75,7 +64,7 @@ void PublishGlobalMap()
   publisher.publish(message);
 }
 
-bool CompareGridNode(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp)
+bool ShouldCopyNewValue(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp)
 {
   if (isnan(new_uncertainty))
   {
@@ -87,7 +76,7 @@ bool CompareGridNode(float original_uncertainty, float new_uncertainty, float or
   }
   float time_diff = new_timestamp - original_timestamp;
   float uncertainty_diff = new_uncertainty - original_uncertainty;
-  float uncertainty_penalty = 1.0f;
+  float uncertainty_penalty = 1.0f; // todo: make it a parameter
   float time_penalty = 1.0f;
   float penalty = uncertainty_penalty * uncertainty_diff - time_penalty * time_diff;
   if (penalty < 0.0f)
@@ -95,4 +84,31 @@ bool CompareGridNode(float original_uncertainty, float new_uncertainty, float or
     return true;
   }
   return false;
+}
+
+bool ShouldClearValue(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp) {
+  float uncertainty_threshold = 0.3f;
+  if (original_uncertainty > uncertainty_threshold) {
+    return true;
+  }
+  return false;
+}
+
+void ProcessMapsAtPosition(grid_map::GridMap& original_map, grid_map::GridMap& new_map, grid_map::Position position, float new_timestamp) {
+    float& original_traversability = original_map.atPosition("traversability", position);
+    float new_traversability = new_map.atPosition("traversability", position);
+    float& original_uncertainty = original_map.atPosition("uncertainty_range", position);
+    float new_uncertainty = new_map.atPosition("uncertainty_range", position);
+    float& original_timestamp = original_map.atPosition("time", position);
+    if (ShouldCopyNewValue(original_uncertainty, new_uncertainty, original_timestamp, new_timestamp))
+    {
+      original_traversability = new_traversability;
+      original_uncertainty = new_uncertainty;
+      original_timestamp = new_timestamp;
+    }
+    if (ShouldClearValue(original_uncertainty, new_uncertainty, original_timestamp, new_timestamp)) {
+      original_traversability = std::numeric_limits<double>::quiet_NaN();
+      original_uncertainty = std::numeric_limits<double>::quiet_NaN();
+      original_timestamp = new_timestamp;
+    }
 }
