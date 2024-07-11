@@ -8,7 +8,7 @@ from threading import Lock
 from dynamic_reconfigure.server import Server
 from dynamic_reconfigure.client import Client
 
-from std_msgs.msg import Float32
+from std_msgs.msg import Float32, Empty, String
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import JointState
 from joystick_control.msg import Gamepad
@@ -28,10 +28,9 @@ class Joystick5dofManipulator:
         self.MAX_JOINT_EFFORT = rospy.get_param("~max_joint_effort", None)
         self.MAX_LINEAR_RATE = rospy.get_param("~max_linear_rate", None)
         self.MAX_ANGULAR_RATE = rospy.get_param("~max_angular_rate", None)
-        self.GRIPPER_STEP = rospy.get_param("~gripper_step", 5.0)
-        self.GRIPPER_MAX_ANGLE = rospy.get_param("~gripper_max_angle", 90.0)
-        self.GRIPPER_MIN_ANGLE = rospy.get_param("~gripper_min_angle", -10.0)
+        self.GRIPPER_STEP = rospy.get_param("~gripper_step", 0.1)
 
+        print(self.GRIPPER_STEP)
         # topics for main processing
         self.subscriber = rospy.Subscriber(
             "joy_5dof_manipulator",
@@ -41,8 +40,14 @@ class Joystick5dofManipulator:
         self.ik_publisher = rospy.Publisher("/cmd_manip", Twist, queue_size=10)
         self.fk_publisher = rospy.Publisher(
             "/joy_5dof_manipulator/manip_command", JointState, queue_size=10)
-        self.gripper_publisher = rospy.Publisher("/gripper_canbus/cmd",
+        self.gripper_publisher = rospy.Publisher("/gripper/set_force",
                                                  Float32,
+                                                 queue_size=10)
+        self.gripper_open_publisher = rospy.Publisher("/gripper/open_trigger",
+                                                      Empty,
+                                                      queue_size=10)
+        self.klakson_publisher = rospy.Publisher("klakson/cmd",
+                                                 String,
                                                  queue_size=10)
 
         self.multiplexer_select_service = rospy.ServiceProxy(
@@ -56,7 +61,10 @@ class Joystick5dofManipulator:
             for key in self.translator.BUTTONS_ID.keys()
         }
 
-        self.gripper_angle = rospy.get_param("~default_gripper_angle", 45.0)
+        self.is_down_cross_pressed = False
+        self.gripper_command = 0
+        self.is_gripper_opening = False
+        self.time_of_down_cross = rospy.Time.now()
 
         # dynamic parameters
         self.mode = 0
@@ -121,16 +129,31 @@ class Joystick5dofManipulator:
             angular_multiplier = self.MAX_ANGULAR_RATE * multiplier
 
             # gripper control
-            if debounce.is_leading_edge("up_cross"):
-                self.gripper_angle -= self.GRIPPER_STEP
-                self.gripper_angle = max(self.gripper_angle,
-                                         self.GRIPPER_MIN_ANGLE)
+            if debounce.is_trailing_edge("up_cross"):
+                self.gripper_command += self.GRIPPER_STEP
+                self.gripper_command = min(1, self.gripper_command)
             if debounce.is_leading_edge("down_cross"):
-                self.gripper_angle += self.GRIPPER_STEP
-                self.gripper_angle = min(self.gripper_angle,
-                                         self.GRIPPER_MAX_ANGLE)
+                self.time_of_down_cross = rospy.Time.now()
+                self.is_down_cross_pressed = True
+            down_cross_press_time = rospy.Time.now() - self.time_of_down_cross
+            if debounce.is_trailing_edge("down_cross"):
+                self.is_down_cross_pressed = False
+                if down_cross_press_time.to_sec() < 0.7:
+                    self.gripper_command -= self.GRIPPER_STEP
+                    self.gripper_command = max(0, self.gripper_command)
+            if self.is_down_cross_pressed and down_cross_press_time.to_sec(
+            ) > 0.7:
+                self.gripper_open_publisher.publish(Empty())
+                self.is_gripper_opening = True
+                self.gripper_command = 0
+            else:
+                self.gripper_publisher.publish(self.gripper_command)
+                pass
 
-            self.gripper_publisher.publish(self.gripper_angle)
+            if debounce.is_leading_edge("start_button"):
+                self.klakson_publisher.publish(String("on"))
+            if debounce.is_trailing_edge("start_button"):
+                self.klakson_publisher.publish(String("off"))
 
             # calculate movement based on the current mode
             if self.mode == self.MODES["forward"]:
