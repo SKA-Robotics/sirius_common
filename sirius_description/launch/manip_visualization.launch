@@ -1,0 +1,15 @@
+<launch>    
+    <arg name="model" default="$(find sirius_description)/urdf/sirius/manipulator.urdf.xacro"/>
+    <arg name="robot_state_frequency" default="25"  />
+    <arg name="gazebo_origin" default="[-9.396, 16.082]"/>
+    <arg name="spherical_coordinates" default="[50.878009, 20.642403, 144.41]"/>
+    <arg name="elevation" default="308.1445"/>
+    <arg name="stereo_fps"            default="30"  />
+    <arg name="year" default=""/>
+    <arg name="transforms" default=""/>
+    
+    <param name="robot_description" command="$(find xacro)/xacro '$(arg model)'" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find sirius_description)/config/manip_visualization.rviz"/>
+    <node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+</launch>
