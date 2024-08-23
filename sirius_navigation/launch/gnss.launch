@@ -4,7 +4,9 @@
   <!-- ITC -->
   <!-- <arg name="datum" default="[52.219450, 21.009582]"/> -->
   <!-- Goorka kazoorka -->
-  <arg name="datum" default="[52.1367231, 21.0450444]"/>
+  <!--<arg name="datum" default="[52.1367231, 21.0450444]"/>-->
+  <!-- Akademik ARC24  -->
+  <!-- <arg name="datum" default="[39.8842, 32.7766]"/> -->
   <!-- URC: The Mars Desert Research Station  -->
   <!-- <arg name="datum" default="[38.4190235, -110.7823884]"/> -->
 
@@ -16,6 +18,6 @@
     <remap from="/ublox_gps/fix_velocity" to="/gps/fix_velocity"/>
   </node>
   <include file="$(find sirius_navigation)/launch/navsat_transform.launch">
-    <arg name="datum" value="$(arg datum)"/>
+    <!--<arg name="datum" value="$(arg datum)"/>-->
   </include>
 </launch>

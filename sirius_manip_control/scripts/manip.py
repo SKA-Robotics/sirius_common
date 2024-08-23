@@ -1,4 +1,5 @@
 from ik import SiriusII_IKSolver, ManipPose
+from ik_6dof import SiriusII_6DofIKSolver
 from manip_interface import ManipInterface
 from motion_interpolation import InterpolationSettings
 from motion_strategies import CartesianMotion, JointspaceMotion, IncrementalMotion
@@ -10,9 +11,14 @@ class SiriusManip:
         self.manip_interface = manip_interface
         self.params = self.manip_interface.get_manip_params()
         self.solver = self._create_ik_solver(self.params)
+        currentJointstate = manip_interface.get_jointstate()
+        # self.start_pose_for_incremental_move = self.solver.get_FK_solution(
+        #     currentJointstate)
 
     def _create_ik_solver(self, params):
-        return SiriusII_IKSolver(params.joint_names(), params.link_lengths(), params.joint_limits())
+        return SiriusII_6DofIKSolver(params.joint_names(),
+                                     params.link_lengths(),
+                                     params.joint_limits())
 
     def move_cartesian(self, target_pose: ManipPose):
         self._move(target_pose, CartesianMotion, "cartesian")
@@ -26,14 +32,23 @@ class SiriusManip:
         rate = mode_params["interpolation_rate"]
         return interpolation_settings, rate
 
-    def _move(self, target_pose: ManipPose, motion_strategy_class, mode_name: str):
-        interpolation_settings, rate = self._get_controlmode_settings(mode_name)
-        motion = motion_strategy_class(target_pose, interpolation_settings, self.solver, rate)
+    def _move(self, target_pose: ManipPose, motion_strategy_class,
+              mode_name: str):
+        interpolation_settings, rate = self._get_controlmode_settings(
+            mode_name)
+        motion = motion_strategy_class(target_pose, interpolation_settings,
+                                       self.solver, rate)
         motion.execute(self.manip_interface)
 
     def get_ik_solver(self):
         return self.solver
 
     def move_incremental(self, pose_delta: ManipPose):
-        motion = IncrementalMotion(pose_delta, self.solver)
+        # motion = IncrementalMotion(self.start_pose_for_incremental_move,
+        #    pose_delta, self.solver)
+        # self.start_pose_for_incremental_move = motion.get_end_pose()
+        motion = IncrementalMotion(
+            self.solver.get_FK_solution(self.manip_interface.get_jointstate()),
+            pose_delta, self.solver)
+        self.start_pose_for_incremental_move = motion.get_end_pose()
         motion.execute(self.manip_interface)

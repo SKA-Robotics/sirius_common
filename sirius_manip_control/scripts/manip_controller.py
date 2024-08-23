@@ -24,11 +24,16 @@ class ManipController:
         self.manip = SiriusManip(interface)
         self.mode = mode.JOINTSPACE
         joystick_timeout = rospy.get_param("~joystick_timeout", 0.5)
-        self.joystick_receiver = JoystickReceiver("/cmd_manip", joystick_timeout)
-        self.rate = rospy.Rate(rospy.get_param("~control_modes/incremental/send_rate"))
+        self.joystick_receiver = JoystickReceiver("/cmd_manip",
+                                                  joystick_timeout)
+        self.rate = rospy.Rate(
+            rospy.get_param("~control_modes/incremental/send_rate"))
         self.pending_moves = Queue(rospy.get_param("~queue_size", 16))
 
-        rospy.Subscriber("/cmd_manip_pos", PointStamped, self.callback, queue_size=10)
+        rospy.Subscriber("/cmd_manip_pos",
+                         PointStamped,
+                         self.callback,
+                         queue_size=10)
         rospy.Service("~toggle_mode", Empty, self._handle_toggle_mode)
 
     def run(self):
@@ -67,7 +72,9 @@ class ManipController:
 
     def _put_into_pending_moves(self, move):
         if self.pending_moves.full():
-            rospy.logwarn("Move queue full. Dropping first element to insert new at the end.")
+            rospy.logwarn(
+                "Move queue full. Dropping first element to insert new at the end."
+            )
             self.pending_moves.get()
         self.pending_moves.put(move)
 
@@ -89,7 +96,10 @@ class JoystickReceiver:
         self._velocity = Twist()
         self._timeout = timeout
         self.prev_time = rospy.Time.now()
-        rospy.Subscriber(joystick_topic, Twist, self._set_velocity, queue_size=10)
+        rospy.Subscriber(joystick_topic,
+                         Twist,
+                         self._set_velocity,
+                         queue_size=10)
 
     def _set_velocity(self, velocity: Twist):
         self._velocity = velocity
@@ -100,12 +110,16 @@ class JoystickReceiver:
         return self._twist_to_pose_scaled(self._velocity, deltatime)
 
     def _is_timed_out(self):
-        result = rospy.Time.now() - self.prev_time > rospy.Duration(self._timeout)
+        result = rospy.Time.now() - self.prev_time > rospy.Duration(
+            self._timeout)
         self.prev_time = rospy.Time.now()
         return result
 
     def _twist_to_pose_scaled(self, twist: Twist, scale):
-        values = [twist.linear.x, twist.linear.y, twist.linear.z, twist.angular.x, twist.angular.y, twist.angular.z]
+        values = [
+            twist.linear.x, twist.linear.y, twist.linear.z, twist.angular.x,
+            twist.angular.y, twist.angular.z
+        ]
         values = [x * scale for x in values]
         return ManipPose.from_list(values)
 

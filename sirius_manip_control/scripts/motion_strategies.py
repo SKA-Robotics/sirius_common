@@ -1,6 +1,7 @@
 from manip_interface import ManipInterface
 from motion_interpolation import InterpolationSettings, MotionInterpolator
-from ik import IKSolver, ManipPose
+from ik import IKSolver, ManipPose, ManipJointState
+from math import pi
 
 from abc import ABC, abstractmethod
 
@@ -14,8 +15,9 @@ class MotionStrategy(ABC):
 
 class InterpolatedMotion(MotionStrategy):
 
-    def __init__(self, target_pose: ManipPose, interpolation_settings: InterpolationSettings, ik_solver: IKSolver,
-                 rate):
+    def __init__(self, target_pose: ManipPose,
+                 interpolation_settings: InterpolationSettings,
+                 ik_solver: IKSolver, rate):
         self.motion_interpolator = MotionInterpolator(interpolation_settings)
         self.ik_solver = ik_solver
         self.target_pose = target_pose
@@ -49,6 +51,7 @@ class InterpolatedMotion(MotionStrategy):
 class CartesianMotion(InterpolatedMotion):
 
     def _calculate_start_coords(self, manip_interface: ManipInterface):
+        joint_state = manip_interface.get_jointstate()
         pose = self.ik_solver.get_FK_solution(manip_interface.get_jointstate())
         return pose.to_list()
 
@@ -80,16 +83,20 @@ class JointspaceMotion(InterpolatedMotion):
 
 class IncrementalMotion(MotionStrategy):
 
-    def __init__(self, delta: ManipPose, ik_solver: IKSolver):
+    def __init__(self, start: ManipPose, delta: ManipPose,
+                 ik_solver: IKSolver):
+        self.startPose = start
         self.deltaPose = delta
         self.solver = ik_solver
 
     def execute(self, manip_interface: ManipInterface):
-        currentJointstate = manip_interface.get_jointstate()
-        currentPose = self.solver.get_FK_solution(currentJointstate)
-        targetPose = self._add_poses(currentPose, self.deltaPose)
+        targetPose = self._add_poses(self.startPose, self.deltaPose)
         targetJointstate = self.solver.get_IK_solution(targetPose)
         manip_interface.set_jointstate(targetJointstate)
 
+    def get_end_pose(self):
+        return self._add_poses(self.startPose, self.deltaPose)
+
     def _add_poses(self, pose1, pose2):
-        return ManipPose.from_list([x1 + x2 for x1, x2 in zip(pose1.to_list(), pose2.to_list())])
+        return ManipPose.from_list(
+            [x1 + x2 for x1, x2 in zip(pose1.to_list(), pose2.to_list())])

@@ -26,6 +26,8 @@ class Joystick5dofManipulator:
         rospy.init_node("joy_5dof_manipulator")
         self.CHANGE_MODE_BUTTON = rospy.get_param("~change_mode_button", None)
         self.MAX_JOINT_EFFORT = rospy.get_param("~max_joint_effort", None)
+        self.MAX_JOINT_FORWARD_VELOCITY = rospy.get_param(
+            "~max_joint_forward_velocity", None)
         self.MAX_LINEAR_RATE = rospy.get_param("~max_linear_rate", None)
         self.MAX_ANGULAR_RATE = rospy.get_param("~max_angular_rate", None)
         self.GRIPPER_STEP = rospy.get_param("~gripper_step", 0.1)
@@ -37,6 +39,9 @@ class Joystick5dofManipulator:
             Gamepad,
             self._joy_subscriber_callback,
         )
+        self.state_subscriber = rospy.Subscriber("/manip_interface/state",
+                                                 JointState,
+                                                 self._joint_state_callback)
         self.ik_publisher = rospy.Publisher("/cmd_manip", Twist, queue_size=10)
         self.fk_publisher = rospy.Publisher(
             "/joy_5dof_manipulator/manip_command", JointState, queue_size=10)
@@ -60,6 +65,7 @@ class Joystick5dofManipulator:
             key: 0
             for key in self.translator.BUTTONS_ID.keys()
         }
+        self.prev_time = rospy.Time.now()
 
         self.is_down_cross_pressed = False
         self.gripper_command = 0
@@ -73,6 +79,16 @@ class Joystick5dofManipulator:
             1: 10,
             2: 50,
             3: 100,
+        }
+
+        # forward kinematics using position control
+        self.current_positions = {
+            "waist": 0,
+            "shoulder": 0,
+            "elbow": 0,
+            "wrist_lift": 0,
+            "wrist_turn": 0,
+            "wrist_spin": 0,
         }
 
         # dynamic_reconfigure server
@@ -127,6 +143,8 @@ class Joystick5dofManipulator:
             effort_multiplier = self.MAX_JOINT_EFFORT * multiplier
             linear_multiplier = self.MAX_LINEAR_RATE * multiplier
             angular_multiplier = self.MAX_ANGULAR_RATE * multiplier
+            forward_velocity_multiplier = self.MAX_JOINT_FORWARD_VELOCITY * multiplier * min(
+                1, (rospy.Time.now() - self.prev_time).to_sec())
 
             # gripper control
             if debounce.is_trailing_edge("up_cross"):
@@ -161,24 +179,63 @@ class Joystick5dofManipulator:
 
                 message.header.stamp = rospy.Time.now()
                 message.name = [
-                    "base_cyl",
-                    "cyl_arm1",
-                    "arm1_arm2",
-                    "arm2_arm3",
-                    "arm3_tool",
+                    "waist",
+                    "shoulder",
+                    "elbow",
+                    "wrist_lift",
+                    "wrist_turn",
+                    "wrist_spin",
                 ]
+                rotation_effort = -deadzone(inputs["right_stick_horizontal"],
+                                            0.15)
+                turn_effort = (inputs["left_cross"] - inputs["right_cross"])
+
                 message.effort = [
-                    -1 * deadzone(inputs["left_stick_horizontal"], 0.15),
+                    -deadzone(inputs["left_stick_horizontal"], 0.15),
                     (inputs["left_trigger"] - inputs["right_trigger"]),
-                    -1 * deadzone(inputs["left_stick_vertical"], 0.15),
-                    -1 * deadzone(inputs["right_stick_vertical"], 0.15),
-                    -1 * deadzone(inputs["right_stick_horizontal"], 0.15),
+                    deadzone(inputs["left_stick_vertical"], 0.15),
+                    deadzone(inputs["right_stick_vertical"], 0.15),
+                    (rotation_effort + turn_effort) / 2,
+                    (-rotation_effort + turn_effort) / 2,
                 ]
 
                 message.effort = [
                     effort * effort_multiplier for effort in message.effort
                 ]
-                message.effort[4] /= 10
+
+                self.fk_publisher.publish(message)
+
+            if self.mode == self.MODES["forward_positional"]:
+                message = JointState()
+
+                message.header.stamp = rospy.Time.now()
+                message.name = [
+                    "waist",
+                    "shoulder",
+                    "elbow",
+                    "wrist_lift",
+                    "wrist_turn",
+                    "wrist_spin",
+                ]
+                message.position = [
+                    self.current_positions['waist'] +
+                    deadzone(inputs["left_stick_horizontal"], 0.15),
+                    self.current_positions['shoulder'] +
+                    (inputs["left_trigger"] - inputs["right_trigger"]),
+                    self.current_positions['elbow'] +
+                    deadzone(inputs["left_stick_vertical"], 0.15),
+                    self.current_positions['wrist_lift'] +
+                    deadzone(inputs["right_stick_vertical"], 0.15),
+                    self.current_positions['wrist_turn'] +
+                    deadzone(inputs["right_stick_horizontal"], 0.15),
+                    self.current_positions['wrist_spin'] +
+                    (inputs["left_cross"] - inputs["right_cross"]),
+                ]
+
+                message.position = [
+                    effort * forward_velocity_multiplier
+                    for effort in message.effort
+                ]
 
                 self.fk_publisher.publish(message)
 
@@ -196,6 +253,7 @@ class Joystick5dofManipulator:
                     inputs["left_stick_horizontal"], 0.15)
                 message.angular.y = inputs["right_trigger"] - inputs[
                     "left_trigger"]
+                message.angular.z = inputs["right_cross"] - inputs["left_cross"]
 
                 message.linear.x *= linear_multiplier
                 message.linear.y *= linear_multiplier
@@ -203,7 +261,14 @@ class Joystick5dofManipulator:
 
                 message.angular.x *= angular_multiplier
                 message.angular.y *= angular_multiplier
+                message.angular.z *= angular_multiplier
                 self.ik_publisher.publish(message)
+
+        self.prev_time = rospy.Time.now()
+
+    def _joint_state_callback(self, msg: JointState):
+        for i, joint in enumerate(msg.name):
+            self.current_positions[joint] = msg.position[i]
 
     def _dynamic_reconfigure(self, config, level):
         if hasattr(self, "MODES"):

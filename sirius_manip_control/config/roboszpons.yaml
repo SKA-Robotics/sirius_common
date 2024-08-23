@@ -1,12 +1,14 @@
 roboszpon_driver:
   joints:
-    base_cyl:
+    waist:
       node_id: 3
-    cyl_arm1:
+    shoulder:
       node_id: 2
-    arm1_arm2:
+    elbow:
       node_id: 7
-    arm2_arm3:
+    wrist_lift:
       node_id: 6
-    arm3_tool:
+    wrist_turn:
       node_id: 5
+    wrist_spin:
+      node_id: 4

@@ -4,9 +4,11 @@
 #include <string>
 
 std::string input_topic = "input_map";
-std::string output_topic = "output_map";
+std::string global_output_topic = "output_global_map";
+std::string local_output_topic = "output_local_map";
 
-ros::Publisher publisher;
+ros::Publisher localPublisher;
+ros::Publisher globalPublisher;
 ros::Subscriber subscriber;
 
 grid_map::GridMap globalMap;
@@ -15,15 +17,20 @@ grid_map::GridMap localMap;
 void InitializeGlobalMap();
 void GridMapCallback(const grid_map_msgs::GridMap& msg);
 void PublishGlobalMap();
+void PublishLocalMap();
 bool CompareGridNode(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp);
+
+int map_size;
 
 int main(int argc, char** argv)
 {
   ros::init(argc, argv, "gridmap_builder");
   ros::NodeHandle node_handle("~");
+  ros::param::param<int>("map_size", map_size, 100);
   InitializeGlobalMap();
   subscriber = node_handle.subscribe(input_topic, 1, GridMapCallback);
-  publisher = node_handle.advertise<grid_map_msgs::GridMap>(output_topic, 5);
+  globalPublisher = node_handle.advertise<grid_map_msgs::GridMap>(global_output_topic, 5);
+  localPublisher = node_handle.advertise<grid_map_msgs::GridMap>(local_output_topic, 5);
   ros::spin();
   return 0;
 }
@@ -32,7 +39,7 @@ void InitializeGlobalMap()
 {
   globalMap = grid_map::GridMap({ "elevation", "traversability", "uncertainty_range", "time" });
   globalMap.setFrameId("map");
-  globalMap.setGeometry(grid_map::Length(30, 30), 0.05, grid_map::Position(0, 0));
+  globalMap.setGeometry(grid_map::Length(map_size, map_size), 0.05, grid_map::Position(0, 0));
 }
 
 void GridMapCallback(const grid_map_msgs::GridMap& msg)
@@ -64,6 +71,14 @@ void GridMapCallback(const grid_map_msgs::GridMap& msg)
     }
   }
   PublishGlobalMap();
+
+  grid_map::Position center = localMap.getPosition();
+  double radius = 0.7;
+  for (grid_map::CircleIterator iterator(localMap, center, radius); !iterator.isPastEnd(); ++iterator)
+  {
+    localMap.at("traversability", *iterator) = 1.0;
+  }
+  PublishLocalMap();
 }
 
 void PublishGlobalMap()
@@ -72,7 +87,16 @@ void PublishGlobalMap()
   globalMap.setTimestamp(time.toNSec());
   grid_map_msgs::GridMap message;
   grid_map::GridMapRosConverter::toMessage(globalMap, message);
-  publisher.publish(message);
+  globalPublisher.publish(message);
+}
+
+void PublishLocalMap()
+{
+  ros::Time time = ros::Time::now();
+  globalMap.setTimestamp(time.toNSec());
+  grid_map_msgs::GridMap message;
+  grid_map::GridMapRosConverter::toMessage(localMap, message);
+  localPublisher.publish(message);
 }
 
 bool CompareGridNode(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp)
@@ -88,7 +112,7 @@ bool CompareGridNode(float original_uncertainty, float new_uncertainty, float or
   float time_diff = new_timestamp - original_timestamp;
   float uncertainty_diff = new_uncertainty - original_uncertainty;
   float uncertainty_penalty = 1.0f;
-  float time_penalty = 1.0f;
+  float time_penalty = 5.0f;
   float penalty = uncertainty_penalty * uncertainty_diff - time_penalty * time_diff;
   if (penalty < 0.0f)
   {

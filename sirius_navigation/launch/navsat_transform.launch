@@ -17,6 +17,7 @@
         <param name="wait_for_datum" value="true"/>
         <!-- map frame is in ENU, so we ignore heading if given -->
         <!--<rosparam param="datum" subst_value="True">$(eval '[' + ','.join(datum.split(',')[0:2]) + ', 0]')</rosparam>-->
-	<rosparam param="datum" subst_value="True">[52.1367231, 21.0450444, 0]</rosparam>
+	<!--<rosparam param="datum" subst_value="True">[52.1367231, 21.0450444, 0]</rosparam>-->
+	<rosparam param="datum" subst_value="True">[39.8842, 32.7766, 0]</rosparam>
     </node> 
 </launch>

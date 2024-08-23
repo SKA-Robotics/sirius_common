@@ -44,8 +44,10 @@
   </node>
 
   <node pkg="sirius_mapping" type="gridmap_builder" name="gridmap_builder" output="screen">
+    <param name="map_size" value="100"/>
     <remap from="~input_map" to="/traversability_estimation/traversability_map"/>
-    <remap from="~output_map" to="/global_gridmap"/>
+    <remap from="~output_global_map" to="/global_gridmap"/>
+    <remap from="~output_local_map" to="/local_gridmap"/>
   </node>
 
   <node pkg="grid_map_visualization" type="grid_map_visualization" name="local_grid_map_conversion" output="screen">

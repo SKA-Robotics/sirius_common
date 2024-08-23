@@ -20,7 +20,7 @@ void pcdCallback(const sensor_msgs::PointCloud2ConstPtr& msg)
   geometry_msgs::TransformStamped transformStamped;
   try
   {
-    transformStamped = tfBuffer.lookupTransform("base_link", "slam", ros::Time::now(), ros::Duration(3));
+    transformStamped = tfBuffer.lookupTransform("base_link_local", "slam", ros::Time::now(), ros::Duration(3));
     Eigen::Isometry3d transform = tf2::transformToEigen(transformStamped);
     Eigen::Matrix4f transform_matrix = transform.matrix().cast<float>();
 

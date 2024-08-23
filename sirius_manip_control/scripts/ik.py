@@ -54,7 +54,7 @@ class SiriusII_IKSolver(IKSolver):
     def get_IK_solution(self, target: ManipPose) -> ManipJointState:
         try:
             return self._calculate_IK_solution(target)
-        except ValueError:
+        except ValueError as e:
             raise Exception("No IK solution! Possibly out of range")
         except Exception as e:
             raise e
@@ -70,7 +70,6 @@ class SiriusII_IKSolver(IKSolver):
         # The reasoning behind this code is explained in docs/Inverse_Kinematics_Formula.pdf
 
         # Last joint value simply equals to its target value
-        solution[4] = target.roll
         # First joint angle can be easily obtained as it is
         # the only joint allowing for movement along y-axis
         solution[0] = math.atan2(y_t, x_t)
@@ -94,8 +93,10 @@ class SiriusII_IKSolver(IKSolver):
         # only one of these solutions will be possible to reach
         r_2, z_2 = self._find_middlepoint_solution1(lengths, r_3, z_3)
         # Given the position, angles of the joints can be calculated
-        solution[1], solution[2], solution[3] = self._calculate_angles(r_3, z_3, r_2, z_2, alpha)
+        solution[1], solution[2], solution[3] = self._calculate_angles(
+            r_3, z_3, r_2, z_2, alpha)
         # Check if the calculated angles are within manipulator's limits
+
         if self._angles_within_constraints(solution):
             return ManipJointState.from_list(solution)
 
@@ -107,7 +108,10 @@ class SiriusII_IKSolver(IKSolver):
         return r_3, z_3
 
     def _angles_within_constraints(self, solution):
-        return all([checkBounds(solution[i], self.limits[i]) for i in range(1, len(solution))])
+        return all([
+            checkBounds(solution[i], self.limits[i])
+            for i in range(1, len(solution))
+        ])
 
     def _calculate_angles(self, r_3, z_3, r_2, z_2, alpha):
         beta = math.atan2(z_2, r_2)
@@ -118,13 +122,16 @@ class SiriusII_IKSolver(IKSolver):
         return angle1, angle2, angle3
 
     def _find_middlepoint_solution1(self, l, x, y):
-        r_2 = (x * x + l[1] * l[1] - l[2] * l[2] + y * y -
-               (y * (x * math.sqrt((l[1] * l[2] * 2.0 - x * x + l[1] * l[1] + l[2] * l[2] - y * y) *
-                                   (l[1] * l[2] * 2.0 + x * x - l[1] * l[1] - l[2] * l[2] + y * y)) + (x * x) * y +
-                     (l[1] * l[1]) * y - (l[2] * l[2]) * y + y * y * y)) / (x * x + y * y)) / (x * 2.0)
-        z_2 = (x * math.sqrt((l[1] * l[2] * 2.0 - x * x + l[1] * l[1] + l[2] * l[2] - y * y) *
-                             (l[1] * l[2] * 2.0 + x * x - l[1] * l[1] - l[2] * l[2] + y * y)) + (x * x) * y +
-               (l[1] * l[1]) * y - (l[2] * l[2]) * y + y * y * y) / ((x * x) * 2.0 + (y * y) * 2.0)
+        r_2 = (x * x + l[1] * l[1] - l[2] * l[2] + y * y - (y * (x * math.sqrt(
+            (l[1] * l[2] * 2.0 - x * x + l[1] * l[1] + l[2] * l[2] - y * y) *
+            (l[1] * l[2] * 2.0 + x * x - l[1] * l[1] - l[2] * l[2] + y * y)
+        ) + (x * x) * y + (l[1] * l[1]) * y - (l[2] * l[2]) * y + y * y * y)) /
+               (x * x + y * y)) / (x * 2.0)
+        z_2 = (x * math.sqrt(
+            (l[1] * l[2] * 2.0 - x * x + l[1] * l[1] + l[2] * l[2] - y * y) *
+            (l[1] * l[2] * 2.0 + x * x - l[1] * l[1] - l[2] * l[2] + y * y)) +
+               (x * x) * y + (l[1] * l[1]) * y -
+               (l[2] * l[2]) * y + y * y * y) / ((x * x) * 2.0 + (y * y) * 2.0)
 
         return r_2, z_2
 
@@ -139,15 +146,17 @@ class SiriusII_IKSolver(IKSolver):
         solution = ManipPose()
 
         # Calculate solution using SiriusII-specific FK formula
-        d = l[1] * math.sin(
-            angles[1]) + l[2] * math.sin(angles[1] + angles[2]) + l[3] * math.sin(angles[1] + angles[2] + angles[3])
-        z = l[1] * math.cos(
-            angles[1]) + l[2] * math.cos(angles[1] + angles[2]) + l[3] * math.cos(angles[1] + angles[2] + angles[3])
+        d = l[1] * math.sin(angles[1]) + l[2] * math.sin(
+            angles[1] + angles[2]) + l[3] * math.sin(angles[1] + angles[2] +
+                                                     angles[3])
+        z = l[1] * math.cos(angles[1]) + l[2] * math.cos(
+            angles[1] + angles[2]) + l[3] * math.cos(angles[1] + angles[2] +
+                                                     angles[3])
         solution.z = z + l[0]
         solution.x = d * math.cos(angles[0])
         solution.y = d * math.sin(angles[0])
         solution.pitch = angles[1] + angles[2] + angles[3] - 0.5 * math.pi
-        solution.roll = angles[4]
+        solution.roll = angles[5] - angles[4]
 
         return solution
 

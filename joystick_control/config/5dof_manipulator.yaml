@@ -1,4 +1,5 @@
-max_joint_effort: 100.0
+max_joint_effort: 1.0
+max_joint_forward_velocity: 1.0
 max_angular_rate: 0.4
 max_linear_rate: 0.1
 

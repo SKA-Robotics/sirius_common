@@ -18,7 +18,7 @@ track_point_frame_id:                       base_link
 track_point_x:                              0.0
 track_point_y:                              0.0
 track_point_z:                              0.0
-min_update_rate:                            10.0
+min_update_rate:                            5.0
 time_tolerance:                             1.0
 time_offset_for_point_cloud:                0.0
 sensor_processor/ignore_points_above:       1.0

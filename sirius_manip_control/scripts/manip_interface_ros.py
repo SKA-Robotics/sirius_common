@@ -8,24 +8,25 @@ from ik import ManipJointState
 
 
 class ROSManipInterface(ManipInterface):
+
     def __init__(self):
         super().__init__()
         rospy.loginfo("Initializg ROSManipInterface")
+        rospy.sleep(rospy.Duration(2))
         self.jointstate = None
         self._params = self._load_ROSparams()
         self._initialize_topics()
 
     def _initialize_topics(self):
-        self.jointstate_topic = rospy.get_param(
-            "~jointstate_topic", "/manip_interface/state"
-        )
-        self.command_topic = rospy.get_param(
-            "~command_topic", "/manip_interface/command"
-        )
-        self.subscriber = rospy.Subscriber(
-            self.jointstate_topic, JointState, self._update_jointstate
-        )
-        self.publisher = rospy.Publisher(self.command_topic, JointState, queue_size=10)
+        self.jointstate_topic = rospy.get_param("~jointstate_topic",
+                                                "/manip_interface/state")
+        self.command_topic = rospy.get_param("~command_topic",
+                                             "/manip_interface/command")
+        self.subscriber = rospy.Subscriber(self.jointstate_topic, JointState,
+                                           self._update_jointstate)
+        self.publisher = rospy.Publisher(self.command_topic,
+                                         JointState,
+                                         queue_size=10)
 
     def _load_ROSparams(self):
         mode_params = rospy.get_param("~control_modes")
@@ -43,15 +44,13 @@ class ROSManipInterface(ManipInterface):
     def set_jointstate(self, jointstate: ManipJointState):
         self.jointstate = jointstate
         jointstate_cmd = JointStateConverter.manip_to_ros(
-            jointstate, self._params.joint_names()
-        )
+            jointstate, self._params.joint_names())
 
         self.publisher.publish(jointstate_cmd)
 
     def _update_jointstate(self, msg):
         self.actual_jointstate = JointStateConverter.ros_to_manip(
-            msg, self._params.joint_names()
-        )
+            msg, self._params.joint_names())
 
         if self.jointstate is None:
             self.jointstate = self.actual_jointstate
@@ -64,6 +63,7 @@ class ROSManipInterface(ManipInterface):
 
 
 class JointStateConverter:
+
     def manip_to_ros(joinstate: ManipJointState, names) -> JointState:
         assert len(joinstate.position) == len(names)
         result = JointState()
