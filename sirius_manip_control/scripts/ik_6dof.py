@@ -109,15 +109,15 @@ class SiriusII_6DofIKSolver(IKSolver):
 
         phi = result.position[4]
         theta = result.position[5]
-        result.position[4] = 2 * phi + theta
-        result.position[5] = -2 * phi + theta
+        result.position[4] = phi + theta / 2
+        result.position[5] = -phi + theta / 2
 
         return result
 
     def get_FK_solution(self, jointstate: ManipJointState) -> ManipPose:
         angles = list(jointstate.position)
-        top_gear_position = angles[4] / 2
-        bottom_gear_position = angles[5] / 2
+        top_gear_position = angles[4]
+        bottom_gear_position = angles[5]
         angles[5] = (top_gear_position + bottom_gear_position)
         angles[4] = (top_gear_position - bottom_gear_position) / 2
 
