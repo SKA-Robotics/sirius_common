@@ -12,8 +12,13 @@ class SiriusManip:
         self.params = self.manip_interface.get_manip_params()
         self.solver = self._create_ik_solver(self.params)
         currentJointstate = manip_interface.get_jointstate()
-        # self.start_pose_for_incremental_move = self.solver.get_FK_solution(
-        #     currentJointstate)
+        self.start_pose_for_incremental_move = self.solver.get_FK_solution(
+            currentJointstate)
+
+    def reset_incremental_start_pose(self):
+        currentJointstate = self.manip_interface.get_jointstate()
+        self.start_pose_for_incremental_move = self.solver.get_FK_solution(
+            currentJointstate)
 
     def _create_ik_solver(self, params):
         return SiriusII_6DofIKSolver(params.joint_names(),
@@ -44,11 +49,7 @@ class SiriusManip:
         return self.solver
 
     def move_incremental(self, pose_delta: ManipPose):
-        # motion = IncrementalMotion(self.start_pose_for_incremental_move,
-        #    pose_delta, self.solver)
-        # self.start_pose_for_incremental_move = motion.get_end_pose()
-        motion = IncrementalMotion(
-            self.solver.get_FK_solution(self.manip_interface.get_jointstate()),
-            pose_delta, self.solver)
+        motion = IncrementalMotion(self.start_pose_for_incremental_move,
+                                   pose_delta, self.solver)
         self.start_pose_for_incremental_move = motion.get_end_pose()
         motion.execute(self.manip_interface)

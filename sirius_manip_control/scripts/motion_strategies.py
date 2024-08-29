@@ -2,6 +2,8 @@ from manip_interface import ManipInterface
 from motion_interpolation import InterpolationSettings, MotionInterpolator
 from ik import IKSolver, ManipPose, ManipJointState
 from math import pi
+import rospy
+from geometry_msgs.msg import PoseStamped
 
 from abc import ABC, abstractmethod
 
@@ -81,21 +83,59 @@ class JointspaceMotion(InterpolatedMotion):
         manip_interface.set_jointstate(jointstate)
 
 
+import numpy as np
+
+
+def get_quaternion_from_euler(roll, pitch, yaw):
+    qx = np.sin(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) - np.cos(
+        roll / 2) * np.sin(pitch / 2) * np.sin(yaw / 2)
+    qy = np.cos(roll / 2) * np.sin(pitch / 2) * np.cos(yaw / 2) + np.sin(
+        roll / 2) * np.cos(pitch / 2) * np.sin(yaw / 2)
+    qz = np.cos(roll / 2) * np.cos(pitch / 2) * np.sin(yaw / 2) - np.sin(
+        roll / 2) * np.sin(pitch / 2) * np.cos(yaw / 2)
+    qw = np.cos(roll / 2) * np.cos(pitch / 2) * np.cos(yaw / 2) + np.sin(
+        roll / 2) * np.sin(pitch / 2) * np.sin(yaw / 2)
+
+    return [qx, qy, qz, qw]
+
+
 class IncrementalMotion(MotionStrategy):
 
     def __init__(self, start: ManipPose, delta: ManipPose,
                  ik_solver: IKSolver):
         self.startPose = start
         self.deltaPose = delta
+        self.endPose = start
         self.solver = ik_solver
+        #self.publisher = rospy.Publisher("/ik_target",
+        #                                 PoseStamped,
+        #                                 queue_size=10)
+        self.targetPose = self._add_poses(self.startPose, self.deltaPose)
+        self.targetJointstate = self.solver.get_IK_solution(self.targetPose)
+        self.endPose = self.targetPose  # only if the IK solution was found
 
     def execute(self, manip_interface: ManipInterface):
-        targetPose = self._add_poses(self.startPose, self.deltaPose)
-        targetJointstate = self.solver.get_IK_solution(targetPose)
-        manip_interface.set_jointstate(targetJointstate)
+        """
+        pose_list = self.targetPose.to_list()
+        pose_msg = PoseStamped()
+        pose_msg.pose.position.x = pose_list[0]
+        pose_msg.pose.position.y = pose_list[1]
+        pose_msg.pose.position.z = pose_list[2]
+        quaternion = get_quaternion_from_euler(pose_list[3], pose_list[4],
+                                               pose_list[5])
+        pose_msg.pose.orientation.x = quaternion[0]
+        pose_msg.pose.orientation.y = quaternion[1]
+        pose_msg.pose.orientation.z = quaternion[2]
+        pose_msg.pose.orientation.w = quaternion[3]
+        pose_msg.header.stamp = rospy.Time.now()
+        pose_msg.header.frame_id = "base_link"
+        self.publisher.publish(pose_msg)
+        """
+
+        manip_interface.set_jointstate(self.targetJointstate)
 
     def get_end_pose(self):
-        return self._add_poses(self.startPose, self.deltaPose)
+        return self.endPose
 
     def _add_poses(self, pose1, pose2):
         return ManipPose.from_list(

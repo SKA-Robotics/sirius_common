@@ -42,18 +42,14 @@ class ROSManipInterface(ManipInterface):
         return self.jointstate
 
     def set_jointstate(self, jointstate: ManipJointState):
-        self.jointstate = jointstate
         jointstate_cmd = JointStateConverter.manip_to_ros(
             jointstate, self._params.joint_names())
 
         self.publisher.publish(jointstate_cmd)
 
     def _update_jointstate(self, msg):
-        self.actual_jointstate = JointStateConverter.ros_to_manip(
+        self.jointstate = JointStateConverter.ros_to_manip(
             msg, self._params.joint_names())
-
-        if self.jointstate is None:
-            self.jointstate = self.actual_jointstate
 
     def sleep(self, time):
         rospy.sleep(rospy.Duration(time))

@@ -81,10 +81,11 @@ class SiriusII_6DofIKSolver(IKSolver):
         local_pitch_angle_cos = np.dot((0.0, 0.0, 1.0), new_local_z_axis)
         local_pitch_angle = math.atan2(local_pitch_angle_sin,
                                        local_pitch_angle_cos)
-
         if local_yaw_angle < self.limits[4][
                 0] or local_yaw_angle > self.limits[4][1]:
-            raise Exception("IK solution outside of joint limits!")
+            raise Exception(
+                f"IK solution outside of joint limits! (local_yaw_angle: {local_yaw_angle}, limit: ({self.limits[4][0]},{self.limits[4][1]}))"
+            )
 
         l_5 = [l[0], l[1], l[2], l[3]]
         limits_5 = [
@@ -106,23 +107,19 @@ class SiriusII_6DofIKSolver(IKSolver):
         feedback = self.get_FK_solution(result)
         result.position[5] += target.roll - feedback.roll
 
-        print("target", target.to_list())
-        print("result", result.position)
-
         phi = result.position[4]
         theta = result.position[5]
-        result.position[4] = phi + theta / 2
-        result.position[5] = -phi + theta / 2
+        result.position[4] = 2 * phi + theta
+        result.position[5] = -2 * phi + theta
 
         return result
 
     def get_FK_solution(self, jointstate: ManipJointState) -> ManipPose:
-        angles = jointstate.position
-        top_gear_position = angles[4]
-        bottom_gear_position = angles[5]
+        angles = list(jointstate.position)
+        top_gear_position = angles[4] / 2
+        bottom_gear_position = angles[5] / 2
         angles[5] = (top_gear_position + bottom_gear_position)
         angles[4] = (top_gear_position - bottom_gear_position) / 2
-        # print(f"turn_angle={angles[4]}, spin_angle={angles[5]}")
 
         l = self.lengths
         solution = ManipPose()

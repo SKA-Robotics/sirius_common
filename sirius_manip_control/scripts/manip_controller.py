@@ -41,6 +41,8 @@ class ManipController:
             try:
                 self._execute_pending_moves()
                 self._execute_joystick_command()
+                if self.joystick_receiver.is_timed_out():
+                    self.manip.reset_incremental_start_pose()
                 self.rate.sleep()
             except Exception as e:
                 rospy.logwarn(e)
@@ -103,16 +105,16 @@ class JoystickReceiver:
 
     def _set_velocity(self, velocity: Twist):
         self._velocity = velocity
+        self.prev_time = rospy.Time.now()
 
     def get_pose_delta(self, deltatime):
-        if self._is_timed_out():
+        if self.is_timed_out():
             self._velocity = Twist()
         return self._twist_to_pose_scaled(self._velocity, deltatime)
 
-    def _is_timed_out(self):
+    def is_timed_out(self):
         result = rospy.Time.now() - self.prev_time > rospy.Duration(
             self._timeout)
-        self.prev_time = rospy.Time.now()
         return result
 
     def _twist_to_pose_scaled(self, twist: Twist, scale):
