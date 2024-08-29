@@ -186,55 +186,22 @@ class Joystick5dofManipulator:
                     "wrist_turn",
                     "wrist_spin",
                 ]
-                rotation_effort = -deadzone(inputs["right_stick_horizontal"],
+                rotation_effort = -deadzone(inputs["left_stick_horizontal"],
                                             0.15)
-                turn_effort = (inputs["left_cross"] - inputs["right_cross"])
+                turn_effort = (inputs["left_cross"] -
+                               inputs["right_cross"]) / 2
 
                 message.effort = [
-                    -deadzone(inputs["left_stick_horizontal"], 0.15),
-                    (inputs["left_trigger"] - inputs["right_trigger"]),
+                    -deadzone(inputs["right_stick_horizontal"], 0.15),
                     deadzone(inputs["left_stick_vertical"], 0.15),
                     deadzone(inputs["right_stick_vertical"], 0.15),
-                    (rotation_effort + turn_effort) / 2,
-                    (-rotation_effort + turn_effort) / 2,
+                    (inputs["left_trigger"] - inputs["right_trigger"]),
+                    (turn_effort + rotation_effort) / 2,
+                    (-turn_effort + rotation_effort) / 2,
                 ]
 
                 message.effort = [
                     effort * effort_multiplier for effort in message.effort
-                ]
-
-                self.fk_publisher.publish(message)
-
-            if self.mode == self.MODES["forward_positional"]:
-                message = JointState()
-
-                message.header.stamp = rospy.Time.now()
-                message.name = [
-                    "waist",
-                    "shoulder",
-                    "elbow",
-                    "wrist_lift",
-                    "wrist_turn",
-                    "wrist_spin",
-                ]
-                message.position = [
-                    self.current_positions['waist'] +
-                    deadzone(inputs["left_stick_horizontal"], 0.15),
-                    self.current_positions['shoulder'] +
-                    (inputs["left_trigger"] - inputs["right_trigger"]),
-                    self.current_positions['elbow'] +
-                    deadzone(inputs["left_stick_vertical"], 0.15),
-                    self.current_positions['wrist_lift'] +
-                    deadzone(inputs["right_stick_vertical"], 0.15),
-                    self.current_positions['wrist_turn'] +
-                    deadzone(inputs["right_stick_horizontal"], 0.15),
-                    self.current_positions['wrist_spin'] +
-                    (inputs["left_cross"] - inputs["right_cross"]),
-                ]
-
-                message.position = [
-                    effort * forward_velocity_multiplier
-                    for effort in message.effort
                 ]
 
                 self.fk_publisher.publish(message)
@@ -251,9 +218,9 @@ class Joystick5dofManipulator:
 
                 message.angular.x = -1 * deadzone(
                     inputs["left_stick_horizontal"], 0.15)
-                message.angular.y = inputs["right_trigger"] - inputs[
-                    "left_trigger"]
-                message.angular.z = inputs["right_cross"] - inputs["left_cross"]
+                message.angular.y = inputs["left_trigger"] - inputs[
+                    "right_trigger"]
+                message.angular.z = inputs["left_cross"] - inputs["right_cross"]
 
                 message.linear.x *= linear_multiplier
                 message.linear.y *= linear_multiplier
