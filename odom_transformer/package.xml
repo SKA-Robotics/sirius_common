@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>odom_transformer</name>
+  <version>1.0.0</version>
+  <description>Utilities for transforming nav_msgs/Odometry</description>
+  <maintainer email="gabriel@gabrielb.dev">Gabriel Brzeziński</maintainer>
+  <license>Apache-2.0</license>
+
+
+  <build_depend>rospy</build_depend>
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>nav_msgs</exec_depend>
+
+</package>
