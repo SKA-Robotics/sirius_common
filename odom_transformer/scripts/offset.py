@@ -11,7 +11,7 @@ class OdometryChildFrameTransformer():
 
         self.publish_tf = rospy.get_param('~publish_tf', False)
         self.translation = {'x': rospy.get_param('~pose/x', 0), 'y': rospy.get_param('~pose/y', 0), 'z': rospy.get_param('~pose/z', 0)}
-        self.orientation = {'x': rospy.get_param('~orientation/x', 0), 'y': rospy.get_param('~orientation/y', 0), 'z': rospy.get_param('~orientation/z', 0), 'w': rospy.get_param('~orientation/w', 0)}
+        # self.orientation = {'x': rospy.get_param('~orientation/x', 0), 'y': rospy.get_param('~orientation/y', 0), 'z': rospy.get_param('~orientation/z', 0), 'w': rospy.get_param('~orientation/w', 0)}
 
         self.odom_sub = rospy.Subscriber('odom_in', Odometry, self.odom_callback)
         self.odom_pub = rospy.Publisher('odom_out', Odometry, queue_size=10)
