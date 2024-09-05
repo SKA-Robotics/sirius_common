@@ -5,6 +5,6 @@ catkin_package()
 catkin_install_python(
   PROGRAMS
   scripts/child_frame_transform.py
-  scripts/parent_frame_transform.py
+  scripts/offset.py
   DESTINATION
   ${CATKIN_PACKAGE_BIN_DESTINATION})
