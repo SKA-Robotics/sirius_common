@@ -11,6 +11,7 @@ class OdometryChildFrameTransformer():
         rospy.init_node('odom_child_frame_transformer', anonymous=True)
 
 
+        self.publish_tf = rospy.get_param('~publish_tf', False)
         self.target_frame = rospy.get_param('~target_frame')
         timeout = rospy.get_param('~timeout', 5)
         self.timeout = rospy.Duration(timeout)
@@ -18,9 +19,10 @@ class OdometryChildFrameTransformer():
         self.odom_sub = rospy.Subscriber('odom_in', Odometry, self.odom_callback)
         self.tf_buffer = tf2_ros.Buffer()
         self.tf_listener = tf2_ros.TransformListener(self.tf_buffer)
-
-        self.tf_broadcaster = tf2_ros.TransformBroadcaster()
+        
         self.odom_pub = rospy.Publisher('odom_out', Odometry, queue_size=10)
+        if self.publish_tf:
+            self.tf_broadcaster = tf2_ros.TransformBroadcaster()
     
     def run(self):
         rospy.spin()
@@ -28,7 +30,8 @@ class OdometryChildFrameTransformer():
     def odom_callback(self, msg):
         transformed_odom = transform_odometry_child_frame(msg, self.target_frame, self.tf_buffer, self.timeout)
         self.odom_pub.publish(transformed_odom)
-        self.publish_odom_to_tf(transformed_odom)
+        if self.publish_tf:
+            self.publish_odom_to_tf(transformed_odom)
     
     def publish_odom_to_tf(self, odom):
         tf_msg = TransformStamped()
