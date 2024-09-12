@@ -1,0 +1,53 @@
+arm1_mass: 1.564300
+arm1_inertia:
+  ixx: 0.004179
+  ixy: 0.000542
+  ixz: -0.000450
+  iyy: 0.041404
+  iyz: -0.000006
+  izz: 0.039499
+
+arm2_mass: 0.758570
+arm2_inertia:
+  ixx: 0.000818
+  ixy: 0.000524
+  ixz: 0.000000
+  iyy: 0.022228
+  iyz: 0.000000
+  izz: 0.022092
+
+arm3_mass: 0.455761
+arm3_inertia:
+  ixx: 0.000825
+  ixy: -0.000044
+  ixz: 0.000000
+  iyy: 0.000967
+  iyz: 0.000000
+  izz: 0.001264
+
+base_mass: 1.650620
+base_inertia:
+  ixx: 0.008561
+  ixy: -0.000554
+  ixz: 0.000450
+  iyy: 0.004738
+  iyz: -0.000556
+  izz: 0.009190
+
+cyl_mass: 0.877329
+cyl_inertia:
+  ixx: 0.001589
+  ixy: -0.000005
+  ixz: -0.000533
+  iyy: 0.003457
+  iyz: 0.000005
+  izz: 0.002581
+
+tool_mass: 0.066697
+tool_inertia:
+  ixx: 0.000015
+  ixy: 0.000001
+  ixz: 0.000000
+  iyy: 0.000040
+  iyz: 0.000000
+  izz: 0.000041

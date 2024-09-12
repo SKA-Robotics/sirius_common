@@ -1,0 +1,284 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+        <xacro:macro name="manipulator" params="prefix:='' package:=^">
+                <!-- Parse parameters -->
+                <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
+                <!-- Load model parameters -->
+                <xacro:property name="params" value="${xacro.load_yaml('manipulator.yaml')}" />
+                <!-- Load inertial parameters -->
+                <xacro:property name="inertial" value="${xacro.load_yaml('sirius_2/manipulator_inertial.yaml')}" />
+
+                <link name="base_link">
+                        <visual>
+                                <geometry>
+                                        <mesh filename="package://${package}/meshes/manipulator/base.stl" scale="0.001 0.001 0.001"/>
+                                </geometry>
+                                <material name="${_prefix}grey">
+                                        <color rgba=".5 .5 .5 1" />
+                                </material>
+                        </visual>
+                        <inertial>
+                                <mass value="${inertial['base_mass']}"/>
+                                <inertia ixx="${inertial['base_inertia']['ixx']}" ixy="${inertial['base_inertia']['ixy']}" ixz="${inertial['base_inertia']['ixz']}" iyy="${inertial['base_inertia']['iyy']}" iyz="${inertial['base_inertia']['iyz']}" izz="${inertial['base_inertia']['izz']}"/>
+                        </inertial>
+                        <collision>
+                                <origin xyz="0 0 ${params['base_length'] / 2}" rpy="0 0 0" />
+                                <geometry>
+                                        <box size="0.192 0.337 ${params['base_length']}" />
+                                </geometry>
+                        </collision>
+                </link>
+                <gazebo reference="base_link">
+                        <material>
+                                Gazebo/Grey
+                        </material>
+                </gazebo>
+
+                <link name="${_prefix}cylinder">
+                        <visual>
+                                <origin xyz="0 0 0" rpy="0 0 0" />
+                                <geometry>
+                                        <mesh filename="package://${package}/meshes/manipulator/cyl.stl" scale="0.001 0.001 0.001"/>
+                                </geometry>
+                                <material name="${_prefix}grey">
+                                </material>
+                        </visual>
+                        <inertial>
+                                <mass value="${inertial['cyl_mass']}"/>
+                                <inertia ixx="${inertial['cyl_inertia']['ixx']}" ixy="${inertial['cyl_inertia']['ixy']}" ixz="${inertial['cyl_inertia']['ixz']}" iyy="${inertial['cyl_inertia']['iyy']}" iyz="${inertial['cyl_inertia']['iyz']}" izz="${inertial['cyl_inertia']['izz']}"/>
+                        </inertial>
+                        <collision>
+                                <origin xyz="0 0 ${params['cyl_length']/2}" rpy="0 0 0" />
+                                <geometry>
+                                        <cylinder length="${params['cyl_length']}" radius="0.06" />
+                                </geometry>
+                        </collision>
+                </link>
+                <gazebo reference="${_prefix}cylinder">
+                        <material>
+                                Gazebo/Grey
+                        </material>
+                </gazebo>
+
+                <joint name="waist" type="continuous">
+                        <parent link="base_link"/>
+                        <child link="${_prefix}cylinder"/>
+                        <origin xyz="0 0 ${params['base_length']}"/>
+                        <axis xyz="0 0 1"/>
+                        <limit effort="100" velocity="5" />
+                </joint>
+                <transmission name="${_prefix}trans_base_cyl">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="waist">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="${_prefix}motor_base_cyl">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                                <mechanicalReduction>150</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+                <link name="arm1">
+                        <visual>
+                                <origin xyz="0 0 0" rpy="0 0 0" />
+                                <geometry>
+                                        <mesh filename="package://${package}/meshes/manipulator/arm1.stl" scale="0.001 0.001 0.001"/>
+                                </geometry>
+                                <material name="${_prefix}white">
+                                        <color rgba="1 1 1 1" />
+                                </material>
+                        </visual>
+                        <inertial>
+                                <mass value="${inertial['arm1_mass']}"/>
+                                <inertia ixx="${inertial['arm1_inertia']['ixx']}" ixy="${inertial['arm1_inertia']['ixy']}" ixz="${inertial['arm1_inertia']['ixz']}" iyy="${inertial['arm1_inertia']['iyy']}" iyz="${inertial['arm1_inertia']['iyz']}" izz="${inertial['arm1_inertia']['izz']}"/>
+                        </inertial>
+                        <collision>
+                                <origin xyz="0 0 ${params['arm1_length']/2}" rpy="0 0 0" />
+                                <geometry>
+                                        <box size="0.07 0.07 ${params['arm1_length']}" />
+                                </geometry>
+                        </collision>
+                </link>
+                <gazebo reference="arm1">
+                        <material>
+                                Gazebo/White
+                        </material>
+                </gazebo>
+
+                <joint name="shoulder" type="revolute">
+                        <parent link="${_prefix}cylinder"/>
+                        <child link="arm1"/>
+                        <origin xyz="0 0 ${params['cyl_length']}" rpy="0 ${params['arm1_home_angle']} 0"/>
+                        <axis xyz="0 1 0"/>
+                        <limit lower="${-1.45 - params['arm1_home_angle']}" upper="${1.45 - params['arm1_home_angle']}" effort="10" velocity="5" />
+                </joint>
+                <transmission name="${_prefix}trans_cyl_arm1">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="shoulder">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="${_prefix}motor_cyl_arm1">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                                <mechanicalReduction>120</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+                <link name="arm2">
+                        <visual>
+                                <origin xyz="0 0 0" rpy="0 0 0" />
+                                <geometry>
+                                        <mesh filename="package://${package}/meshes/manipulator/arm2.stl" scale="0.001 0.001 0.001"/>
+                                </geometry>
+                                <material name="${_prefix}grey">
+                                </material>
+                        </visual>
+                        <inertial>
+                                <mass value="${inertial['arm2_mass']}"/>
+                                <inertia ixx="${inertial['arm2_inertia']['ixx']}" ixy="${inertial['arm2_inertia']['ixy']}" ixz="${inertial['arm2_inertia']['ixz']}" iyy="${inertial['arm2_inertia']['iyy']}" iyz="${inertial['arm2_inertia']['iyz']}" izz="${inertial['arm2_inertia']['izz']}"/>
+                        </inertial>
+                        <collision>
+                                <origin xyz="0 0 ${params['arm2_length']/2 - params['arm2_lever']}" rpy="0 0 0" />
+                                <geometry>
+                                        <box size="0.06 0.06 ${params['arm2_length']}" />
+                                </geometry>
+                        </collision>
+                </link>
+                <gazebo reference="arm2">
+                        <material>
+                                Gazebo/Grey
+                        </material>
+                </gazebo>
+
+                <joint name="elbow" type="revolute">
+                        <parent link="arm1"/>
+                        <child link="arm2"/>
+                        <origin xyz="0 0 ${params['arm1_length']}" rpy="0 ${params['arm2_home_angle']} 0"/>
+                        <axis xyz="0 1 0"/>
+                        <limit lower="-1.6" upper="0.0" effort="100" velocity="50" />
+                </joint>
+                <transmission name="${_prefix}trans_elbow">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="elbow">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="${_prefix}motor_elbow">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                                <mechanicalReduction>100</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+                <link name="arm3">
+                        <visual>
+                                <origin xyz="0 0 0" rpy="0 0 0" />
+                                <geometry>
+                                        <mesh filename="package://${package}/meshes/manipulator/arm3.stl" scale="0.001 0.001 0.001"/>
+                                </geometry>
+                                <material name="${_prefix}white">
+                                </material>
+                        </visual>
+                        <inertial>
+                                <mass value="${inertial['arm3_mass']}"/>
+                                <inertia ixx="${inertial['arm3_inertia']['ixx']}" ixy="${inertial['arm3_inertia']['ixy']}" ixz="${inertial['arm3_inertia']['ixz']}" iyy="${inertial['arm3_inertia']['iyy']}" iyz="${inertial['arm3_inertia']['iyz']}" izz="${inertial['arm3_inertia']['izz']}"/>
+                        </inertial>
+
+                        <collision>
+                                <origin xyz="0 0 ${params['arm3_length']/2}" rpy="0 0 0" />
+                                <geometry>
+                                        <box size="0.06 0.076 ${params['arm3_length']}" />
+                                </geometry>
+                        </collision>
+                </link>
+                <gazebo reference="arm3">
+                        <material>
+                                Gazebo/White
+                        </material>
+                </gazebo>
+
+                <joint name="wrist_lift" type="revolute">
+                        <parent link="arm2"/>
+                        <child link="arm3"/>
+                        <origin xyz="0 0 ${params['arm2_length'] - params['arm2_lever']}" rpy="0 ${params['arm3_home_angle']} 0"/>
+                        <axis xyz="0 1 0"/>
+                        <limit lower="-1.57" upper="0" effort="100" velocity="50" />
+                </joint>
+                <transmission name="${_prefix}trans_wrist_lift">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wrist_lift">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="${_prefix}motor_wrist_lift">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+                <link name="fake">
+                </link>
+                <joint name="wrist_turn" type="continuous">
+                        <parent link="arm3"/>
+                        <child link="fake"/>
+                        <origin xyz="0 0 ${params['arm3_length']}"/>
+                        <axis xyz="1 0 0"/>
+                </joint>
+
+
+                <link name="tool">
+                        <visual>
+                                <origin xyz="0 0 0" rpy="0 0 0" />
+                                <geometry>
+                                        <mesh filename="package://${package}/meshes/manipulator/tool.stl" scale="0.001 0.001 0.001"/>
+                                </geometry>
+                                <material name="${_prefix}grey">
+                                </material>
+                        </visual>
+                        <inertial>
+                                <mass value="${inertial['tool_mass']}"/>
+                                <inertia ixx="${inertial['tool_inertia']['ixx']}" ixy="${inertial['tool_inertia']['ixy']}" ixz="${inertial['tool_inertia']['ixz']}" iyy="${inertial['tool_inertia']['iyy']}" iyz="${inertial['tool_inertia']['iyz']}" izz="${inertial['tool_inertia']['izz']}"/>
+                        </inertial>
+                        <collision>
+                                <origin xyz="0 0 ${params['tool_length']/2}" rpy="0 0 0" />
+                                <geometry>
+                                        <cylinder length="${params['tool_length']}" radius="0.03" />
+                                </geometry>
+                        </collision>
+                </link>
+                <gazebo reference="tool">
+                        <material>
+                                Gazebo/Grey
+                        </material>
+                </gazebo>
+
+                <joint name="wrist_spin" type="continuous">
+                        <parent link="fake"/>
+                        <child link="tool"/>
+                        <origin xyz="0 0 0"/>
+                        <axis xyz="0 0 1"/>
+                        <limit effort="20" velocity="5" />
+                </joint>
+                <transmission name="${_prefix}trans_wrist_spin">
+                        <type>transmission_interface/SimpleTransmission</type>
+                        <joint name="wrist_spin">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                        </joint>
+                        <actuator name="${_prefix}motor_wrist_spin">
+                                <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+                                <mechanicalReduction>1</mechanicalReduction>
+                        </actuator>
+                </transmission>
+
+                <link name="virtual">
+                </link>
+
+                <joint name="tool_virtual" type="fixed">
+                        <parent link="tool"/>
+                        <child link="virtual"/>
+                        <origin xyz="0 0 ${params['tool_length']}"/>
+                </joint>
+
+                <gazebo>
+                        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+                                <robotNamespace>manipulator</robotNamespace>
+                                <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+                        </plugin>
+                </gazebo>
+        </xacro:macro>
+</robot>

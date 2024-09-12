@@ -1,0 +1,11 @@
+base_length: 0.006
+cyl_length: 0.0655
+arm1_length: 0.43498
+arm2_length: 0.5236
+arm2_lever: 0.0586
+arm3_length: 0.129
+tool_length: 0.018
+base_size_x: 0.2
+arm1_home_angle: 0 #-0.7853981633974483
+arm2_home_angle: 0 #2.356194490192345
+arm3_home_angle: 0 #0.5
