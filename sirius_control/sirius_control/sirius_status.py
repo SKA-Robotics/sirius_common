@@ -33,7 +33,7 @@ class SiriusStatus(Node):
         self.get_logger().info('Received message: "%s"' % msg.data)
         if msg.data == "Locked":
             self.robot_status.in_motion.val = TriState.FALSE
-            self.robot_status.dirves_powered.val = TriState.TRUE
+            self.robot_status.drives_powered.val = TriState.TRUE
 
         elif msg.data == "__none":
             self.robot_status.mode.val = RobotMode.UNKNOWN
@@ -45,12 +45,12 @@ class SiriusStatus(Node):
             self.robot_status.mode.val = RobotMode.AUTO
 
         elif msg.data == "Idle":
-            self.robot_status.dirves_powered.val= TriState.FALSE
+            self.robot_status.drives_powered.val= TriState.FALSE
             self.robot_status.in_motion.val = TriState.FALSE
 
         elif msg.data == "Running" or msg.data == "Breaking" or msg.data == "Relaxing":
             self.robot_status.in_motion.val = TriState.TRUE
-            self.robot_status.dirves_powered.val = TriState.TRUE
+            self.robot_status.drives_powered.val = TriState.TRUE
 
         self.publish_sirius_status()
 
