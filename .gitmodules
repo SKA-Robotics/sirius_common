@@ -1,0 +1,4 @@
+[submodule "external/industrial_core"]
+	path = external/industrial_core
+	url = https://github.com/ros-industrial/industrial_core.git
+	branch = ros2_msgs_only
