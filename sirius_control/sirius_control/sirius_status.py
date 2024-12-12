@@ -8,12 +8,8 @@ class SiriusStatus(Node):
 
     def __init__(self):
         super().__init__('sirius_status')
-        self.send_status = self.declare_parameter('send_status', '/sirius_status').value
-        self.default_receive_topics = [
-            '/joy_multiplexer/selected_output',
-            '/relaxing_middleware/state'
-        ]
-        self.receive_topics = self.declare_parameter('receive_topics', self.default_receive_topics).value
+        self.send_status = '/sirius_status'
+        self.receive_topics = '/topic_received'
         self.initialize_robot_status()
         self.create_subscriptions()
         self.publisher = self.create_publisher(RobotStatus, self.send_status, 10)
@@ -29,17 +25,23 @@ class SiriusStatus(Node):
         self.robot_status.error_codes = []
 
 
-    def topic_callback(self, msg):
-        self.get_logger().info('Received message: "%s"' % msg.data)
-        if msg.data == "Locked":
-            self.robot_status.in_motion.val = TriState.FALSE
-            self.robot_status.drives_powered.val = TriState.TRUE
+    def joy_multiplexer_callback(self, msg):
+        self.get_logger().debug('Received message: "%s"' % msg.data)
 
-        elif msg.data == "__none":
+        if msg.data == "__none":
             self.robot_status.mode.val = RobotMode.UNKNOWN
 
         elif msg.data == "joy_diff_drive":
             self.robot_status.mode.val = RobotMode.MANUAL
+
+
+        self.publish_sirius_status()
+
+    def relaxing_middleware_callback(self, msg):
+        self.get_logger().debug('Received message: "%s"' % msg.data)
+        if msg.data == "Locked":
+            self.robot_status.in_motion.val = TriState.FALSE
+            self.robot_status.drives_powered.val = TriState.TRUE
 
         elif msg.data == "autonomic":
             self.robot_status.mode.val = RobotMode.AUTO
@@ -56,23 +58,26 @@ class SiriusStatus(Node):
 
 
     def create_subscriptions(self):
-        for topic in self.receive_topics:
-            self.subscription_ = self.create_subscription(
-            String, topic, self.topic_callback, 10)
+        self.subscription_ = self.create_subscription(
+        String, self.receive_topics, self.joy_multiplexer_callback, 10)
 
+        self.subscription_ = self.create_subscription(
+        String, self.receive_topics, self.relaxing_middleware_callback, 10)
+        
 
     def publish_sirius_status(self):
         self.publisher.publish(self.robot_status)
-        self.get_logger().info('Published RobotStatus message')
 
 
 def main(args=None):
     rclpy.init(args=args)
     sirius_status = SiriusStatus()
-    rclpy.spin(sirius_status)
+    try:
+        rclpy.spin(sirius_status)
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
+        pass
+    rclpy.try_shutdown()
     sirius_status.destroy_node()
-    rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
