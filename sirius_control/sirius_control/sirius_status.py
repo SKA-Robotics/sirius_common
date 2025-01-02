@@ -8,11 +8,16 @@ class SiriusStatus(Node):
 
     def __init__(self):
         super().__init__('sirius_status')
-        self.send_status = '/sirius_status'
-        self.receive_topics = '/topic_received'
+
         self.initialize_robot_status()
-        self.create_subscriptions()
-        self.publisher = self.create_publisher(RobotStatus, self.send_status, 10)
+        
+        self.joy_subscription_ = self.create_subscription(
+        String,  'joy_multiplexer/selected_output', self.joy_multiplexer_callback, 10)
+
+        self.subscription_ = self.create_subscription(
+        String, 'relaxing_middleware/state', self.relaxing_middleware_callback, 10)
+
+        self.publisher = self.create_publisher(RobotStatus, 'robot_status', 10)
         
     def initialize_robot_status(self):
         self.robot_status = RobotStatus()
@@ -26,8 +31,6 @@ class SiriusStatus(Node):
 
 
     def joy_multiplexer_callback(self, msg):
-        self.get_logger().debug('Received message: "%s"' % msg.data)
-
         if msg.data == "__none":
             self.robot_status.mode.val = RobotMode.UNKNOWN
 
@@ -38,7 +41,6 @@ class SiriusStatus(Node):
         self.publish_sirius_status()
 
     def relaxing_middleware_callback(self, msg):
-        self.get_logger().debug('Received message: "%s"' % msg.data)
         if msg.data == "Locked":
             self.robot_status.in_motion.val = TriState.FALSE
             self.robot_status.drives_powered.val = TriState.TRUE
@@ -55,14 +57,6 @@ class SiriusStatus(Node):
             self.robot_status.drives_powered.val = TriState.TRUE
 
         self.publish_sirius_status()
-
-
-    def create_subscriptions(self):
-        self.subscription_ = self.create_subscription(
-        String, self.receive_topics, self.joy_multiplexer_callback, 10)
-
-        self.subscription_ = self.create_subscription(
-        String, self.receive_topics, self.relaxing_middleware_callback, 10)
         
 
     def publish_sirius_status(self):
