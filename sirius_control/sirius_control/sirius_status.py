@@ -45,9 +45,6 @@ class SiriusStatus(Node):
             self.robot_status.in_motion.val = TriState.FALSE
             self.robot_status.drives_powered.val = TriState.TRUE
 
-        elif msg.data == "autonomic":
-            self.robot_status.mode.val = RobotMode.AUTO
-
         elif msg.data == "Idle":
             self.robot_status.drives_powered.val= TriState.FALSE
             self.robot_status.in_motion.val = TriState.FALSE
@@ -60,6 +57,7 @@ class SiriusStatus(Node):
         
 
     def publish_sirius_status(self):
+        self.robot_status.header.stamp = self.get_clock().now().to_msg()
         self.publisher.publish(self.robot_status)
 
 
