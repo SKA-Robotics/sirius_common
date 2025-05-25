@@ -1,0 +1,8 @@
+manip_moteus_driver:
+  joints:
+    joint1:
+      node_id: 1
+    joint2:
+      node_id: 2
+    joint3:
+      node_id: 3

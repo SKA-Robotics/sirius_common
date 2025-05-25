@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>manip</name>
+  <version>1.0.0</version>
+  <description>Package for controlling sirius2 manip</description>
+  <maintainer email="zebromek@gmail.com">Tomek Żebrowski</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>tf2_ros</depend>
+  <depend>xacro</depend>
+</package>

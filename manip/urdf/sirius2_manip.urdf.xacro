@@ -1,0 +1,187 @@
+<?xml version="1.0" ?>
+<robot name="manip">
+
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/global_roll_assembly.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 1.5708"/>
+      <material name="grey">
+        <color rgba="0.64 0.13 0.91 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <mesh filename="package://manip/meshes/global_roll_assembly.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 1.5708"/>
+    </collision>
+  </link>
+
+  <link name="link1">
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/base_assy.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 -1.5708"/>
+      <material name="purple">
+        <color rgba="0.64 0.13 0.91 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <mesh filename="package://manip/meshes/base_assy.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 -1.5708"/>
+    </collision>
+  </link>
+
+  <link name="link2"> 
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/GP1.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="-0.02727 0 0" rpy="0.0 0.0 3.14159265359"/>
+      <material name="pink">
+        <color rgba="0.902 0.349 0.971 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://manip/meshes/GP1.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="-0.02727 0 0" rpy="0.0 0.0 3.14159265359"/>
+    </collision>
+  </link>
+
+  <link name="link3">
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/GP2.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+     <origin xyz="-0.012 0 0" rpy="1.5708 0.0 3.14159265359"/>
+      <material name="purple">
+        <color rgba="0.64 0.13 0.91 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <mesh filename="package://manip/meshes/GP2.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="-0.012 0 0" rpy="1.5708 0.0 3.14159265359"/>
+    </collision>
+  </link>
+
+  <link name="link4">
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/wrist_diff_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="pink">
+        <color rgba="0.902 0.349 0.971 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <mesh filename="package://manip/meshes/wrist_diff_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <link name="link5">
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/wrist_diff_output.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="purple">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://manip/meshes/wrist_diff_output.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <link name="link6">
+    <visual>
+      <geometry>
+        <mesh filename="package://manip/meshes/gripper.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="pink">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://manip/meshes/gripper.STL" scale="0.001 0.001 0.001"/>     
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <link name="tool"/>
+
+  <joint name="joint1" type="revolute">
+    <parent link="base_link"/>
+    <child link="link1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="joint2" type="revolute">
+    <parent link="link1"/>
+    <child link="link2"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.25" upper="1.5708" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0.0 0.0 0.07" rpy="0 0 1.57079632679"/>
+  </joint>
+
+  <joint name="joint3" type="revolute">
+    <parent link="link2"/>
+    <child link="link3"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.5708" upper="3.14" effort="1000.0" velocity="0.5"/>
+    <origin xyz="-0.06 0 0.495" rpy="1.57079632679 0 0"/>
+  </joint>
+
+  <joint name="joint4" type="revolute">
+    <parent link="link3"/>
+    <child link="link4"/>
+    <axis xyz="0 0 1"/>
+    <!-- <limit lower="-2.6" upper="-3.14" effort="1000.0" velocity="0.5"/> -->
+    <limit lower="-3.14" upper="2.6" effort="1000.0" velocity="0.5"/>
+    <origin xyz="-0.072 0.29 0.0" rpy="-1.57079632679 0 0"/>
+  </joint>
+
+  <joint name="joint5" type="revolute">
+    <parent link="link4"/>
+    <child link="link5"/>
+    <axis xyz="0 -1 0"/>
+    <limit lower="-1.55" upper="1.55" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0 0 0.07825 " rpy="0.0 0 0"/>
+  </joint>
+
+  <joint name="joint6" type="revolute">
+    <origin xyz="0 0.0 0.04" rpy="0 0 -1.5708"/>
+    <parent link="link5"/>
+    <child link="link6"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="0.5"/>
+  </joint>
+
+  <joint name="link6_to_tool" type="fixed">
+    <origin xyz="0 0 0.12" rpy="1.5708 -1.5708 0"/>
+    <parent link="link6"/>
+    <child link="tool"/>
+  </joint>
+
+</robot>

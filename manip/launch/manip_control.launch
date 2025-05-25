@@ -1,0 +1,5 @@
+<launch>    
+  <rosparam file="$(find manip)/config/manip_control.yaml" command="load"/> 
+  <node name="arm_controller_node" pkg="manip" type="arm_controller_node.py" output="screen"/>
+  <node name="joystick_node" pkg="manip" type="joystick_node.py" output="screen"/>
+</launch>
