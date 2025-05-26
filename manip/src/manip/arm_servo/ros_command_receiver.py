@@ -1,11 +1,13 @@
 from geometry_msgs.msg import TwistStamped, PoseStamped
 from control_msgs.msg import JointJog
 from sensor_msgs.msg import JointState
+from manip.manip_config import ManipConfig
 from manip.arm_servo.command import Command, CommandType
 
 import rospy
 from typing import Optional
 import numpy as np
+import roboticstoolbox as rtb
 import spatialmath as sm
 import time
 import threading
@@ -13,23 +15,34 @@ import threading
 
 class RosCommandReceiver:
 
-    def __init__(self, twist_topic: str, pose_topic: str, joint_topic: str, preset_request_topic: str):
+    def __init__(self, config: ManipConfig, robot_model: rtb.ERobot):
+        self.ee_frame = config.ee_frame_id
+        self.robot_model = robot_model
         self.command_lock = threading.Lock()
         self.command = None
-        rospy.Subscriber(twist_topic, TwistStamped, self.twist_callback, queue_size=10)
-        rospy.Subscriber(pose_topic, PoseStamped, self.pose_callback, queue_size=10)
-        rospy.Subscriber(joint_topic, JointJog, self.joint_callback, queue_size=10)
-        rospy.Subscriber(preset_request_topic, JointState, self.preset_request_callback, queue_size=10)
+        rospy.Subscriber(config.twist_topic, TwistStamped, self.twist_callback, queue_size=10)
+        rospy.Subscriber(config.pose_topic, PoseStamped, self.pose_callback, queue_size=10)
+        rospy.Subscriber(config.joint_topic, JointJog, self.joint_callback, queue_size=10)
+        rospy.Subscriber(config.preset_request_topic, JointState, self.preset_request_callback, queue_size=10)
 
     def twist_callback(self, twist: TwistStamped):
-        # TODO: Recalculate twist to correct frame
+        cmd_frame = twist.header.frame_id
+        linear = np.array([twist.twist.linear.x, twist.twist.linear.y, twist.twist.linear.z, 0])
+        angular = np.array([twist.twist.angular.x, twist.twist.angular.y, twist.twist.angular.z, 0])
+        if cmd_frame != self.ee_frame:
+            # Recalculate twist to another frame
+            T = self.robot_model.fkine(self.robot_model.q, start=cmd_frame, end=self.ee_frame)
+            T = np.linalg.inv(T)
+            linear = T @ linear.T
+            angular = T @ angular.T
+        
         twist_data = np.array([
-            twist.twist.linear.x,
-            twist.twist.linear.y,
-            twist.twist.linear.z,
-            twist.twist.angular.x,
-            twist.twist.angular.y,
-            twist.twist.angular.z])
+            linear[0],
+            linear[1],
+            linear[2],
+            angular[0],
+            angular[1],
+            angular[2]])
         with self.command_lock:
             self.command = Command(CommandType.END_EFFECTOR_TWIST_CMD, twist_data, time.time())
 

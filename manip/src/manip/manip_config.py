@@ -27,7 +27,7 @@ class ManipConfig:
     pose_topic: str = "/pose_cmd"
     joint_topic: str = "/joint_cmd"
     preset_request_topic: str = "/preset_request"
-    gripper_cmd_topic:str = "/gripper_cmd"
+    gripper_cmd_topic: str = "/gripper_cmd"
 
     robot_state_topic: str = "/manip/joint_states"
     robot_command_topic: str = "/manip/set_joint_states"

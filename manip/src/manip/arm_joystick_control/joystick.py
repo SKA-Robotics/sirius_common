@@ -11,6 +11,7 @@ import rospy
 MANIP_PRESET_DATABASE = {
     "ik_ready": [0.0, -0.5, 1.85, -1.53, 0.96, -0.06],
     "zero": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "ground": [0.0, 1.0, 1.462, -1.618, 0.6327, 0.0]
 }
 
 class JoystickControl():
@@ -37,6 +38,7 @@ class JoystickControl():
         CHANGE_MOVEMENT_MODE = 4
         GOTO_IK_READY = 5
         GOTO_ZERO = 6
+        GOTO_GROUND = 7
 
     class SpaceMode(Enum):
         CARTESIAN = 0
@@ -76,6 +78,8 @@ class JoystickControl():
             self._send_preset_request("ik_ready")
         elif buttons[self.Button.GOTO_ZERO]:
             self._send_preset_request("zero")
+        elif buttons[self.Button.GOTO_GROUND]:
+            self._send_preset_request("ground")
         else:
             self._update_gui(raw_axes, raw_buttons)
             axes  = self._process_axes(input)
@@ -101,12 +105,15 @@ class JoystickControl():
 
     def _process_buttons(self, input: Dict[str, float]) -> Dict[Button, bool]:
         return {
-            self.Button.SET_FRAME_BASE: input["start_button"],
-            self.Button.SET_FRAME_TOOL: input["start_button"],
+            self.Button.SET_FRAME_BASE:
+                input["start_button"] and (input["left_bumper"] or input["right_bumper"]),
+            self.Button.SET_FRAME_TOOL:
+                input["start_button"] and not (input["left_bumper"] or input["right_bumper"]),
             self.Button.SET_JOINT_MODE: input["back_button"],
             self.Button.CHANGE_MOVEMENT_MODE: input["left_bumper"] or input["right_bumper"],
             self.Button.GOTO_IK_READY: input["up_cross"],
             self.Button.GOTO_ZERO: input["down_cross"],
+            self.Button.GOTO_GROUND: input["left_cross"],
         }
 
     def _handle_buttons(self, buttons: Dict[Button, bool]):

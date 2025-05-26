@@ -16,12 +16,12 @@ from manip.manip_config import ManipConfig, DEFAULT_CONFIG
 
 
 class ArmController:
-    def __init__(self, config: ManipConfig, robot_interface: RosRobotInterface, command_interface: RosCommandReceiver, viz):
+    def __init__(self, config: ManipConfig,  robot_model: rtb.ERobot, robot_interface: RosRobotInterface, command_interface: RosCommandReceiver, viz):
         self.config = config
         self.command = None
         self.robot_interface = robot_interface
         self.command_interface = command_interface
-        self.robot = load_urdf(config.robot_urdf_path)
+        self.robot = robot_model
         self.pose_servo = PoseServo(self.robot, gain=config.servo_gain)
         self.twist_controller = TwistController(self.robot, config.singularity_avoidance_A, config.singularity_avoidance_B)
         self.trajectory_executor = TrajectoryExecutor()
@@ -133,13 +133,14 @@ def main(config: ManipConfig=DEFAULT_CONFIG):
 
     rospy.init_node("manip_control")
 
+    robot_model = load_urdf(config.robot_urdf_path)
     robot_interface = RosRobotInterface(config.robot_joint_names, config.robot_state_topic, config.robot_command_topic)
-    command_interface = RosCommandReceiver(config.twist_topic, config.pose_topic, config.joint_topic, config.preset_request_topic)
+    command_interface = RosCommandReceiver(config, robot_model)
 
     # viz = None
     viz = RosVisualizer("/manip_goal")
 
-    arm_controller = ArmController(config, robot_interface, command_interface, viz)
+    arm_controller = ArmController(config, robot_model, robot_interface, command_interface, viz)
 
     try:
         arm_controller.loop()
