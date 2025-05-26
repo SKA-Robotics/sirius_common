@@ -53,3 +53,25 @@ class JoystickTranslator:
                 (name, data["axes"][id]) for name, id in self.AXES_ID.items()))
 
         return inputs
+
+
+class Debouncing:
+    def __init__(self, threshold_low=0.45, threshold_high=0.55):
+        self.state = False
+        self.threshold_low = threshold_low
+        self.threshold_high = threshold_high
+        self.is_rising_edge = False
+        self.is_falling_edge = False
+    
+    def update(self, value):
+        if self.state == False and value > self.threshold_high:
+            self.state = True
+            self.is_rising_edge = True
+            self.is_falling_edge = False
+        elif self.state == True and value < self.threshold_low:
+            self.state = False
+            self.is_rising_edge = False
+            self.is_falling_edge = True
+        else:
+            self.is_rising_edge = False
+            self.is_falling_edge = False

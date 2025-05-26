@@ -2,6 +2,7 @@ from enum import Enum
 from typing import List, Dict
 from manip.arm_joystick_control.ros_joy_receiver import RosJoyReceiver
 from manip.arm_joystick_control.ros_command_sender import RosCommandSender
+from manip.arm_joystick_control.gripper_controller import GripperController
 from manip.arm_joystick_control.utils import max_abs, trig_to_axis, JoystickTranslator
 from manip.manip_config import ManipConfig, DEFAULT_CONFIG
 import time
@@ -51,8 +52,9 @@ class JoystickControl():
         self.gui = None
 
         rospy.init_node("joystick_control")
-        self.joy_receiver = RosJoyReceiver(config.joy_topic)
+        self.gripper_controller = GripperController()
         self.command_sender = RosCommandSender(config.twist_topic, config.joint_topic, config.gripper_cmd_topic, config.preset_request_topic)
+        self.joy_receiver = RosJoyReceiver(config.joy_topic)
     
     def run(self):
         self.joy_receiver.register_callback(self.receive_command)
@@ -84,7 +86,7 @@ class JoystickControl():
             self.Axis.ANGULAR_X: input["left_stick_horizontal"],
             self.Axis.ANGULAR_Y: max_abs(input["left_stick_vertical"], input["right_stick_vertical"]),
             self.Axis.ANGULAR_Z: -input["right_stick_horizontal"],
-            self.Axis.GRIPPER: max_abs(trig_to_axis(-input["left_trigger"]), trig_to_axis(-input["right_trigger"])),
+            self.Axis.GRIPPER: max_abs(input["left_trigger"], input["right_trigger"]),
             self.Axis.JOINT_1: -input["left_stick_horizontal"],
             self.Axis.JOINT_2: -input["left_stick_vertical"],
             self.Axis.JOINT_3: input["right_stick_vertical"],
@@ -174,12 +176,7 @@ class JoystickControl():
                     axes[self.Axis.JOINT_6] * self.config.max_qd[5],
                 ]
             self.command_sender.send_joint_command(command)
-    
 
-    def _control_gripper(self, gripper_axis: float):
-        gripper_position = (1 - gripper_axis)
-        self.command_sender.send_gripper_command(gripper_position)
-    
     def add_gui(self, gui):
         self.gui = gui
     
@@ -193,6 +190,10 @@ class JoystickControl():
             return
         target_q = MANIP_PRESET_DATABASE[preset_name]
         self.command_sender.send_preset_command(target_q)
+
+    def _control_gripper(self, gripper_axis: float):
+        gripper_force_cmd = self.gripper_controller.step(gripper_axis)
+        self.command_sender.send_gripper_command(gripper_force_cmd)
 
 
 if __name__ == "__main__":

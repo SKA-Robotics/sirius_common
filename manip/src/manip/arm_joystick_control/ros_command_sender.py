@@ -30,9 +30,9 @@ class RosCommandSender:
         command.velocities = joint_data
         self.joint_publisher.publish(command)
 
-    def send_gripper_command(self, gripper_position: float):
+    def send_gripper_command(self, gripper_cmd: float):
         command = Float64()
-        command.data = gripper_position
+        command.data = gripper_cmd
         self.gripper_publisher.publish(command)
     
     def send_preset_command(self, target_q: List[float]):
