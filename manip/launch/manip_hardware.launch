@@ -4,8 +4,6 @@
       <remap from="/set_joint_states" to="/manip/set_joint_states" />
       <remap from="/joint_states" to="/manip/joint_states" />
       <remap from="/roboszpon_status" to="/manip_roboszpons/status" />
-      <remap from="/received_canbus_messages" to="/received_messages" />
-      <remap from="/sent_canbus_messages" to="/sent_messages" />
     </node>
 
     <rosparam file="$(find manip)/config/moteus_driver.yaml" command="load"/> 

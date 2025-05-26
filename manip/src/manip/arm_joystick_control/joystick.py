@@ -9,7 +9,8 @@ import time
 import rospy
 
 MANIP_PRESET_DATABASE = {
-    "ik_ready": [0.0, -0.5, 1.85, -1.53, -0.96, -0.06],
+    "ik_ready": [0.0, -0.5, 1.85, -1.53, 0.96, -0.06],
+    "zero": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
 }
 
 class JoystickControl():
@@ -35,6 +36,7 @@ class JoystickControl():
         SET_JOINT_MODE = 3
         CHANGE_MOVEMENT_MODE = 4
         GOTO_IK_READY = 5
+        GOTO_ZERO = 6
 
     class SpaceMode(Enum):
         CARTESIAN = 0
@@ -72,6 +74,8 @@ class JoystickControl():
         self._handle_buttons(buttons)
         if buttons[self.Button.GOTO_IK_READY]:
             self._send_preset_request("ik_ready")
+        elif buttons[self.Button.GOTO_ZERO]:
+            self._send_preset_request("zero")
         else:
             self._update_gui(raw_axes, raw_buttons)
             axes  = self._process_axes(input)
@@ -89,9 +93,9 @@ class JoystickControl():
             self.Axis.GRIPPER: max_abs(input["left_trigger"], input["right_trigger"]),
             self.Axis.JOINT_1: -input["left_stick_horizontal"],
             self.Axis.JOINT_2: -input["left_stick_vertical"],
-            self.Axis.JOINT_3: input["right_stick_vertical"],
-            self.Axis.JOINT_4: -input["right_stick_horizontal"],
-            self.Axis.JOINT_5: input["left_stick_vertical"],
+            self.Axis.JOINT_3: -input["right_stick_vertical"],
+            self.Axis.JOINT_4: input["right_stick_horizontal"],
+            self.Axis.JOINT_5: -input["left_stick_vertical"],
             self.Axis.JOINT_6: input["left_stick_horizontal"],
         }
 
@@ -102,6 +106,7 @@ class JoystickControl():
             self.Button.SET_JOINT_MODE: input["back_button"],
             self.Button.CHANGE_MOVEMENT_MODE: input["left_bumper"] or input["right_bumper"],
             self.Button.GOTO_IK_READY: input["up_cross"],
+            self.Button.GOTO_ZERO: input["down_cross"],
         }
 
     def _handle_buttons(self, buttons: Dict[Button, bool]):

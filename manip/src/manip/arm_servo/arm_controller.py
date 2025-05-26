@@ -111,7 +111,7 @@ class ArmController:
                 print(f"Command received for {len(self.command.data)} joints, but robot has {self.robot.n} joints")
                 self.command = Command(CommandType.JOINT_VELOCITY_CMD, np.zeros(self.robot.n), time.time())
             self.goal.T = self.robot.fkine(self.robot.q, tool=self.robot.tool).A # reset the end effector pose goal
-            self.robot.q, _ = self.robot_interface.get_state() # Set current robot state to actual state read from hardware
+            # self.robot.q, _ = self.robot_interface.get_state() # Set current robot state to actual state read from hardware
             qd = self.command.data
 
         elif self.command.type == CommandType.TRAJECTORY_CMD:

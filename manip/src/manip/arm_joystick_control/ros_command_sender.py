@@ -2,14 +2,14 @@ from typing import List
 from geometry_msgs.msg import TwistStamped
 from control_msgs.msg import JointJog
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Float64
+from std_msgs.msg import Float32
 import rospy
 
 class RosCommandSender:
     def __init__(self, twist_topic: str, joint_topic: str, gripper_cmd_topic: str, preset_publisher_topic: str):
         self.twist_publisher = rospy.Publisher(twist_topic, TwistStamped, queue_size=10)
         self.joint_publisher = rospy.Publisher(joint_topic, JointJog, queue_size=10)
-        self.gripper_publisher = rospy.Publisher(gripper_cmd_topic, Float64, queue_size=10)
+        self.gripper_publisher = rospy.Publisher(gripper_cmd_topic, Float32, queue_size=10)
         self.preset_publisher = rospy.Publisher(preset_publisher_topic, JointState, queue_size=10)
 
     def send_twist_command(self, twist_data: List[float], frame_id: str):
@@ -31,7 +31,7 @@ class RosCommandSender:
         self.joint_publisher.publish(command)
 
     def send_gripper_command(self, gripper_cmd: float):
-        command = Float64()
+        command = Float32()
         command.data = gripper_cmd
         self.gripper_publisher.publish(command)
     
