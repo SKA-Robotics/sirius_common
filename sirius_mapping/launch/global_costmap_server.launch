@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="map_server" type="map_server" name="globla_server" output="screen" args="$(find sirius_mapping)/config/global_costmap.yaml">
+    <remap from="/map" to="/global_costmap"/>
+  </node>
+  <node pkg="map_server" type="map_server" name="locaosoa_server" output="screen" args="$(find sirius_mapping)/config/local_costmap.yaml">
+    <remap from="/map" to="/local_costmap"/>
+    <param name="~frame_id" value="base_link"/>
+  </node>
+</launch>

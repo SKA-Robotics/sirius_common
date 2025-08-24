@@ -101,22 +101,26 @@ void PublishLocalMap()
 
 bool CompareGridNode(float original_uncertainty, float new_uncertainty, float original_timestamp, float new_timestamp)
 {
-  if (isnan(new_uncertainty))
-  {
-    return false;
-  }
-  if (isnan(original_uncertainty) || isnan(original_timestamp))
-  {
-    return true;
-  }
-  float time_diff = new_timestamp - original_timestamp;
-  float uncertainty_diff = new_uncertainty - original_uncertainty;
-  float uncertainty_penalty = 1.0f;
-  float time_penalty = 5.0f;
-  float penalty = uncertainty_penalty * uncertainty_diff - time_penalty * time_diff;
-  if (penalty < 0.0f)
-  {
-    return true;
-  }
-  return false;
+  // // OLD LOGIC THAT TAKES INTO ACCOUNT UNCERTAINTY. PROVED TO BE RATHER BAD
+  // if (isnan(new_uncertainty))
+  // {
+  //   return false;
+  // }
+  // if (isnan(original_uncertainty) || isnan(original_timestamp))
+  // {
+  //   return true;
+  // }
+  // float time_diff = new_timestamp - original_timestamp;
+  // float uncertainty_diff = new_uncertainty - original_uncertainty;
+  // float uncertainty_penalty = 1.0f;
+  // float time_penalty = 5.0f;
+  // float penalty = uncertainty_penalty * uncertainty_diff - time_penalty * time_diff;
+  // if (penalty < 0.0f)
+  // {
+  //   return true;
+  // }
+  // return false;
+
+  // NEW LOGIC. ALWAYS UPDATE THE MAP WITH THE RECEIVED DATA
+  return true;
 }

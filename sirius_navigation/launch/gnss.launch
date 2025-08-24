@@ -17,7 +17,7 @@
     <remap from="/ublox_gps/fix" to="/gps/fix"/>
     <remap from="/ublox_gps/fix_velocity" to="/gps/fix_velocity"/>
   </node>
-  <include file="$(find sirius_navigation)/launch/navsat_transform.launch">
+  <!--<include file="$(find sirius_navigation)/launch/navsat_transform.launch">-->
     <!--<arg name="datum" value="$(arg datum)"/>-->
-  </include>
+  <!--</include>-->
 </launch>

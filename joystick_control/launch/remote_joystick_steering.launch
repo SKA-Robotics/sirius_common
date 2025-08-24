@@ -18,12 +18,14 @@
 		<remap from="~max_linear_rate" to="/sirius/controller/wheels/linear/x/max_velocity"/>
 	</node>
 
-	<node name="joy_5dof_manipulator" pkg="joystick_control" type="joy_5dof_manipulator.py" output="screen">
+	<!-- <node name="joy_5dof_manipulator" pkg="joystick_control" type="joy_5dof_manipulator.py" output="screen">
 		<rosparam file="$(find joystick_control)/config/joysticks.yaml" command="load"/>
 		<rosparam file="$(find joystick_control)/config/5dof_manipulator.yaml" command="load"/>
-	</node>
+	</node> -->
     
     <node pkg="rosservice" type="rosservice" name="add_direct_joy_1" args="call --wait /joy_multiplexer/add_joy '{ topic: { name: joy_0 } }'" />
+
+	<include file="$(find manip)/launch/manip_control.launch"/>
 
     <!-- <node pkg="rosservice" type="rosservice" name="select_direct_joy_1" args="call -wait /joy_multiplexer/select_joy joy_0" /> -->
 </launch>

@@ -186,18 +186,17 @@ class Joystick5dofManipulator:
                     "wrist_turn",
                     "wrist_spin",
                 ]
-                rotation_effort = -deadzone(inputs["left_stick_horizontal"],
-                                            0.15)
-                turn_effort = (inputs["left_cross"] -
-                               inputs["right_cross"]) / 2
+                rotation_effort = deadzone(inputs["left_stick_horizontal"],
+                                           0.15)
+                turn_effort = (inputs["left_cross"] - inputs["right_cross"])
 
                 message.effort = [
                     -deadzone(inputs["right_stick_horizontal"], 0.15),
                     deadzone(inputs["left_stick_vertical"], 0.15),
                     deadzone(inputs["right_stick_vertical"], 0.15),
                     (inputs["left_trigger"] - inputs["right_trigger"]),
-                    (turn_effort + rotation_effort) / 2,
-                    (-turn_effort + rotation_effort) / 2,
+                    (turn_effort + rotation_effort),
+                    (-turn_effort + rotation_effort),
                 ]
 
                 message.effort = [
@@ -216,8 +215,8 @@ class Joystick5dofManipulator:
                 message.linear.z = -1 * deadzone(
                     inputs["right_stick_vertical"], 0.15)
 
-                message.angular.x = -1 * deadzone(
-                    inputs["left_stick_horizontal"], 0.15)
+                message.angular.x = deadzone(inputs["left_stick_horizontal"],
+                                             0.15) * 5
                 message.angular.y = inputs["left_trigger"] - inputs[
                     "right_trigger"]
                 message.angular.z = inputs["left_cross"] - inputs["right_cross"]

@@ -1,8 +1,9 @@
-class Debouncing:
-    def __init__(self, current_input, previous_input) -> None:
-        self.current_input = current_input
-        self.previous_input = previous_input
 
+class Debouncing:
+    def __init__(self, previous_input, current_input) -> None:
+        self.previous_input = previous_input
+        self.current_input = current_input
+    
     def is_leading_edge(self, button_name):
         return (
             self.current_input[button_name] == 1

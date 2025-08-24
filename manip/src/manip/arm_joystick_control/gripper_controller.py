@@ -7,8 +7,8 @@ class GripperController:
         self.debouncer = Debouncing()
         self.gripper_cmd = 0
         self.pressed_time = time.time()
-        self.hold_to_release_time = 1.0
-        self.release_cmd_value = -0.6
+        self.hold_to_release_time = 0.6
+        self.release_cmd_value = -0.8692137
         self.gripper_cmd_increment = 0.1
     
     def step(self, value: float) -> float:

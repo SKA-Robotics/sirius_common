@@ -11,7 +11,8 @@ import rospy
 MANIP_PRESET_DATABASE = {
     "ik_ready": [0.0, -0.5, 1.85, -1.53, 0.96, -0.06],
     "zero": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    "ground": [0.0, 1.0, 1.462, -1.618, 0.6327, 0.0]
+    "ground": [0.0, 1.0, 1.462, -1.618, 0.6327, 0.0],
+    "side_box": [-2.3279, 0.3627, 1.4217, -1.2624, 1.0883, 0.0651]
 }
 
 class JoystickControl():
@@ -39,6 +40,7 @@ class JoystickControl():
         GOTO_IK_READY = 5
         GOTO_ZERO = 6
         GOTO_GROUND = 7
+        GOTO_SIDE_BOX = 8
 
     class SpaceMode(Enum):
         CARTESIAN = 0
@@ -80,6 +82,8 @@ class JoystickControl():
             self._send_preset_request("zero")
         elif buttons[self.Button.GOTO_GROUND]:
             self._send_preset_request("ground")
+        elif buttons[self.Button.GOTO_SIDE_BOX]:
+            self._send_preset_request("side_box")
         else:
             self._update_gui(raw_axes, raw_buttons)
             axes  = self._process_axes(input)
@@ -111,14 +115,15 @@ class JoystickControl():
                 input["start_button"] and not (input["left_bumper"] or input["right_bumper"]),
             self.Button.SET_JOINT_MODE: input["back_button"],
             self.Button.CHANGE_MOVEMENT_MODE: input["left_bumper"] or input["right_bumper"],
-            self.Button.GOTO_IK_READY: input["up_cross"],
-            self.Button.GOTO_ZERO: input["down_cross"],
-            self.Button.GOTO_GROUND: input["left_cross"],
+            self.Button.GOTO_IK_READY: input["left_cross"],
+            self.Button.GOTO_ZERO: input["up_cross"],
+            self.Button.GOTO_GROUND: input["down_cross"],
+            self.Button.GOTO_SIDE_BOX: input["right_cross"],
         }
 
     def _handle_buttons(self, buttons: Dict[Button, bool]):
         if buttons[self.Button.SET_FRAME_TOOL]:
-            self.frame = self.config.ee_frame_id
+            self.frame = self.config.twist_cmd_frame_id
             self.space_mode = self.SpaceMode.CARTESIAN
         elif buttons[self.Button.SET_FRAME_BASE]:
             self.frame = self.config.base_frame_id
@@ -131,21 +136,6 @@ class JoystickControl():
         else:
             self.movement_mode = self.MovementMode.LINEAR
 
-    def _handle_buttons(self, buttons: Dict[Button, bool]):
-        if buttons[self.Button.SET_FRAME_TOOL]:
-            self.frame = self.config.ee_frame_id
-            self.space_mode = self.SpaceMode.CARTESIAN
-        elif buttons[self.Button.SET_FRAME_BASE]:
-            self.frame = self.config.base_frame_id
-            self.space_mode = self.SpaceMode.CARTESIAN
-        elif buttons[self.Button.SET_JOINT_MODE]:
-            self.space_mode = self.SpaceMode.JOINT
-
-        if buttons[self.Button.CHANGE_MOVEMENT_MODE]:
-            self.movement_mode = self.MovementMode.ANGULAR
-        else:
-            self.movement_mode = self.MovementMode.LINEAR
-        
     def _publish_command(self, axes: Dict[Axis, float]):
         if self.space_mode == self.SpaceMode.CARTESIAN:
             if self.movement_mode == self.MovementMode.LINEAR:

@@ -12,4 +12,6 @@
       <remap from="/joint_states" to="/manip/joint_states" />
       <remap from="/roboszpon_status" to="/manip_roboszpons/status" />
     </node>
+
+    <node name="gripper_node" pkg="manip" type="gripper_node.py" output="screen"/>
 </launch>

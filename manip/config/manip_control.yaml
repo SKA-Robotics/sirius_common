@@ -15,6 +15,7 @@ robot_urdf_path: "package://manip/urdf/sirius2_manip.urdf.xacro"
 robot_joint_names: ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]
 base_frame_id: "base_link"
 ee_frame_id: "tool"
+twist_cmd_frame_id: "wrist_camera"
 
 # ROS topic names
 joy_topic: "/joy_5dof_manipulator"

@@ -3,12 +3,13 @@ import rospy
 from can_msgs.msg import Frame
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float32
+import struct
 
-def float_to_bits(self, value):
+def float_to_bits(value):
     value_bits = struct.pack("f", value)
     return struct.unpack("I", value_bits)[0]
 
-def bits_to_float(self, value):
+def bits_to_float(value):
     value_bits = struct.pack("I", value)
     return struct.unpack("f", value_bits)[0]
 
@@ -51,9 +52,10 @@ class GripperNode:
             self.status_publisher.publish(msg)
     
     def command_callback(self, msg):
-        data = msg.data
+        data = -msg.data
         data = float_to_bits(data)
         data = data.to_bytes(8, byteorder="big")
+        # print(f"Sending {msg.data:.1f} (0x{data.hex()}) to gripper")
         self.send_frame(self.command_arbitration_id, data)
 
 

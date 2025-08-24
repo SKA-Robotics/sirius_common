@@ -20,6 +20,7 @@ class ManipConfig:
     robot_joint_names: List[str] = ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]
     base_frame_id: str = "base_link"
     ee_frame_id: str = "tool"
+    twist_cmd_frame_id: str = "tool"
 
     # ROS params
     joy_topic: str = "/joy"
@@ -61,6 +62,7 @@ def load_ros_params() -> ManipConfig:
     config.robot_joint_names = rospy.get_param("robot_joint_names", config.robot_joint_names)
     config.base_frame_id = rospy.get_param("base_frame_id", config.base_frame_id)
     config.ee_frame_id = rospy.get_param("ee_frame_id", config.ee_frame_id)
+    config.twist_cmd_frame_id = rospy.get_param("twist_cmd_frame_id", config.twist_cmd_frame_id)
 
     # ROS topic names
     config.joy_topic = rospy.get_param("joy_topic", config.joy_topic)

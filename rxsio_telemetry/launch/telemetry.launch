@@ -1,0 +1,5 @@
+<launch>
+    <rosparam file="$(find rxsio_telemetry)/config/telemetry.yaml" command="load"/>
+
+    <node pkg="rxsio_telemetry" type="telemetry.py" name="telemetry" output="screen" respawn="true"/>
+</launch>

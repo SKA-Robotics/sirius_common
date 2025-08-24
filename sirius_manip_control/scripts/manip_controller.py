@@ -39,13 +39,14 @@ class ManipController:
     def run(self):
         while not rospy.is_shutdown():
             try:
-                self._execute_pending_moves()
-                self._execute_joystick_command()
                 if self.joystick_receiver.is_timed_out():
                     self.manip.reset_incremental_start_pose()
-                self.rate.sleep()
+                self._execute_pending_moves()
+                self._execute_joystick_command()
             except Exception as e:
                 rospy.logwarn(e)
+
+            self.rate.sleep()
 
     def _execute_pending_moves(self):
         while not self.pending_moves.empty():

@@ -1,0 +1,17 @@
+sensors:
+  - name: "RADCON"
+    baudrate: 115200
+    stype: "radcon"
+    topic: "/sensors/radcon"
+    manufacturer: "DESY"
+    serial_number: "DM3H0H5J"
+  - name: "GAS"
+    baudrate: 9200
+    stype: "gas"
+    topic: "/sensors/gas"
+    manufacturer: "Arduino LLC"
+  - name: "addon1"
+    baudrate: 9200
+    stype: "gas"
+    topic: "/sensors/addon1"
+    serial_number: "<ADDON_SERIAL_NUMBER>"

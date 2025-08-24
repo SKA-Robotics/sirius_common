@@ -114,7 +114,7 @@
       <geometry>
         <mesh filename="package://manip/meshes/gripper.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 1.5708"/>
       <material name="pink">
         <color rgba="0.0 0.0 1.0 1.0"/>
       </material>
@@ -123,11 +123,12 @@
       <geometry>
         <mesh filename="package://manip/meshes/gripper.STL" scale="0.001 0.001 0.001"/>     
       </geometry>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 1.5708"/>
     </collision>
   </link>
 
   <link name="tool"/>
+  <link name="wrist_camera"/>
 
   <joint name="joint1" type="revolute">
     <parent link="base_link"/>
@@ -179,9 +180,16 @@
   </joint>
 
   <joint name="link6_to_tool" type="fixed">
-    <origin xyz="0 0 0.12" rpy="1.5708 -1.5708 0"/>
+    <origin xyz="0 0 0.12" rpy="0 0 0"/>
     <parent link="link6"/>
     <child link="tool"/>
   </joint>
 
+  <joint name="link5_to_wrist_camera" type="fixed">
+    <origin xyz="0 0.09 0.035" rpy="1.5708 -1.4 -1.5708"/>
+    <parent link="link5"/>
+    <child link="wrist_camera"/>
+  </joint>
+
 </robot>
+

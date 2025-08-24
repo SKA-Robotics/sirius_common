@@ -100,7 +100,9 @@ class SiriusII_IKSolver(IKSolver):
         if self._angles_within_constraints(solution):
             return ManipJointState.from_list(solution)
 
-        raise Exception("IK solution outside of joints limits")
+        raise Exception(
+            f"IK solution outside of joints limits {[(solution[i], self.limits[i]) for i in range(1, len(solution)) if not checkBounds(solution[i], self.limits[i])]}"
+        )
 
     def _get_link3_startposition(self, lengths, r_t, z_t, alpha):
         r_3 = r_t - lengths[3] * math.cos(alpha)

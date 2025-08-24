@@ -1,0 +1,5 @@
+<launch>
+    <rosparam file="$(find sirius_tty_sensors)/config/sensors.yaml" command="load"/>
+
+    <node pkg="sirius_tty_sensors" type="sensors.py" name="sensors" output="screen" respawn="true"/>
+</launch>
