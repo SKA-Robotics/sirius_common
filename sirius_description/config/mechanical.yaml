@@ -1,0 +1,17 @@
+back_mast_camera_rpy: 3.141592 1.35 3.141592
+back_mast_camera_xyz: -0.49 0.0 0.88
+front_camera_rpy: 0 0.0 0.0
+front_camera_xyz: 0.233 0.0 0.188
+front_mast_camera_rpy: 0 0.9599 0.0
+front_mast_camera_xyz: -0.41 0.0 0.94
+gnss_xyz: -0.38 0 0.306
+indicator_light_xyz: -0.496 0.0 0.954 
+rim_width: 0.01
+suspension_height: 0.24875
+suspension_separation_x: 0.229 # Distance between back and front suspension measured from the top center holes
+suspension_separation_y: 0.313 # Distance between left and right suspension measured from the center
+suspension_z: 0.155 # Height between the (top center hole of) suspension and the bottom of the platform 
+wheel_base: 0.579 # Distance between the center of front and back wheels
+wheel_radius: 0.110
+wheel_track: 0.577 # Distance between the center of left and right wheels
+wheel_width: 0.195

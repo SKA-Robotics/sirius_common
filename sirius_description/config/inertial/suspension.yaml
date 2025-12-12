@@ -1,0 +1,12 @@
+suspension_mass: 4.88844949
+suspension_center_of_mass: 
+  x: 0.13259416
+  y: 0.05581141
+  z: -0.18001429
+suspension_inertia:
+  ixx: 0.24144668
+  ixy: 0.04782891
+  ixz: -0.14103386
+  iyy: 0.30310829
+  iyz: -0.06788500
+  izz: 0.14649874

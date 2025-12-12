@@ -1,0 +1,32 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+<xacro:macro name="suspension" params="prefix:='' material flip_x_plane:=false flip_y_plane:=false mechanical:=${xacro.load_yaml('$(find sirius_description)/config/mechanical.yaml')} collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')} inertial:=${xacro.load_yaml('$(find sirius_description)/config/inertial/suspension.yaml')}">
+  <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
+  <xacro:property name="sign_x" value="${1 - 2 * flip_x_plane}"/>
+  <xacro:property name="sign_y" value="${1 - 2 * flip_y_plane}"/>
+  <link name="${_prefix}suspension">
+    <visual>    
+      <material name="${material}"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/sirius/suspension.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0 0 ${pi if flip_x_plane else 0}" />
+    </visual>
+    <inertial>
+      <origin xyz="${sign_x * inertial['suspension_center_of_mass']['x']} ${sign_y * inertial['suspension_center_of_mass']['y']} ${inertial['suspension_center_of_mass']['z']}" />
+      <mass value="${inertial['suspension_mass']}"/>
+      <inertia ixx="${inertial['suspension_inertia']['ixx']}" ixy="${sign_y * sign_x * inertial['suspension_inertia']['ixy']}" ixz="${sign_x * inertial['suspension_inertia']['ixz']}" iyy="${inertial['suspension_inertia']['iyy']}" iyz="${sign_y * inertial['suspension_inertia']['iyz']}" izz="${inertial['suspension_inertia']['izz']}"/>
+    </inertial>
+    <collision>    
+      <geometry>
+        <box size="${collisions['suspension_width']} ${collisions['suspension_thickness']} ${collisions['suspension_length']}"/>
+      </geometry>
+      <origin xyz="${sign_x * (mechanical['wheel_base']/4 - mechanical['suspension_separation_x']/4 + collisions['suspension_x_shift'])} 0 ${-mechanical['suspension_height']/2}" rpy="0 ${collisions['suspension_angle'] * pi / 180} ${pi if flip_x_plane else 0}" />
+    </collision>
+  </link>
+  <gazebo reference="${_prefix}suspension">
+    <visual>  
+      <xacro:element xacro:name="xacro:${material}" />
+    </visual> 
+  </gazebo>
+</xacro:macro>
+</robot>

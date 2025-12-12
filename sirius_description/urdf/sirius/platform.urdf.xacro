@@ -1,0 +1,81 @@
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+<xacro:macro name="platform" params="material prefix:='' collisions:=${xacro.load_yaml('$(find sirius_description)/urdf/sirius/collisions.yaml')} inertial:=${xacro.load_yaml('$(find sirius_description)/config/inertial/platform.yaml')} mechanical:=${xacro.load_yaml('$(find sirius_description)/config/mechanical.yaml')}">
+  <xacro:property name="_prefix" value="${prefix + '_' if prefix else ''}"/>
+  <link name="${_prefix}platform">
+    <visual>    
+      <material name="${material}"/>
+      <geometry>
+      <mesh filename="package://sirius_description/meshes/sirius/platform.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="${inertial['platform_center_of_mass']['x']} ${inertial['platform_center_of_mass']['y']} ${inertial['platform_center_of_mass']['z']}" />
+      <mass value="${inertial['platform_mass']}"/>
+      <inertia ixx="${inertial['platform_inertia']['ixx']}" ixy="${inertial['platform_inertia']['ixy']}" ixz="${inertial['platform_inertia']['ixz']}" iyy="${inertial['platform_inertia']['iyy']}" iyz="${inertial['platform_inertia']['iyz']}" izz="${inertial['platform_inertia']['izz']}"/>
+    </inertial>
+
+    <collision>    
+      <geometry>
+        <box size="${collisions['platform_box_length']} ${mechanical['suspension_separation_y'] - collisions['suspension_thickness']*1.5} ${collisions['platform_height']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_box_x']} 0 ${collisions['platform_height']/2}" />
+    </collision>
+
+    <collision>    
+      <geometry>
+        <box size="${collisions['platform_height']/tan(collisions['platform_angle'] * pi / 180) - collisions['platform_profile_size']} ${mechanical['suspension_separation_y'] - collisions['suspension_thickness']*1.5} ${collisions['platform_profile_size']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_height']/(tan(collisions['platform_angle'] * pi / 180)*2) - collisions['platform_profile_size']/2 + collisions['platform_box_x'] + collisions['platform_box_length']/2} 0 ${collisions['platform_height'] - collisions['platform_profile_size']/2}" />
+    </collision>
+
+    <collision>    
+      <geometry>
+        <box size="${collisions['platform_height']/cos(collisions['platform_angle'] * pi / 180) - collisions['platform_profile_size']/2} ${collisions['platform_profile_size']} ${collisions['platform_profile_size']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_box_x'] + collisions['platform_box_length']/2 + collisions['platform_height']/(tan(collisions['platform_angle'] * pi / 180) * 2) - collisions['platform_profile_size']/2} ${mechanical['suspension_separation_y']/2 - collisions['platform_profile_size']*1.8} ${collisions['platform_height']/2 + collisions['platform_profile_size']/6}" rpy="0 ${-collisions['platform_angle'] * pi / 180} 0"/>
+    </collision>
+
+    <collision>    
+      <geometry>
+        <box size="${collisions['platform_height']/cos(collisions['platform_angle'] * pi / 180) - collisions['platform_profile_size']/2} ${collisions['platform_profile_size']} ${collisions['platform_profile_size']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_box_x'] + collisions['platform_box_length']/2 + collisions['platform_height']/(tan(collisions['platform_angle'] * pi / 180) * 2) - collisions['platform_profile_size']/2} ${-mechanical['suspension_separation_y']/2 + collisions['platform_profile_size']*1.8} ${collisions['platform_height']/2 + collisions['platform_profile_size']/6}" rpy="0 ${-collisions['platform_angle'] * pi / 180} 0"/>
+    </collision>
+
+    <collision>    
+      <geometry>
+      <!-- ${collisions['platform_mast_radius']} -->
+        <box size="${collisions['platform_profile_size']} ${collisions['platform_profile_size']} ${collisions['platform_mast_height']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_mast_x']} ${collisions['platform_mast_y']} ${collisions['platform_mast_height']/2}" />
+    </collision>
+
+    <collision>    
+      <geometry>
+        <box size="${collisions['platform_profile_size']} ${collisions['platform_profile_size']} ${collisions['platform_mast_height']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_mast_x']} ${-collisions['platform_mast_y']} ${collisions['platform_mast_height']/2}" />
+    </collision>
+
+    <collision>    
+      <geometry>
+        <box size="${collisions['platform_profile_size']} ${collisions['platform_mast_y']*2} ${collisions['platform_profile_size']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_mast_x']} 0 ${collisions['platform_mast_height'] - collisions['platform_profile_size']*2.55}" />
+    </collision>
+
+    <collision>    
+      <geometry>
+        <cylinder length="${collisions['platform_mast_5g_length']}" radius="${collisions['platform_mast_5g_radius']}"/>
+      </geometry>
+      <origin xyz="${collisions['platform_mast_5g_xyz']}" />
+    </collision>
+
+  </link>
+  <gazebo reference="${_prefix}platform">
+    <visual>  
+      <xacro:element xacro:name="xacro:${material}" />
+    </visual> 
+  </gazebo>
+</xacro:macro>
+</robot>

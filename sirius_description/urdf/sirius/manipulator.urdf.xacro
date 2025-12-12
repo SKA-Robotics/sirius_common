@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="manipulator">
+  <xacro:property name="package" value="sirius_description" />
+
+  <xacro:property name="base_length" value="0.006" />
+  <xacro:property name="cyl_length" value="0.0655" />
+  <xacro:property name="arm1_length" value="0.43498" />
+  <xacro:property name="arm2_length" value="0.5236" />
+  <xacro:property name="arm2_lever" value="0.0586" />
+  <xacro:property name="arm3_length" value="0.129" />
+  <xacro:property name="tool_length" value="0.18" />
+  <xacro:property name="base_size_x" value="0.2" />
+
+  <xacro:property name="arm1_home_angle" value="-0.7853981633974483"/>
+  <xacro:property name="arm2_home_angle" value="2.356194490192345"/>
+  <xacro:property name="arm3_home_angle" value="0.5"/>
+
+
+  <link name="root_link">
+  </link>
+  <joint name="root_base" type="fixed">
+    <parent link="root_link"/>
+    <child link="base_link"/>
+  </joint>
+
+  <link name="base_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://${package}/meshes/manipulator/base.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="waist" type="continuous">
+    <parent link="base_link"/>
+    <child link="cylinder"/>
+    <origin xyz="0 0 ${base_length}"/>
+    <axis xyz="0 0 1"/>
+  </joint>  
+
+  <link name="cylinder">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://${package}/meshes/manipulator/cyl.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="shoulder" type="revolute">
+    <parent link="cylinder"/>
+    <child link="arm1"/>
+    <origin xyz="0 0 ${cyl_length}" rpy="0 ${arm1_home_angle} 0"/>
+    <axis xyz="0 1 0"/>
+    <limit
+      lower="${-1.45 - arm1_home_angle}"
+      upper="${1.45 - arm1_home_angle}"
+      effort="10"
+      velocity="5" />
+  </joint>
+
+  <link name="arm1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://${package}/meshes/manipulator/arm1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="elbow" type="revolute">
+    <parent link="arm1"/>
+    <child link="arm2"/>
+    <origin xyz="0 0 ${arm1_length}" rpy="0 ${arm2_home_angle} 0"/>
+    <axis xyz="0 1 0"/>
+    <limit
+      lower="-1.6"
+      upper="0.0"
+      effort="100"
+      velocity="50" />
+  </joint>
+
+  <link name="arm2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://${package}/meshes/manipulator/arm2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="wrist_lift" type="revolute">
+    <parent link="arm2"/>
+    <child link="arm3"/>
+    <origin xyz="0 0 ${arm2_length - arm2_lever}" rpy="0 ${arm3_home_angle} 0"/>
+    <axis xyz="0 1 0"/>
+    <limit
+      lower="-1.57"
+      upper="0"
+      effort="100"
+      velocity="50" />
+  </joint>
+
+  <link name="arm3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://${package}/meshes/manipulator/arm3.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="wrist_turn" type="continuous">
+    <parent link="arm3"/>
+    <child link="fake"/>
+    <origin xyz="0 0 ${arm3_length}"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+
+  <link name="fake">
+  </link>
+
+  <joint name="wrist_spin" type="continuous">
+    <parent link="fake"/>
+    <child link="tool"/>
+    <origin xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <link name="tool">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://${package}/meshes/manipulator/tool.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="virtual">
+  </link>
+
+    <joint name="tool_virtual" type="fixed">
+      <parent link="tool"/>
+      <child link="virtual"/>
+      <origin xyz="0 0 ${tool_length}"/>
+    </joint>
+
+
+</robot>

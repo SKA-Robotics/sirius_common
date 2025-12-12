@@ -1,0 +1,4 @@
+imu_topic: "/front_camera/imu/data"
+imu_rate: 200
+measure_rate: 200 # Rate to which imu data is subsampled
+sequence_time: 86201 # rosbag total time in seconds
