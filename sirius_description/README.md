@@ -3,6 +3,7 @@ This package provides the physical description (URDF/Xacro) of the Sirius 2 rove
 
 ## TO DO
 - Migrate ros_control to ros2_control
+- Add IP cameras frames to TF
 
 ## Launching
 
