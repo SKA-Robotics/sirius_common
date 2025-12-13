@@ -1,0 +1,274 @@
+<?xml version="1.0" ?>
+<!-- =================================================================================== -->
+<!-- |    Author:       Klaudia Niedziałkowska                                         | -->
+<!-- =================================================================================== -->
+<robot name="six_dof_arm">
+
+  <!-- Base link -->
+  <link name="root_link">
+    <visual>
+      <geometry>
+        <!-- <cylinder length="0.05" radius="0.1"/> -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/global_roll_assembly.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0"/>
+      <material name="purple">
+        <color rgba="0.64 0.13 0.91 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <!-- <cylinder length="0.05" radius="0.1"/> -->
+          <mesh filename="package://sirius_description/meshes/manipulators/6DOF/global_roll_assembly.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0"/>
+    </collision>
+
+  </link>
+
+  <!-- Joints and links -->
+
+  <link name="link_1">
+    <visual>
+      <geometry>
+        <!-- <cylinder length="0.1" radius="0.05"/> -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/base_assy.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <!-- <origin xyz="-0.6 -0.2 -0.022" rpy="0.0 0.0 0.0"/> -->
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="purple">
+        <color rgba="0.64 0.13 0.91 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <!-- <cylinder length="0.1" radius="0.05"/> -->
+          <mesh filename="package://sirius_description/meshes/manipulators/6DOF/base_assy.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <!-- <origin xyz="-0.1 -0.1 -0.022" rpy="0.0 0.0 0.0"/> -->
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_1" type="revolute">
+    <parent link="root_link"/>
+    <child link="link_1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/>
+  </joint>
+
+  <link name="link_2"> 
+    <visual>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP1.STL" scale="0.001 0.001 0.001"/>
+        <!-- <cylinder length="0.46" radius="0.05"/> -->
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+      <material name="pink">
+        <color rgba="0.902 0.349 0.971 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP1.STL" scale="0.001 0.001 0.001"/>
+        <!-- <cylinder length="0.46" radius="0.05"/> -->
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_2" type="revolute">
+    <parent link="link_1"/>
+    <child link="link_2"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.58" upper="1.58" effort="1000.0" velocity="0.5"/>
+    <!-- <origin xyz="0 0 0.0" rpy="0 -0.2881 0"/> -->
+    <origin xyz="0.02727 0.0 0.07" rpy="0 0 0"/>
+  </joint>
+
+  <link name="link_3">
+    <visual>
+      <geometry>
+        <!-- <cylinder length="0.340" radius="0.05"/> -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP2.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+      <material name="purple">
+        <color rgba="0.64 0.13 0.91 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <!-- <cylinder length="0.680" radius="0.05"/> -->
+          <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP2.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_3" type="revolute">
+    <parent link="link_2"/>
+    <child link="link_3"/>
+    <axis xyz="1 0 0"/>
+    <limit lower="-1.58" upper="1.58" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0.04573 0 0.495" rpy="1.57079632679 0 0"/>
+  </joint>
+
+  <link name="link_4">
+    <visual>
+      <geometry>
+        <!-- <cylinder length="0.07" radius="0.04"/> -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="pink">
+        <color rgba="0.902 0.349 0.971 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+          <!-- <cylinder length="0.07" radius="0.05"/> -->
+          <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_base.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_4" type="revolute">
+    <parent link="link_3"/>
+    <child link="link_4"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0.06 0 0.29" rpy="0 0 0"/>
+  </joint>
+
+  <link name="link_5">
+    <visual>
+      <geometry>
+        <!-- <box size="0.03 0.150 0.03"/> -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_output.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="purple">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <!-- <box size="0.03 0.150 0.03"/>       -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_output.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_5" type="revolute">
+    <parent link="link_4"/>
+    <child link="link_5"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="-1.55" upper="1.55" effort="1000.0" velocity="0.5"/>
+    <origin xyz="0 0 0.07825 " rpy="0.0 0 0"/>
+
+  </joint>
+
+
+  <link name="tcp_connector">
+    <visual>
+      <geometry>
+        <!-- <box size="0.01 0.01 0.1"/> -->
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/gripper.STL" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <material name="pink">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/gripper.STL" scale="0.001 0.001 0.001"/>     
+      </geometry>
+      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_6" type="revolute">
+    <origin xyz="0 0.0 0.04" rpy="0 0 0"/>
+    <parent link="link_5"/>
+    <child link="tcp_connector"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="1000.0" velocity="0.5"/>
+  </joint>
+
+  <!-- <link name="gripper_right">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.1"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0"/>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.01 0.01 0.1"/>      </geometry>
+      <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_gripper_right" type="prismatic">
+    <origin xyz="0 -0.065 0.03" rpy="0 0 0"/>
+    <parent link="tcp_connector"/>
+    <child link="gripper_right"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.055" effort="1000.0" velocity="0.5"/>
+  </joint> -->
+
+
+
+
+  <!-- <link name="gripper_left">
+    <visual>
+      <geometry>
+        <box size="0.01 0.01 0.1"/>
+      </geometry>
+      <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0"/>
+      <material name="blue">
+        <color rgba="0.0 0.0 1.0 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.01 0.01 0.1"/>      </geometry>
+      <origin xyz="0.0 0.0 0.05" rpy="0.0 0.0 0.0"/>
+    </collision>
+  </link>
+
+  <joint name="joint_gripper_left" type="prismatic">
+    <origin xyz="0 0.065 0.03" rpy="0 0 0"/>
+    <parent link="tcp_connector"/>
+    <child link="gripper_left"/>
+    <axis xyz="0 1 0"/>
+    <limit lower="0" upper="0.055" effort="1000.0" velocity="0.5"/>
+  </joint> -->
+
+  <!-- Gripper
+  <joint name="gripper_joint" type="fixed">
+    <origin xyz="0 0 0.3" rpy="0 0 0"/>
+    <parent link="link_6"/>
+    <child link="gripper"/>
+  </joint>
+
+  <link name="gripper">
+    <visual>
+      <geometry>
+        <box size="0.1 0.1 0.1"/>
+      </geometry>
+      <material name="grey">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+  </link> -->
+
+</robot>

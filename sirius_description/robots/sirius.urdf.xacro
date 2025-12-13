@@ -9,7 +9,7 @@
   <xacro:arg name="gazebo_origin" default="[-9.396, 16.082]"/>
   <xacro:arg name="stereo_fps" default="30"/>
   <xacro:arg name="year" default=""/>
-  <xacro:arg name="manipulator" default="5DOF"/>
+  <xacro:arg name="manipulator" default="none"/>
 
   <xacro:property name="calibration_path" value="$(arg calibration_path)" /> 
   <xacro:if value="${calibration_path != ''}">
@@ -112,7 +112,7 @@
     <xacro:wheel_interface name="front_right" />
   </ros2_control>
 
-  <xacro:if value="${manipulator != ''}">
+  <xacro:if value="${manipulator != 'none'}">
     <xacro:include filename="$(find sirius_description)/urdf/sirius/manipulators/$(arg manipulator).urdf.xacro" />
     <xacro:joint parent="platform" child="root_link" xyz="${mechanical['suspension_separation_x']/2} 0 ${mechanical['suspension_z'] + 0.045}" rpy="0 0 0"/> 
   </xacro:if>
