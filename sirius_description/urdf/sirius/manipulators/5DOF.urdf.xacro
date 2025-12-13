@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="manipulator">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="5DOF">
   <xacro:property name="package" value="sirius_description" />
 
   <xacro:property name="base_length" value="0.006" />
@@ -20,20 +20,20 @@
   </link>
   <joint name="root_base" type="fixed">
     <parent link="root_link"/>
-    <child link="base_link"/>
+    <child link="manipulator_base_link"/>
   </joint>
 
-  <link name="base_link">
+  <link name="manipulator_base_link">
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://${package}/meshes/manipulator/base.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://${package}/meshes/manipulators/5DOF/base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
 
   <joint name="waist" type="continuous">
-    <parent link="base_link"/>
+    <parent link="manipulator_base_link"/>
     <child link="cylinder"/>
     <origin xyz="0 0 ${base_length}"/>
     <axis xyz="0 0 1"/>
@@ -43,7 +43,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://${package}/meshes/manipulator/cyl.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://${package}/meshes/manipulators/5DOF/cyl.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
@@ -64,7 +64,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://${package}/meshes/manipulator/arm1.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://${package}/meshes/manipulators/5DOF/arm1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
@@ -85,7 +85,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://${package}/meshes/manipulator/arm2.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://${package}/meshes/manipulators/5DOF/arm2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
@@ -106,7 +106,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://${package}/meshes/manipulator/arm3.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://${package}/meshes/manipulators/5DOF/arm3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>
@@ -132,7 +132,7 @@
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0" />
       <geometry>
-        <mesh filename="package://${package}/meshes/manipulator/tool.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="package://${package}/meshes/manipulators/5DOF/tool.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
   </link>

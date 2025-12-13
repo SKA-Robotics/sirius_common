@@ -20,9 +20,108 @@
   <material name="white">
     <color rgba="1 1 1 1"/>
   </material>
-  <!-- ======================================================================= -->
-  <!-- 3. Definicja Linków i Jointów (Bez zmian)                               -->
-  <!-- ======================================================================= -->
+  <link name="root_link">
+  </link>
+  <joint name="root_base" type="fixed">
+    <parent link="root_link"/>
+    <child link="manipulator_base_link"/>
+  </joint>
+  <link name="manipulator_base_link">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulator/base.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="waist" type="continuous">
+    <parent link="manipulator_base_link"/>
+    <child link="cylinder"/>
+    <origin xyz="0 0 0.006"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="cylinder">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulator/cyl.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="shoulder" type="revolute">
+    <parent link="cylinder"/>
+    <child link="arm1"/>
+    <origin rpy="0 -0.7853981633974483 0" xyz="0 0 0.0655"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="10" lower="-0.6646018366025517" upper="2.2353981633974485" velocity="5"/>
+  </joint>
+  <link name="arm1">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulator/arm1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="elbow" type="revolute">
+    <parent link="arm1"/>
+    <child link="arm2"/>
+    <origin rpy="0 2.356194490192345 0" xyz="0 0 0.43498"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" lower="-1.6" upper="0.0" velocity="50"/>
+  </joint>
+  <link name="arm2">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulator/arm2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="wrist_lift" type="revolute">
+    <parent link="arm2"/>
+    <child link="arm3"/>
+    <origin rpy="0 0.5 0" xyz="0 0 0.46499999999999997"/>
+    <axis xyz="0 1 0"/>
+    <limit effort="100" lower="-1.57" upper="0" velocity="50"/>
+  </joint>
+  <link name="arm3">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulator/arm3.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <joint name="wrist_turn" type="continuous">
+    <parent link="arm3"/>
+    <child link="fake"/>
+    <origin xyz="0 0 0.129"/>
+    <axis xyz="1 0 0"/>
+  </joint>
+  <link name="fake">
+  </link>
+  <joint name="wrist_spin" type="continuous">
+    <parent link="fake"/>
+    <child link="tool"/>
+    <origin xyz="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  <link name="tool">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://sirius_description/meshes/manipulator/tool.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="virtual">
+  </link>
+  <joint name="tool_virtual" type="fixed">
+    <parent link="tool"/>
+    <child link="virtual"/>
+    <origin xyz="0 0 0.18"/>
+  </joint>
   <link name="base_link"/>
   <link name="platform">
     <visual>
@@ -223,7 +322,6 @@
     <axis xyz="0 1 0"/>
     <limit effort="80.0" velocity="8.0"/>
   </joint>
-  <!-- USUNIĘTO: Blok <transmission>. W ROS 2 definiuje się to w <ros2_control> -->
   <link name="back_right_suspension">
     <visual>
       <material name="dark_bronze"/>
@@ -351,7 +449,6 @@
     <axis xyz="0 1 0"/>
     <limit effort="80.0" velocity="8.0"/>
   </joint>
-  <!-- USUNIĘTO: Blok <transmission>. W ROS 2 definiuje się to w <ros2_control> -->
   <link name="front_left_suspension">
     <visual>
       <material name="dark_bronze"/>
@@ -479,7 +576,6 @@
     <axis xyz="0 1 0"/>
     <limit effort="80.0" velocity="8.0"/>
   </joint>
-  <!-- USUNIĘTO: Blok <transmission>. W ROS 2 definiuje się to w <ros2_control> -->
   <link name="front_right_suspension">
     <visual>
       <material name="dark_bronze"/>
@@ -607,7 +703,6 @@
     <axis xyz="0 1 0"/>
     <limit effort="80.0" velocity="8.0"/>
   </joint>
-  <!-- USUNIĘTO: Blok <transmission>. W ROS 2 definiuje się to w <ros2_control> -->
   <link name="indicator_light">
     <visual>
       <material name="gray">
@@ -751,9 +846,6 @@
       </plugin>
     </sensor>
   </gazebo>
-  <!-- ======================================================================= -->
-  <!-- 2. Links & Visuals (Bez zmian)                                          -->
-  <!-- ======================================================================= -->
   <link name="front_camera">
     <visual>
       <material name="oak-d-w-material">
@@ -777,9 +869,6 @@
   <link name="front_right_camera"/>
   <link name="front_camera_imu_link"/>
   <link name="front_camera_imu_link_ned"/>
-  <!-- ======================================================================= -->
-  <!-- 3. Joints (Bez zmian)                                                   -->
-  <!-- ======================================================================= -->
   <joint name="front_rgb_camera_optical_joint" type="fixed">
     <origin rpy="-1.5707963267948966 0.0 -1.5707963267948966" xyz="-0.01 0 0"/>
     <parent link="front_camera"/>
@@ -815,9 +904,6 @@
     <parent link="front_camera_imu_link"/>
     <child link="front_camera_imu_link_ned"/>
   </joint>
-  <!-- ======================================================================= -->
-  <!-- 4. STEREO CAMERA (Zmiana pluginu na ROS 2)                              -->
-  <!-- ======================================================================= -->
   <gazebo reference="front_right_camera_optical">
     <sensor name="front_stereo_camera" type="multicamera">
       <always_on>true</always_on>
@@ -859,12 +945,9 @@
           <stddev>0.007</stddev>
         </noise>
       </camera>
-      <!-- NOWY PLUGIN ROS 2 -->
       <plugin filename="libgazebo_ros_camera.so" name="stereo_camera_controller">
         <ros>
-          <!-- Namespace dla obu kamer -->
           <namespace>/front_camera</namespace>
-          <!-- Remapping topiców -->
           <remapping>left/image_raw:=image_rect</remapping>
           <remapping>right/image_raw:=right/image_rect</remapping>
           <remapping>left/camera_info:=camera_info</remapping>
@@ -872,15 +955,10 @@
         </ros>
         <camera_name>stereo</camera_name>
         <frame_name>front_left_camera_optical</frame_name>
-        <!-- W przypadku multicamera zazwyczaj podaje się hack_baseline, ale libgazebo_ros_camera w ROS 2
-             oblicza to często automatycznie z <pose>. -->
         <hack_baseline>0.07532525895886506</hack_baseline>
       </plugin>
     </sensor>
   </gazebo>
-  <!-- ======================================================================= -->
-  <!-- 5. DEPTH CAMERA (Zastąpienie OpenNI Kinect)                             -->
-  <!-- ======================================================================= -->
   <gazebo reference="front_camera">
     <sensor name="front_camera_depth" type="depth">
       <always_on>true</always_on>
@@ -903,7 +981,6 @@
           <stddev>0.007</stddev>
         </noise>
       </camera>
-      <!-- NOWY PLUGIN ROS 2: libgazebo_ros_camera obsługuje też Depth -->
       <plugin filename="libgazebo_ros_camera.so" name="camera_controller">
         <ros>
           <namespace>/front_camera</namespace>
@@ -920,9 +997,6 @@
       </plugin>
     </sensor>
   </gazebo>
-  <!-- ======================================================================= -->
-  <!-- 6. IMU (Standardowy Plugin)                                             -->
-  <!-- ======================================================================= -->
   <gazebo reference="front_camera_imu_link">
     <sensor name="imu_sensor" type="imu">
       <always_on>true</always_on>
@@ -977,13 +1051,9 @@
         </ros>
         <frame_name>front_camera_imu_link</frame_name>
         <initial_orientation_as_reference>false</initial_orientation_as_reference>
-        <!-- Offsety są rzadziej wspierane bezpośrednio w parametrach, lepiej użyć transformacji TF -->
       </plugin>
     </sensor>
   </gazebo>
-  <!-- ======================================================================= -->
-  <!-- 7. MAGNETOMETER (Standardowy Plugin)                                    -->
-  <!-- ======================================================================= -->
   <gazebo reference="front_camera_imu_link">
     <sensor name="magnetometer_sensor" type="magnetometer">
       <always_on>true</always_on>
@@ -1005,8 +1075,6 @@
           </noise>
         </z>
       </magnetometer>
-      <!-- UWAGA: Zamiana customowego pluginu na standardowy.
-           Parametry Lat/Lon/Year nie zadziałają w standardowym pluginie -->
       <plugin filename="libgazebo_ros_magnetometer_sensor.so" name="magnetometer_plugin">
         <ros>
           <namespace>/front_camera/imu</namespace>
@@ -1157,9 +1225,7 @@
     <origin rpy="0 0 0" xyz="-0.38 0 0.306"/>
     <axis xyz="0 0 1"/>
   </joint>
-  <!-- ======================================================================= -->
-  <!-- 4. NOWOŚĆ: ros2_control (Zastępuje transmissions)                       -->
-  <!-- ======================================================================= -->
+  <!--vvv TO DO: Adjust after implementing ros2_control and gazebo vvv-->
   <ros2_control name="GazeboSystem" type="system">
     <hardware>
       <plugin>gazebo_ros2_control/GazeboSystem</plugin>
@@ -1197,16 +1263,10 @@
       <state_interface name="position"/>
     </joint>
   </ros2_control>
-  <!-- ======================================================================= -->
-  <!-- 5. Gazebo Plugins (Zaktualizowane nazwy i parametry)                    -->
-  <!-- ======================================================================= -->
   <gazebo>
-    <!-- Plugin ros2_control zastępuje gazebo_ros_control -->
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
-      <!-- Ścieżka do parametrów kontrolera jest kluczowa w ROS 2 -->
       <parameters>/home/smuchars/SKAR/install/sirius_description/share/sirius_description/config/controllers.yaml</parameters>
     </plugin>
-    <!-- Plugin P3D - Zaktualizowane parametry na snake_case -->
     <plugin filename="libgazebo_ros_p3d.so" name="p3d_plugin">
       <ros>
         <namespace>/</namespace>
@@ -1216,13 +1276,10 @@
       <update_rate>200.0</update_rate>
       <body_name>base_link</body_name>
       <frame_name>map</frame_name>
-      <!-- UWAGA: xyz_offset i rpy_offset w standardowym pluginie ROS2 mogą nie występować 
-           wprost. Często robi się to przez transformację TF lub tag <pose> w SDF. 
-           Jeśli używałeś customowego pluginu 'libsirius...', musisz go skompilować pod ROS 2. 
-           Poniżej konfiguracja dla standardowego libgazebo_ros_p3d.so: -->
       <xyz_offset>-9.396 16.082 0</xyz_offset>
       <rpy_offset>0 0 2.5204299728050112</rpy_offset>
       <gaussian_noise>0.0</gaussian_noise>
     </plugin>
   </gazebo>
+  <!--^^^ TO DO: Adjust after implementing ros2_control and gazebo ^^^-->
 </robot>

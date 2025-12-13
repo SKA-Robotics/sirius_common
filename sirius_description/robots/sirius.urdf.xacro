@@ -9,7 +9,8 @@
   <xacro:arg name="gazebo_origin" default="[-9.396, 16.082]"/>
   <xacro:arg name="stereo_fps" default="30"/>
   <xacro:arg name="year" default=""/>
-  
+  <xacro:arg name="manipulator" default="5DOF"/>
+
   <xacro:property name="calibration_path" value="$(arg calibration_path)" /> 
   <xacro:if value="${calibration_path != ''}">
     <xacro:property name="calibration" value="${xacro.load_yaml(calibration_path)}" /> 
@@ -20,7 +21,8 @@
   <xacro:property name="gazebo_origin" value="${$(arg gazebo_origin)}" />
   <xacro:property name="stereo_fps" value="$(arg stereo_fps)" /> 
   <xacro:property name="year" value="$(arg year)" />
-  
+  <xacro:property name="manipulator" value="$(arg manipulator)"/>
+
   <!-- Load model parameters -->
   <xacro:property name="mechanical" value="${xacro.load_yaml('$(find sirius_description)/config/mechanical.yaml')}" /> 
   
@@ -110,6 +112,10 @@
     <xacro:wheel_interface name="front_right" />
   </ros2_control>
 
+  <xacro:if value="${manipulator != ''}">
+    <xacro:include filename="$(find sirius_description)/urdf/sirius/manipulators/$(arg manipulator).urdf.xacro" />
+    <xacro:joint parent="platform" child="root_link" xyz="${mechanical['suspension_separation_x']/2} 0 ${mechanical['suspension_z'] + 0.045}" rpy="0 0 0"/> 
+  </xacro:if>
 
   <gazebo> 
     <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
