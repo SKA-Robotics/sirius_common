@@ -8,3 +8,4 @@ The repository includes the following packages:
 - [sirius_control](sirius_control/README.md): Contains the control loop for ROS Control and controllers configuration.
 - [sirius_description](sirius_description/README.md): Contains the hardware description of the Sirius 2 robot.
 - [sirius_navigation](sirius_navigation/README.md): Contains scripts, configurations and launches for the navigation.
+- [manip](manip/README.md): Contains scripts, configurations and launches for the manipulator control. *(Documentation included)*
