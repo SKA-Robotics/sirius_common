@@ -1,7 +1,7 @@
-## Manipulator Control Documentation
+## Manipulator Control 
 
 
-The documentation presents a description of the control software for a manipulator with **6 degrees of freedom**,
+Control software for a manipulator with **6 degrees of freedom**,
 built for the Sirius II rover of the SKA Robotics scientific association.
 
 All developed in ROS 1 Noetic. 
