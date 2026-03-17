@@ -1,0 +1,10 @@
+change_mode_button: back_button
+
+# parameters below are controlled via ROS2 parameter server
+
+mode: 0       # default steering mode: normal=0, car=1, tank=2
+
+gear: 1
+gear_1_max_speed: 10
+gear_2_max_speed: 50
+gear_3_max_speed: 100

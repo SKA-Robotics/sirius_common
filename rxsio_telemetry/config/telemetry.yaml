@@ -1,0 +1,200 @@
+refresh_delay: 5
+
+outputs:
+  influx:
+    url: "http://localhost:8086"
+    token: "pfOT_F-JvxUvjjuksBVbRFJylv7J9XrQX1jxxTbMB63p50w1DBsat_AjVtaGIJI49CsfdvqFoYHglsBdHLuvmg=="
+    bucket: "sirius"
+    organization: "SKAR"
+
+topics:
+  - name: "/cmd_vel"
+    measurements:
+      - name: "cmd_vel"
+        fields:
+          - field: "linear_x"
+            value: "$msg.linear.x"
+          - field: "angular_z"
+            value: "$msg.angular.z"
+  - name: "/wheels_left/motor0/joint_state"
+    measurements:
+      - name: "wheels"
+        fields:
+          - field: "velocity"
+            value: "$msg.velocity.[0]"
+            tags:
+              side: "left"
+              axis: "back"
+          - field: "effort"
+            value: "$msg.effort.[0]"
+            tags:
+              side: "left"
+              axis: "back"
+  - name: "/wheels_left/motor1/joint_state"
+    measurements:
+      - name: "wheels"
+        fields:
+          - field: "velocity"
+            value: "$msg.velocity.[0]"
+            tags:
+              side: "left"
+              axis: "front"
+          - field: "effort"
+            value: "$msg.effort.[0]"
+            tags:
+              side: "left"
+              axis: "front"
+  - name: "/wheels_right/motor0/joint_state"
+    measurements:
+      - name: "wheels"
+        fields:
+          - field: "velocity"
+            value: "$msg.velocity.[0]"
+            tags:
+              side: "right"
+              axis: "back"
+          - field: "effort"
+            value: "$msg.effort.[0]"
+            tags:
+              side: "right"
+              axis: "back"
+  - name: "/wheels_right/motor1/joint_state"
+    measurements:
+      - name: "wheels"
+        fields:
+          - field: "velocity"
+            value: "$msg.velocity.[0]"
+            tags:
+              side: "right"
+              axis: "front"
+          - field: "effort"
+            value: "$msg.effort.[0]"
+            tags:
+              side: "right"
+              axis: "front"
+  - name: "/power_status"
+    measurements:
+      - name: "power"
+        fields:
+          - field: "voltage"
+            value: "$msg.battery1_voltage"
+            tags:
+              channel: "battery1"
+          - field: "voltage"
+            value: "$msg.battery2_voltage"
+            tags:
+              channel: "battery2"
+          - field: "current"
+            value: "$msg.battery1_current"
+            tags:
+              channel: "battery1"
+          - field: "current"
+            value: "$msg.battery2_current"
+            tags:
+              channel: "battery2"
+          - field: "energy"
+            value: "$msg.battery1_energy"
+            tags:
+              channel: "battery1"
+          - field: "energy"
+            value: "$msg.battery2_energy"
+            tags:
+              channel: "battery2"
+          - field: "percentage"
+            value: "$msg.battery1_percentage"
+            tags:
+              channel: "battery1"
+          - field: "percentage"
+            value: "$msg.battery2_percentage"
+            tags:
+              channel: "battery2"
+          - field: "current"
+            value: "$msg.current0"
+            tags:
+              channel: "0"
+          - field: "current"
+            value: "$msg.current1"
+            tags:
+              channel: "1"
+          - field: "current"
+            value: "$msg.current2"
+            tags:
+              channel: "2"
+          - field: "current"
+            value: "$msg.current3"
+            tags:
+              channel: "3"
+          - field: "current"
+            value: "$msg.current4"
+            tags:
+              channel: "4"
+          - field: "current"
+            value: "$msg.current5"
+            tags:
+              channel: "5"
+          - field: "current"
+            value: "$msg.current6"
+            tags:
+              channel: "6"
+          - field: "current"
+            value: "$msg.canbus_current"
+            tags:
+              channel: "canbus"
+  - name: "/sensors/radcon"
+    type: "std_msgs/msg/Int32"
+    measurements:
+      - name: "sensors"
+        fields:
+          - field: "radiation"
+            value: "$msg.data"
+            tags:
+              device: "RadCon"
+  - name: "/sensors/addon1"
+    type: "std_msgs/msg/Int32"
+    measurements:
+      - name: "sensors"
+        fields:
+          - field: "addon1"
+            value: "$msg.data"
+            tags:
+              device: "Addon 1"
+  - name: "/sensors/gas"
+    type: "std_msgs/msg/Int32"
+    measurements:
+      - name: "sensors"
+        fields:
+          - field: "gas"
+            value: "$msg.data"
+            tags:
+              device: "MQ2"
+  - name: "/manip_roboszpons/status"
+    measurements:
+      - name: "manipulator"
+        fields:
+          - field: "duty"
+            value: "$msg.duty.[$id]"
+            tags:
+              motor: "$msg.name.[$id]"
+            for_each: "$msg.name"
+          - field: "temperature"
+            value: "$msg.temperature.[$id]"
+            tags:
+              motor: "$msg.name.[$id]"
+            for_each: "$msg.name"
+  - name: "/manip_interface/state"
+    measurements:
+      - name: "manipulator"
+        fields:
+          - field: "effort"
+            value: "$msg.effort.[$id]"
+            tags:
+              motor: "$msg.name.[$id]"
+            for_each: "$msg.name"
+  - name: "/gps/fix"
+    measurements:
+      - name: "gps"
+        fields:
+          - field: "longitude"
+            value: "$msg.longitude"
+          - field: "latitude"
+            value: "$msg.latitude"

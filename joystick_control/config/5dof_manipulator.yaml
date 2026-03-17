@@ -1,0 +1,17 @@
+max_joint_effort: 1.0
+max_joint_forward_velocity: 1.0
+max_angular_rate: 0.4
+max_linear_rate: 0.1
+
+change_mode_button: back_button
+
+gripper_step: 0.1
+
+# parameters below are controlled via ROS2 parameter server
+
+mode: 0       # default steering mode: forward=0, inverse=1
+
+gear: 1
+gear_1_max_speed: 10
+gear_2_max_speed: 50
+gear_3_max_speed: 100

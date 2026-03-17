@@ -1,0 +1,11 @@
+steering_modes:
+  joy_diff_drive:
+    topic: joy_diff_drive
+    button: A_button
+
+  joy_5dof_manipulator:
+    topic: joy_5dof_manipulator
+    button: X_button
+
+  emergency:
+    button: B_button
