@@ -140,11 +140,11 @@
   <link name="virtual">
   </link>
 
-    <joint name="tool_virtual" type="fixed">
-      <parent link="tool"/>
-      <child link="virtual"/>
-      <origin xyz="0 0 ${tool_length}"/>
-    </joint>
+  <joint name="tool_virtual" type="fixed">
+    <parent link="tool"/>
+    <child link="virtual"/>
+    <origin xyz="0 0 ${tool_length}"/>
+  </joint>
 
 
 </robot>

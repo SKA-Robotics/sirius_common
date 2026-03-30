@@ -89,10 +89,9 @@
   <xacro:joint parent="platform" child="front_camera" xyz="${mechanical['front_camera_xyz']}" rpy="${mechanical['front_camera_rpy']}"/>
   <xacro:joint parent="platform" child="gnss" xyz="${mechanical['gnss_xyz']}" />
 
-  <!--vvv TO DO: Adjust after implementing ros2_control and gazebo vvv-->
   <ros2_control name="GazeboSystem" type="system">
     <hardware>
-      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
     </hardware>
     
     <xacro:macro name="wheel_interface" params="name">
@@ -117,25 +116,18 @@
     <xacro:joint parent="platform" child="root_link" xyz="${mechanical['suspension_separation_x']/2} 0 ${mechanical['suspension_z'] + 0.045}" rpy="0 0 0"/> 
   </xacro:if>
 
-  <gazebo> 
-    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+<gazebo> 
+    <!-- Plugin kontrolera -->
+    <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
       <parameters>$(find sirius_description)/config/controllers.yaml</parameters>
     </plugin>
 
-    <plugin name="p3d_plugin" filename="libgazebo_ros_p3d.so">
-      <ros>
-        <namespace>/</namespace>
-        <remapping>odom:=ground_truth</remapping>
-      </ros>
-      <always_on>true</always_on>
-      <update_rate>200.0</update_rate>
-      <body_name>base_link</body_name>
-      <frame_name>map</frame_name>
-
-      <xyz_offset>${gazebo_origin[0]} ${gazebo_origin[1]} 0</xyz_offset>
-      <rpy_offset>0 0 ${datum[2] * pi/180}</rpy_offset>
-      <gaussian_noise>0.0</gaussian_noise>
+    <!-- Plugin Odometrii -->
+    <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+      <odom_frame>map</odom_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <odom_publish_frequency>200</odom_publish_frequency>
+      <odom_topic>ground_truth</odom_topic>
     </plugin>
   </gazebo>
-  <!--^^^ TO DO: Adjust after implementing ros2_control and gazebo ^^^-->
 </robot>

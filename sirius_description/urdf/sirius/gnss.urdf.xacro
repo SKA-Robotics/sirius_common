@@ -56,7 +56,7 @@
           </vertical>
         </velocity_sensing>
       </gps>
-      <plugin filename="libsirius_gazebo_ros_gps_sensor.so" name="gps_plugin">
+      <!-- <plugin filename="libsirius_gazebo_ros_gps_sensor.so" name="gps_plugin">
         <topicName>/gps/fix</topicName>
         <frameName>gnss</frameName>
         <updateRateHZ>${rate}</updateRateHZ>
@@ -68,7 +68,7 @@
         </sphericalCoordinates>
         <positionCovariance>${horizontal_stddev} 0 0 0 ${horizontal_stddev} 0 0 0 ${vertical_stddev}</positionCovariance>
         <gazeboOrigin>${gazebo_origin[0]} ${gazebo_origin[1]}</gazeboOrigin>
-      </plugin>
+      </plugin> -->
     </sensor>
   </gazebo>
   

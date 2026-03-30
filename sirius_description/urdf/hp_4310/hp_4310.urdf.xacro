@@ -15,7 +15,7 @@
       <origin xyz="${-cameras['hp_4310_thickness']/2} 0 0"/>
     </collision>
   </link>
-  <gazebo reference="${prefix}_camera">
+  <!-- <gazebo reference="${prefix}_camera">
       <visual>  
         <xacro:element xacro:name="xacro:${material}" />
       </visual> 
@@ -53,6 +53,6 @@
         <distortionT2>0.0</distortionT2>
       </plugin>
     </sensor>
-  </gazebo>
+  </gazebo> -->
 </xacro:macro>
 </robot>
