@@ -26,11 +26,13 @@
     </collision>
   </link>
 
-  <gazebo reference="${_prefix}gnss">
-    <sensor type="gps" name="gps_sensor">
-      <always_on>true</always_on>
+<gazebo reference="${prefix}gnss">
+    <sensor name="${prefix}_gnss_sensor" type="navsat">
+      <always_on>1</always_on>
       <update_rate>20</update_rate>
-      <gps>
+      <topic>/${prefix}/gps/fix</topic>
+      <gz_frame_id>${prefix}gnss</gz_frame_id>
+      <navsat>
         <position_sensing>
           <horizontal>
             <noise type="gaussian">
@@ -55,20 +57,7 @@
             </noise>
           </vertical>
         </velocity_sensing>
-      </gps>
-      <!-- <plugin filename="libsirius_gazebo_ros_gps_sensor.so" name="gps_plugin">
-        <topicName>/gps/fix</topicName>
-        <frameName>gnss</frameName>
-        <updateRateHZ>${rate}</updateRateHZ>
-        <sphericalCoordinates>
-            <latitudeDeg>${datum[0]}</latitudeDeg>
-            <longitudeDeg>${datum[1]}</longitudeDeg>
-            <headingDeg>${datum[2]}</headingDeg>
-            <elevation>${elevation}</elevation>
-        </sphericalCoordinates>
-        <positionCovariance>${horizontal_stddev} 0 0 0 ${horizontal_stddev} 0 0 0 ${vertical_stddev}</positionCovariance>
-        <gazeboOrigin>${gazebo_origin[0]} ${gazebo_origin[1]}</gazeboOrigin>
-      </plugin> -->
+      </navsat>
     </sensor>
   </gazebo>
   
