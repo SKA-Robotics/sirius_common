@@ -85,8 +85,8 @@
       <camera>
         <horizontal_fov>${2*atan2(calibration.cam0.resolution[0], calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])}</horizontal_fov>
         <image>
-          <width>${calibration.cam0.resolution[0]}</width>
-          <height>${calibration.cam0.resolution[1]}</height>
+          <width>320</width>
+          <height>240</height>
           <format>L8</format>
         </image>
         <clip>
@@ -105,8 +105,8 @@
       <camera>
         <horizontal_fov>${2*atan2(calibration.cam0.resolution[0], calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])}</horizontal_fov>
         <image>
-          <width>${calibration.cam0.resolution[0]}</width>
-          <height>${calibration.cam0.resolution[1]}</height>
+          <width>320</width>
+          <height>240</height>
           <format>L8</format>
         </image>
         <clip>
@@ -129,8 +129,8 @@
         <horizontal_fov>${2*atan2(calibration.cam0.resolution[0], calibration.cam0.intrinsics[0] + calibration.cam0.intrinsics[1])}</horizontal_fov>
         
         <image>
-          <width>${calibration.cam0.resolution[0]}</width>
-          <height>${calibration.cam0.resolution[1]}</height>
+          <width>320</width>
+          <height>240</height>
           <format>R8G8B8</format>
         </image>
 
