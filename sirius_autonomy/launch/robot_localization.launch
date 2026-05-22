@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Robot Localization Node -->
+  <!-- Load the entire config YAML as a single parameter namespace -->
+  <rosparam command="load" file="$(find sirius_autonomy)/config/localization_config.yaml" param="robot_localization_node/config" />
+  <node name="robot_localization_node" pkg="sirius_autonomy" type="robot_localization_node.py" output="screen">
+  </node>
+
+  <!-- Optional: Launch ArUco detection node as well -->
+  <!-- Uncomment the following lines if you want to run both nodes together -->
+  <!--
+  <include file="$(find aruco_detection_node)/launch/aruco_detection.launch" />
+  -->
+</launch>

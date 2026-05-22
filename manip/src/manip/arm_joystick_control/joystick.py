@@ -5,17 +5,15 @@ from manip.arm_joystick_control.ros_command_sender import RosCommandSender
 from manip.arm_joystick_control.gripper_controller import GripperController
 from manip.arm_joystick_control.utils import max_abs, trig_to_axis, JoystickTranslator
 from manip.manip_config import ManipConfig, DEFAULT_CONFIG
+from sensor_msgs.msg import JointState
 import time
 import rospy
 
 MANIP_PRESET_DATABASE = {
-    "ik_ready": [0.0, -0.5, 1.85, -1.53, 0.96, -0.06],
-    "zero": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    "ground": [0.0, 1.0, 1.462, -1.618, 0.6327, 0.0],
-    # "side_box": [-2.3279, 0.3627, 1.4217, -1.2624, 1.0883, 0.0651]
-    # "side_box": [-2.3655, 0.3531, 1.7056, -1.2195, 0.9403, -0.8759]
-    "side_box": [-2.4366326077570983, 0.2162912910918754, 1.6567951247157353, -1.2455923997631406, 1.1382137446111458, -0.8835729338221293]
-
+    "left": [0.0, -0.5, 1.85, -1.53, 0.96, -0.06],
+    "up": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "down": [0.0, 1.0, 1.462, -1.618, 0.6327, 0.0],
+    "right": [-2.3279, 0.3627, 1.4217, -1.2624, 1.0883, 0.0651]
 }
 
 class JoystickControl():
@@ -34,16 +32,17 @@ class JoystickControl():
         JOINT_4 = 10
         JOINT_5 = 11
         JOINT_6 = 12
-        
+
     class Button(Enum):
         SET_FRAME_TOOL = 1
         SET_FRAME_BASE = 2
         SET_JOINT_MODE = 3
         CHANGE_MOVEMENT_MODE = 4
-        GOTO_IK_READY = 5
-        GOTO_ZERO = 6
-        GOTO_GROUND = 7
-        GOTO_SIDE_BOX = 8
+        LEFT = 5
+        UP = 6
+        DOWN = 7
+        RIGHT = 8
+        SET_PRESET = 9
 
     class SpaceMode(Enum):
         CARTESIAN = 0
@@ -64,7 +63,7 @@ class JoystickControl():
         self.gripper_controller = GripperController()
         self.command_sender = RosCommandSender(config.twist_topic, config.joint_topic, config.gripper_cmd_topic, config.preset_request_topic)
         self.joy_receiver = RosJoyReceiver(config.joy_topic)
-    
+
     def run(self):
         self.joy_receiver.register_callback(self.receive_command)
         try:
@@ -79,20 +78,52 @@ class JoystickControl():
         })
         buttons = self._process_buttons(input)
         self._handle_buttons(buttons)
-        if buttons[self.Button.GOTO_IK_READY]:
-            self._send_preset_request("ik_ready")
-        elif buttons[self.Button.GOTO_ZERO]:
-            self._send_preset_request("zero")
-        elif buttons[self.Button.GOTO_GROUND]:
-            self._send_preset_request("ground")
-        elif buttons[self.Button.GOTO_SIDE_BOX]:
-            self._send_preset_request("side_box")
+        
+        rospy.loginfo(buttons)
+        
+        if buttons[self.Button.SET_PRESET]:
+            # SETTING UP PRESET
+
+            current_manip_state = {}
+            while not (len(current_manip_state) == 6):
+                msg = rospy.wait_for_message(self.config.robot_state_topic, JointState)
+                # joint_names = self.confing.robot_joint_names
+                names = msg.name
+                for i in range(len(names)):
+                    current_manip_state[names[i]] = msg.position[i]
+
+            joint_names = self.config.robot_joint_names
+
+            position = []
+            for name in joint_names:
+                position.append(current_manip_state[name])
+
+
+            key = None
+            if buttons[self.Button.LEFT]:
+                key = "left"
+            elif buttons[self.Button.UP]:
+                key = "up"
+            elif buttons[self.Button.DOWN]:
+                key = "down"
+            elif buttons[self.Button.RIGHT]:
+                key = "right"
+
+            MANIP_PRESET_DATABASE[key] = position
+        elif buttons[self.Button.LEFT]:
+            self._send_preset_request("left")
+        elif buttons[self.Button.UP]:
+            self._send_preset_request("up")
+        elif buttons[self.Button.DOWN]:
+            self._send_preset_request("down")
+        elif buttons[self.Button.RIGHT]:
+            self._send_preset_request("right")
         else:
             self._update_gui(raw_axes, raw_buttons)
             axes  = self._process_axes(input)
             self._publish_command(axes)
             self._control_gripper(axes[self.Axis.GRIPPER])
-    
+
     def _process_axes(self, input: Dict[str, float]) -> Dict[Axis, float]:
         return {
             self.Axis.LINEAR_X: -input["left_stick_vertical"],
@@ -118,10 +149,11 @@ class JoystickControl():
                 input["start_button"] and not (input["left_bumper"] or input["right_bumper"]),
             self.Button.SET_JOINT_MODE: input["back_button"],
             self.Button.CHANGE_MOVEMENT_MODE: input["left_bumper"] or input["right_bumper"],
-            self.Button.GOTO_IK_READY: input["left_cross"],
-            self.Button.GOTO_ZERO: input["up_cross"],
-            self.Button.GOTO_GROUND: input["down_cross"],
-            self.Button.GOTO_SIDE_BOX: input["right_cross"],
+            self.Button.LEFT: input["left_cross"],
+            self.Button.UP: input["up_cross"],
+            self.Button.DOWN: input["down_cross"],
+            self.Button.RIGHT: input["right_cross"],
+            self.Button.SET_PRESET: input["start_button"] and input["back_button"]
         }
 
     def _handle_buttons(self, buttons: Dict[Button, bool]):
@@ -184,11 +216,11 @@ class JoystickControl():
 
     def add_gui(self, gui):
         self.gui = gui
-    
+
     def _update_gui(self, axes, buttons):
         if self.gui is not None:
             self.gui.update(axes, buttons, self.space_mode, self.movement_mode, self.frame)
-    
+
     def _send_preset_request(self, preset_name: str):
         if preset_name not in MANIP_PRESET_DATABASE:
             print(f"Manip preset {preset_name} is not defined")

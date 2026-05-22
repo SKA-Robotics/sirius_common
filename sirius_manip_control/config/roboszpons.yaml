@@ -12,3 +12,9 @@ roboszpon_driver:
       node_id: 5
     wrist_spin:
       node_id: 4
+    module_lift:
+      node_id: 9
+    drill_lift:
+      node_id: 8
+    drill_spin:
+      node_id: 11

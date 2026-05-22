@@ -6,7 +6,7 @@ singularity_avoidance_A: 1.6
 singularity_avoidance_B: 1.491
 max_setpoint_position_distance: 0.05
 max_setpoint_orientation_distance: 0.12
-trajectory_duration: 6.0
+trajectory_duration: 1.8
 max_ev: [0.2, 0.2, 0.2, 0.7, 0.4, 0.4] # Maximum cartesian velocity of the end effector
 max_qd: [0.3, 0.3, 0.3, 0.6, 0.6, 1.0] # Maximum velocity of each of the arm joints
 

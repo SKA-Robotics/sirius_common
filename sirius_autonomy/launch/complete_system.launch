@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Launch ArUco detection node -->
+  <include file="$(find sirius_autonomy)/launch/aruco_detection.launch" />
+  
+  <!-- Launch Robot localization node -->
+  <include file="$(find sirius_autonomy)/launch/robot_localization.launch" />
+
+  <!-- Launch EKF node for sensor fusion -->
+  <node pkg="robot_localization" type="ekf_localization_node" name="ekf_localization_node" output="screen">
+    <param name="use_sim_time" value="false"/>
+    <rosparam command="load" file="$(find sirius_autonomy)/config/ekf_config.yaml" />
+  </node>
+</launch>

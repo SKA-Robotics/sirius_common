@@ -1,0 +1,83 @@
+# Camera configuration for ArUco detection node
+# Each camera has an RTSP URL, position/orientation relative to base_link, and camera intrinsics
+
+cameras:
+  camera_0:
+    rtsp_url: "rtsp://username:password@192.168.1.100:554/stream1"
+    position: [1.0, 0.0, 0.5]  # x, y, z in meters relative to base_link
+    orientation: [0.0, 0.0, 0.0]  # roll, pitch, yaw in radians
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]  # 3x3 matrix flattened
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]  # distortion coefficients
+    frame_id: "camera_0_frame"
+    
+  camera_1:
+    rtsp_url: "rtsp://username:password@192.168.1.101:554/stream1"
+    position: [-1.0, 0.0, 0.5]
+    orientation: [0.0, 0.0, 3.14159]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_1_frame"
+    
+  camera_2:
+    rtsp_url: "rtsp://username:password@192.168.1.102:554/stream1"
+    position: [0.0, 1.0, 0.5]
+    orientation: [0.0, 0.0, 1.5708]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_2_frame"
+    
+  camera_3:
+    rtsp_url: "rtsp://username:password@192.168.1.103:554/stream1"
+    position: [0.0, -1.0, 0.5]
+    orientation: [0.0, 0.0, -1.5708]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_3_frame"
+    
+  camera_4:
+    rtsp_url: "rtsp://username:password@192.168.1.104:554/stream1"
+    position: [0.707, 0.707, 0.5]
+    orientation: [0.0, 0.0, 0.7854]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_4_frame"
+    
+  camera_5:
+    rtsp_url: "rtsp://username:password@192.168.1.105:554/stream1"
+    position: [-0.707, 0.707, 0.5]
+    orientation: [0.0, 0.0, 2.3562]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_5_frame"
+    
+  camera_6:
+    rtsp_url: "rtsp://username:password@192.168.1.106:554/stream1"
+    position: [-0.707, -0.707, 0.5]
+    orientation: [0.0, 0.0, -2.3562]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_6_frame"
+    
+  camera_7:
+    rtsp_url: "rtsp://username:password@192.168.1.107:554/stream1"
+    position: [0.707, -0.707, 0.5]
+    orientation: [0.0, 0.0, -0.7854]
+    camera_matrix: [1000.0, 0.0, 640.0, 0.0, 1000.0, 480.0, 0.0, 0.0, 1.0]
+    dist_coeffs: [0.0, 0.0, 0.0, 0.0, 0.0]
+    frame_id: "camera_7_frame"
+
+# ArUco detection parameters
+aruco_params:
+  dictionary_id: "DICT_6X6_250"  # ArUco dictionary to use
+  marker_size: 0.05  # Size of ArUco markers in meters
+  max_marker_distance: 5.0  # Maximum distance to detect markers (meters)
+  confidence_threshold: 0.7  # Minimum confidence for detection
+  averaging_window: 10  # Number of detections to average for position smoothing
+
+# Node parameters
+node_params:
+  publish_rate: 30.0  # Hz
+  image_width: 1280
+  image_height: 720
+  connection_timeout: 5.0  # seconds
+  reconnect_interval: 10.0  # seconds

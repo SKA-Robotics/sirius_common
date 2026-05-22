@@ -20,4 +20,13 @@
   <!--<include file="$(find sirius_navigation)/launch/navsat_transform.launch">-->
     <!--<arg name="datum" value="$(arg datum)"/>-->
   <!--</include>-->
+    <include file="$(find ntrip_client)/launch/ntrip_client.launch">
+      <arg name="host" value="91.198.76.2"/>
+      <arg name="port" value="8086"/>
+      <arg name="authenticate" value="true"/>
+      <arg name="username" value="necala7515"/>
+      <arg name="password" value="necala7515"/>
+      <arg name="rtcm_message_package" value="rtcm_msgs"/>
+      <arg name="mountpoint" value="KRA1_RTCM_3_2"/>
+    </include>
 </launch>

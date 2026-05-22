@@ -1,0 +1,11 @@
+<launch>
+  <!-- ArUco Detection Node -->
+  <node name="aruco_detection_node" pkg="sirius_autonomy" type="aruco_detection_node.py" output="screen">
+    <!-- Configuration file path -->
+    <param name="config_path" value="$(find sirius_autonomy)/config/camera_config.yaml" />
+    
+    <!-- Optional: Override specific parameters -->
+    <!-- <param name="publish_rate" value="30.0" /> -->
+    <!-- <param name="confidence_threshold" value="0.7" /> -->
+  </node>
+</launch>

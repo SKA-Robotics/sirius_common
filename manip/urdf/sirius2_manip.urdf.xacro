@@ -185,9 +185,15 @@
     <child link="tool"/>
   </joint>
 
-  <joint name="link5_to_wrist_camera" type="fixed">
-    <origin xyz="0 0.09 0.035" rpy="1.5708 -1.4 -1.5708"/>
+  <!-- <joint name="link6_to_wrist_camera" type="fixed">
+    <origin xyz="0 0.145 0.100" rpy="1.5708 -0.785398 -1.5708"/>
     <parent link="link5"/>
+    <child link="wrist_camera"/>
+  </joint> -->
+  
+  <joint name="link6_to_wrist_camera" type="fixed">
+    <origin xyz="0 0 0.1" rpy="1.5708 -1.5708 0"/>
+    <parent link="link6"/>
     <child link="wrist_camera"/>
   </joint>
 
