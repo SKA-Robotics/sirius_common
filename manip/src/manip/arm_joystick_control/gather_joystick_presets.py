@@ -4,9 +4,12 @@ from sensor_msgs.msg import JointState
 
 
 class RosJointStateReceiver:
+
     def __init__(self, topic: str = "/manip/joint_states"):
         self.joint_cache = {}
-        self.expected_joints = ['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6']
+        self.expected_joints = [
+            'joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6'
+        ]
         rospy.Subscriber(topic, JointState, self.joint_callback, queue_size=10)
 
     def joint_callback(self, msg: JointState):
@@ -19,6 +22,7 @@ class RosJointStateReceiver:
 
     def get_current_positions(self):
         return [self.joint_cache[joint] for joint in self.expected_joints]
+
 
 def write_json(new_data, filename='presets.json'):
     with open(filename, 'r+') as file:
@@ -61,7 +65,7 @@ def main():
                 print("Cancelled: Preset name cannot be empty. \n")
                 continue
 
-            data = {name: joint_states}
+            data = {"presets": {name: joint_states}}
             write_json(data)
             print("New data written to file. \n")
 
