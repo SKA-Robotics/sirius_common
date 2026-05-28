@@ -7,6 +7,9 @@ from manip.arm_joystick_control.utils import max_abs, trig_to_axis, JoystickTran
 from manip.manip_config import ManipConfig, DEFAULT_CONFIG
 import time
 import rospy
+import json
+import os
+
 
 MANIP_PRESET_DATABASE = {
     "ik_ready": [0.0, -0.5, 1.85, -1.53, 0.96, -0.06],
@@ -34,7 +37,7 @@ class JoystickControl():
         JOINT_4 = 10
         JOINT_5 = 11
         JOINT_6 = 12
-        
+
     class Button(Enum):
         SET_FRAME_TOOL = 1
         SET_FRAME_BASE = 2
@@ -62,9 +65,10 @@ class JoystickControl():
 
         rospy.init_node("joystick_control")
         self.gripper_controller = GripperController()
-        self.command_sender = RosCommandSender(config.twist_topic, config.joint_topic, config.gripper_cmd_topic, config.preset_request_topic)
+        self.command_sender = RosCommandSender(
+            config.twist_topic, config.joint_topic, config.gripper_cmd_topic, config.preset_request_topic)
         self.joy_receiver = RosJoyReceiver(config.joy_topic)
-    
+
     def run(self):
         self.joy_receiver.register_callback(self.receive_command)
         try:
@@ -89,10 +93,10 @@ class JoystickControl():
             self._send_preset_request("side_box")
         else:
             self._update_gui(raw_axes, raw_buttons)
-            axes  = self._process_axes(input)
+            axes = self._process_axes(input)
             self._publish_command(axes)
             self._control_gripper(axes[self.Axis.GRIPPER])
-    
+
     def _process_axes(self, input: Dict[str, float]) -> Dict[Axis, float]:
         return {
             self.Axis.LINEAR_X: -input["left_stick_vertical"],
@@ -113,9 +117,11 @@ class JoystickControl():
     def _process_buttons(self, input: Dict[str, float]) -> Dict[Button, bool]:
         return {
             self.Button.SET_FRAME_BASE:
-                input["start_button"] and (input["left_bumper"] or input["right_bumper"]),
+                input["start_button"] and (
+                    input["left_bumper"] or input["right_bumper"]),
             self.Button.SET_FRAME_TOOL:
-                input["start_button"] and not (input["left_bumper"] or input["right_bumper"]),
+                input["start_button"] and not (
+                    input["left_bumper"] or input["right_bumper"]),
             self.Button.SET_JOINT_MODE: input["back_button"],
             self.Button.CHANGE_MOVEMENT_MODE: input["left_bumper"] or input["right_bumper"],
             self.Button.GOTO_IK_READY: input["left_cross"],
@@ -184,16 +190,33 @@ class JoystickControl():
 
     def add_gui(self, gui):
         self.gui = gui
-    
+
     def _update_gui(self, axes, buttons):
         if self.gui is not None:
-            self.gui.update(axes, buttons, self.space_mode, self.movement_mode, self.frame)
-    
+            self.gui.update(axes, buttons, self.space_mode,
+                            self.movement_mode, self.frame)
+
+    def _read_json(self, preset_name, filename='presets.json'):
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        full_path = os.path.join(current_dir, filename)
+
+        try:
+            with open(full_path, 'r') as file:
+                file_data = json.load(file)
+                return file_data.get(preset_name, None)
+        except FileNotFoundError:
+            print("Error: File 'presets.json' does not exist yet.")
+            return None
+        except json.JSONDecodeError:
+            print("Error: 'presets.json' is corrupted or empty.")
+            return None
+
     def _send_preset_request(self, preset_name: str):
-        if preset_name not in MANIP_PRESET_DATABASE:
+        target_q = self._read_json(preset_name)
+        if not target_q:
             print(f"Manip preset {preset_name} is not defined")
             return
-        target_q = MANIP_PRESET_DATABASE[preset_name]
+
         self.command_sender.send_preset_command(target_q)
 
     def _control_gripper(self, gripper_axis: float):
