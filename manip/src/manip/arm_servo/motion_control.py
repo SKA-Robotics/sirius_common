@@ -2,51 +2,73 @@ import numpy as np
 import roboticstoolbox as rtb
 from roboticstoolbox.tools.trajectory import Trajectory
 from typing import Optional
-
+import qpsolvers as qp
+from manip.manip_config import ManipConfig
+import scipy.sparse as sp
 
 
 class TwistController:
-    def __init__(self, robot: rtb.ERobot, A: float, B: float):
-        self.robot = robot
-        self.A = A
-        self.B = B
 
-    def compute_twist_control(self, ev: np.ndarray) -> np.ndarray:
+    def __init__(self, robot: rtb.ERobot, config: ManipConfig):
+        self.robot = robot
+        self.config = config
+
+    def compute_twist_control(self, ev: np.ndarray, pos_e: float,
+                              rot_e: float) -> np.ndarray:
         """
+        MMC - Manipulability Motion Control
+        https://jhavl.github.io/mmc/
+
         Computes joint velocities to achieve a desired end-effector twist.
 
         Args:
             robot: roboticstoolbox robot model
             ev: desired end-effector twist
+            pos_e: position error
+            rot_e: rotation error
 
         Returns:
             qd: joint velocities
         """
-        J_pinv = self._damped_jacobian(self.robot.q)
-        qd = J_pinv @ ev
 
-        return qd
-    
-    def _damped_jacobian(self, q: np.ndarray) -> np.ndarray:
-        """
-        Computes the damped Jacobian for a robot. The dampening allows for better numerical conditioning around arm singularities. Based on https://www.researchgate.net/publication/356023999_Singularity_Avoidance_Strategies_for_Target_Tracking_Visual_Servo_Systems
+        Y = 0.001
+        n = self.robot.n
+        Q = np.eye(n + 6)
+        Q[:n, :n] *= Y
+        Q[n:, n:] = np.diag(
+            np.array([10, 10, 10, 1, 1, 1]) * (1 / (pos_e + rot_e) + 0.01))
+        Aeq = np.c_[self.robot.jacobe(self.robot.q), np.eye(6)]
+        beq = ev.reshape((6, ))
+        Ain = np.zeros((n + 6, n + 6))
+        bin = np.zeros(n + 6)
+        ps = 0.05
+        pi = 0.9
+        Ain[:n, :n], bin[:n] = self.robot.joint_velocity_damper(ps, pi, n)
+        c = np.r_[-self.robot.jacobm().reshape((n, )), np.zeros(6)]
 
-        Args:
-            q: joint configuration for which to compute the Jacobian
+        qdlim = self.config.max_qd
 
-        Returns:
-            J_pinv: damped Jacobian
-        """
+        lb = -np.r_[qdlim[:n], 10 * np.ones(6)]
+        ub = np.r_[qdlim[:n], 10 * np.ones(6)]
 
-        J = self.robot.jacobe(q, tool=self.robot.tool)
-        detJJT = np.linalg.det(J @ J.T)
-        detJJT = max(0.0, detJJT) # Due to numerical errors detJJT sometimes comes out negative - clamp it
-        c = np.sqrt(detJJT)
-        l = self.A / (np.tan(c + self.B))
-        return J.T @ np.linalg.inv(J @ J.T + l * np.eye(J.shape[0]))
+        Q = sp.csc_matrix(Q)
+        Ain = sp.csc_matrix(Ain)
+        Aeq = sp.csc_matrix(Aeq)
+
+        qd = qp.solve_qp(Q,
+                         c,
+                         Ain,
+                         bin,
+                         Aeq,
+                         beq,
+                         lb=lb,
+                         ub=ub,
+                         solver="clarabel")
+        return qd[:n]
 
 
 class PoseServo:
+
     def __init__(self, robot: rtb.ERobot, gain: np.ndarray):
         self.robot = robot
         self.gain = gain
@@ -71,19 +93,21 @@ class PoseServo:
 
 
 class TrajectoryExecutor:
+
     def __init__(self):
         self._trajectory: Optional[Trajectory] = None
         self._idx = 0
         self.running = False
-    
+
     def set_trajectory(self, trajectory: Trajectory):
         self._idx = 0
         self._trajectory = trajectory
         self.running = True
-    
+
     def step(self) -> np.ndarray:
         if not self.running:
-            raise IndexError("Called step() on TrajectoryExecutor which is not running")
+            raise IndexError(
+                "Called step() on TrajectoryExecutor which is not running")
         q = self._trajectory.q[self._idx]
         self._idx += 1
         if self._idx == len(self._trajectory):

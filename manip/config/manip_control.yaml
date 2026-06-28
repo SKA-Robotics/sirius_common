@@ -2,8 +2,6 @@
 control_frequency: 30.0
 command_timeout: 0.3
 servo_gain: [20.0, 20.0, 20.0, 10.0, 10.0, 10.0]
-singularity_avoidance_A: 1.6
-singularity_avoidance_B: 1.491
 max_setpoint_position_distance: 0.05
 max_setpoint_orientation_distance: 0.12
 trajectory_duration: 6.0

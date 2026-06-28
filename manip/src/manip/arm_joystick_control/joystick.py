@@ -3,7 +3,7 @@ from typing import List, Dict
 from manip.arm_joystick_control.ros_joy_receiver import RosJoyReceiver
 from manip.arm_joystick_control.ros_command_sender import RosCommandSender
 from manip.arm_joystick_control.gripper_controller import GripperController
-# from manip.arm_joystick_control.gather_joystick_presets import RosJointStateReceiver, write_json
+from manip.arm_joystick_control.gather_joystick_presets import RosJointStateReceiver, write_json
 from manip.arm_joystick_control.utils import max_abs, trig_to_axis, JoystickTranslator
 from manip.manip_config import ManipConfig, DEFAULT_CONFIG
 import time
@@ -178,8 +178,8 @@ class JoystickControl():
             input["down_cross"],
             self.Button.RIGHT_CROSS:
             input["right_cross"],
-            self.Button.QUICK_CHANGE_PRESET:
-            input["X_button"] and input["B_button"]
+            #self.Button.QUICK_CHANGE_PRESET:
+            #input["X_button"] and input["B_button"]
         }
 
     def _handle_buttons(self, buttons: Dict[Button, bool]):
