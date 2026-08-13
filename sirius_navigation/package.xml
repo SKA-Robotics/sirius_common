@@ -7,11 +7,16 @@
   <license>Apache-2.0</license>
 
   <build_depend>rospy</build_depend>
+  <build_depend>mbf_msgs</build_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>mbf_msgs</build_export_depend>
   <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>rospy</exec_depend>
   <exec_depend>imu_complementary_filter</exec_depend>
   <exec_depend>imu_filter_madgwick</exec_depend>
   <exec_depend>imu_transformer</exec_depend>
   <exec_depend>marker_based_localization</exec_depend>
+  <exec_depend>mbf_msgs</exec_depend>
   <exec_depend>robot_localization</exec_depend>
   <exec_depend>topic_tools</exec_depend>
   <exec_depend>ublox_gps</exec_depend>
