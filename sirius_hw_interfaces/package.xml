@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>sirius_hw_interfaces</name>
+  <version>0.0.0</version>
+  <description>
+    ros2_control hardware interface plugins for the Sirius rover.
+    Provides topic-bridge system interfaces that delegate hardware
+    communication to the existing Python drivers (ODrive, Moteus, Roboszpon).
+  </description>
+  <maintainer email="todo@todo.todo">TODO</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>sensor_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

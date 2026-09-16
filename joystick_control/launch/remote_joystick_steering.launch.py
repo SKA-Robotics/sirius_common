@@ -45,12 +45,6 @@ def generate_launch_description():
             diff_drive_config,
             {'joystick_type': LaunchConfiguration('joystick_type')},
         ],
-        remappings=[
-            ('max_angular_rate',
-             '/sirius/controller/wheels/angular/z/max_velocity'),
-            ('max_linear_rate',
-             '/sirius/controller/wheels/linear/x/max_velocity'),
-        ],
     )
 
     # joy_5dof_manipulator_node = Node(

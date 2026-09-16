@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Semantic robot description for the Sirius rover with 6-DOF manipulator.
+
+  Joint chain (6DOF):
+    root_link → joint_1 → link_1 → joint_2 → link_2 → joint_3 → link_3
+             → joint_4 → link_4 → joint_5 → link_5 → joint_6 → tcp_connector
+-->
+<robot name="sirius">
+
+  <!-- ================================================================
+       Planning groups
+       ================================================================ -->
+
+  <group name="arm">
+    <chain base_link="root_link" tip_link="tcp_connector"/>
+  </group>
+
+  <!-- Wrist sub-group (last 3 joints) -->
+  <group name="wrist">
+    <chain base_link="link_3" tip_link="tcp_connector"/>
+  </group>
+
+
+  <!-- ================================================================
+       Named states
+       ================================================================ -->
+
+  <group_state name="home" group="arm">
+    <joint name="joint_1" value="0"/>
+    <joint name="joint_2" value="0"/>
+    <joint name="joint_3" value="0"/>
+    <joint name="joint_4" value="0"/>
+    <joint name="joint_5" value="0"/>
+    <joint name="joint_6" value="0"/>
+  </group_state>
+
+  <!-- Arm folded upright for safe travel -->
+  <group_state name="upright" group="arm">
+    <joint name="joint_1" value="0"/>
+    <joint name="joint_2" value="-1.0"/>
+    <joint name="joint_3" value="1.2"/>
+    <joint name="joint_4" value="0"/>
+    <joint name="joint_5" value="0"/>
+    <joint name="joint_6" value="0"/>
+  </group_state>
+
+  <!-- Arm extended horizontally forward -->
+  <group_state name="ready" group="arm">
+    <joint name="joint_1" value="0"/>
+    <joint name="joint_2" value="-0.3"/>
+    <joint name="joint_3" value="0.6"/>
+    <joint name="joint_4" value="0"/>
+    <joint name="joint_5" value="0"/>
+    <joint name="joint_6" value="0"/>
+  </group_state>
+
+
+  <!-- ================================================================
+       End-effector
+       ================================================================ -->
+
+  <end_effector name="gripper_eef" parent_link="link_5" group="arm"/>
+
+
+  <!-- ================================================================
+       Virtual joint
+       ================================================================ -->
+
+  <virtual_joint name="arm_to_rover" type="fixed"
+                 parent_frame="platform"
+                 child_link="root_link"/>
+
+
+  <!-- ================================================================
+       Passive joints
+       ================================================================ -->
+
+  <passive_joint name="front_left_wheel_joint"/>
+  <passive_joint name="back_left_wheel_joint"/>
+  <passive_joint name="front_right_wheel_joint"/>
+  <passive_joint name="back_right_wheel_joint"/>
+
+
+  <!-- ================================================================
+       Collision matrix
+       ================================================================ -->
+
+  <disable_collisions link1="root_link"  link2="link_1" reason="Adjacent"/>
+  <disable_collisions link1="link_1"     link2="link_2" reason="Adjacent"/>
+  <disable_collisions link1="link_2"     link2="link_3" reason="Adjacent"/>
+  <disable_collisions link1="link_3"     link2="link_4" reason="Adjacent"/>
+  <disable_collisions link1="link_4"     link2="link_5" reason="Adjacent"/>
+  <disable_collisions link1="link_5"     link2="tcp_connector" reason="Adjacent"/>
+
+  <disable_collisions link1="root_link"  link2="platform" reason="Never"/>
+  <disable_collisions link1="link_1"     link2="platform" reason="Never"/>
+  <disable_collisions link1="link_1"     link2="root_link" reason="Never"/>
+  <disable_collisions link1="link_2"     link2="root_link" reason="Never"/>
+
+  <!-- Non-adjacent links that are far apart in nominal configs -->
+  <disable_collisions link1="link_3"     link2="root_link" reason="Never"/>
+  <disable_collisions link1="link_4"     link2="root_link" reason="Never"/>
+  <disable_collisions link1="link_5"     link2="root_link" reason="Never"/>
+  <disable_collisions link1="tcp_connector" link2="root_link" reason="Never"/>
+  <disable_collisions link1="tcp_connector" link2="link_1"    reason="Never"/>
+  <disable_collisions link1="tcp_connector" link2="link_2"    reason="Never"/>
+</robot>

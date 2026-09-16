@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Semantic robot description for the Sirius rover with 5-DOF manipulator.
+
+  Joint chain (5DOF):
+    root_link → waist → shoulder → elbow → wrist_lift → wrist_turn → wrist_spin → tool → virtual
+-->
+<robot name="sirius">
+
+  <!-- ================================================================
+       Planning groups
+       ================================================================ -->
+
+  <!-- Full 6-axis arm (waist is the rotation base) -->
+  <group name="arm">
+    <chain base_link="root_link" tip_link="virtual"/>
+  </group>
+
+  <!-- Just the wrist (useful for orientation-only planning) -->
+  <group name="wrist">
+    <chain base_link="arm3" tip_link="virtual"/>
+  </group>
+
+
+  <!-- ================================================================
+       Named states
+       ================================================================ -->
+
+  <!-- All joints at zero -->
+  <group_state name="home" group="arm">
+    <joint name="waist"      value="0"/>
+    <joint name="shoulder"   value="0"/>
+    <joint name="elbow"      value="0"/>
+    <joint name="wrist_lift" value="0"/>
+    <joint name="wrist_turn" value="0"/>
+    <joint name="wrist_spin" value="0"/>
+  </group_state>
+
+  <!-- Arm fully retracted upright — safe travel position -->
+  <group_state name="upright" group="arm">
+    <joint name="waist"      value="0"/>
+    <joint name="shoulder"   value="-0.785"/>
+    <joint name="elbow"      value="-1.2"/>
+    <joint name="wrist_lift" value="-0.5"/>
+    <joint name="wrist_turn" value="0"/>
+    <joint name="wrist_spin" value="0"/>
+  </group_state>
+
+  <!-- Arm extended forward at a comfortable working height -->
+  <group_state name="ready" group="arm">
+    <joint name="waist"      value="0"/>
+    <joint name="shoulder"   value="-0.3"/>
+    <joint name="elbow"      value="-0.6"/>
+    <joint name="wrist_lift" value="-0.3"/>
+    <joint name="wrist_turn" value="0"/>
+    <joint name="wrist_spin" value="0"/>
+  </group_state>
+
+
+  <!-- ================================================================
+       End-effector
+       ================================================================ -->
+
+  <end_effector name="tool_eef" parent_link="tool" group="arm"/>
+
+
+  <!-- ================================================================
+       Virtual joint — connects the arm base to the rover platform
+       ================================================================ -->
+
+  <virtual_joint name="arm_to_rover" type="fixed"
+                 parent_frame="platform"
+                 child_link="root_link"/>
+
+
+  <!-- ================================================================
+       Passive joints (not controlled by MoveIt — driven by other means)
+       ================================================================ -->
+  <!-- Wheel joints are not part of any MoveIt group -->
+  <passive_joint name="front_left_wheel_joint"/>
+  <passive_joint name="back_left_wheel_joint"/>
+  <passive_joint name="front_right_wheel_joint"/>
+  <passive_joint name="back_right_wheel_joint"/>
+
+
+  <!-- ================================================================
+       Collision matrix
+       Adjacent links in the kinematic chain never collide.
+       ================================================================ -->
+
+  <!-- Fixed base -->
+  <disable_collisions link1="root_link"           link2="manipulator_base_link" reason="Adjacent"/>
+  <disable_collisions link1="manipulator_base_link" link2="cylinder"            reason="Adjacent"/>
+  <disable_collisions link1="cylinder"              link2="arm1"                reason="Adjacent"/>
+  <disable_collisions link1="arm1"                  link2="arm2"                reason="Adjacent"/>
+  <disable_collisions link1="arm2"                  link2="arm3"                reason="Adjacent"/>
+  <disable_collisions link1="arm3"                  link2="fake"                reason="Adjacent"/>
+  <disable_collisions link1="fake"                  link2="tool"                reason="Adjacent"/>
+  <disable_collisions link1="tool"                  link2="virtual"             reason="Adjacent"/>
+
+  <!-- Root ↔ platform region -->
+  <disable_collisions link1="root_link"           link2="platform"  reason="Never"/>
+  <disable_collisions link1="manipulator_base_link" link2="platform" reason="Never"/>
+
+  <!-- Long-reach links that obviously don't collide at nominal configs -->
+  <disable_collisions link1="arm2" link2="manipulator_base_link" reason="Never"/>
+  <disable_collisions link1="arm3" link2="manipulator_base_link" reason="Never"/>
+  <disable_collisions link1="arm3" link2="cylinder"              reason="Never"/>
+</robot>

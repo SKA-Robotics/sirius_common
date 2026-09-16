@@ -1,0 +1,22 @@
+<library path="sirius_hw_interfaces">
+  <class
+    name="sirius_hw_interfaces/SiriusWheelsHW"
+    type="sirius_hw_interfaces::SiriusWheelsHW"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Topic-bridge hardware interface for the Sirius rover wheel drive system.
+      Delegates velocity commands to the ODrive Python driver via relaxing_middleware
+      and reads joint states from the driver.
+    </description>
+  </class>
+  <class
+    name="sirius_hw_interfaces/SiriusManipHW"
+    type="sirius_hw_interfaces::SiriusManipHW"
+    base_class_type="hardware_interface::SystemInterface">
+    <description>
+      Topic-bridge hardware interface for the Sirius rover manipulator.
+      Delegates position/velocity/effort commands to the Moteus/Roboszpon
+      Python drivers and reads joint states from them.
+    </description>
+  </class>
+</library>

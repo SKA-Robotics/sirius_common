@@ -1,0 +1,30 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Name: Tool Properties
+  - Class: rviz_common/Views
+    Name: Views
+  - Class: moveit_rviz_plugin/MotionPlanningPanel
+    Name: MotionPlanning
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/RobotModel
+      Description Source: Topic
+      Description Topic: /robot_description
+      Name: RobotModel
+      Enabled: true
+    - Class: moveit_rviz_plugin/PlanningScene
+      Name: PlanningScene
+      Enabled: true
+      Planning Scene Topic: /monitored_planning_scene
+    - Class: moveit_rviz_plugin/MotionPlanning
+      Name: MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      Planning Group: arm
+      Robot Description: robot_description

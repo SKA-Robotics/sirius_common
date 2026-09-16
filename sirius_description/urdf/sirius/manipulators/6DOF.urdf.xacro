@@ -8,7 +8,6 @@
   <link name="root_link">
     <visual>
       <geometry>
-        <!-- <cylinder length="0.05" radius="0.1"/> -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/global_roll_assembly.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0"/>
@@ -18,12 +17,14 @@
     </visual>
     <collision>
       <geometry>
-          <!-- <cylinder length="0.05" radius="0.1"/> -->
           <mesh filename="package://sirius_description/meshes/manipulators/6DOF/global_roll_assembly.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.1" rpy="0.0 0.0 0.0"/>
     </collision>
-
+    <inertial>
+      <mass value="0.5"/>
+      <inertia ixx="0.0042" ixy="0" ixz="0" iyy="0.0042" iyz="0" izz="0.0025"/>
+    </inertial>
   </link>
 
   <!-- Joints and links -->
@@ -31,10 +32,8 @@
   <link name="link_1">
     <visual>
       <geometry>
-        <!-- <cylinder length="0.1" radius="0.05"/> -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/base_assy.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <!-- <origin xyz="-0.6 -0.2 -0.022" rpy="0.0 0.0 0.0"/> -->
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
       <material name="purple">
         <color rgba="0.64 0.13 0.91 1.0"/>
@@ -42,12 +41,14 @@
     </visual>
     <collision>
       <geometry>
-          <!-- <cylinder length="0.1" radius="0.05"/> -->
           <mesh filename="package://sirius_description/meshes/manipulators/6DOF/base_assy.STL" scale="0.001 0.001 0.001"/>
       </geometry>
-      <!-- <origin xyz="-0.1 -0.1 -0.022" rpy="0.0 0.0 0.0"/> -->
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </collision>
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.0034" ixy="0" ixz="0" iyy="0.0034" iyz="0" izz="0.0016"/>
+    </inertial>
   </link>
 
   <joint name="joint_1" type="revolute">
@@ -58,11 +59,10 @@
     <origin xyz="0 0 0.1" rpy="0 0 0"/>
   </joint>
 
-  <link name="link_2"> 
+  <link name="link_2">
     <visual>
       <geometry>
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP1.STL" scale="0.001 0.001 0.001"/>
-        <!-- <cylinder length="0.46" radius="0.05"/> -->
       </geometry>
       <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
       <material name="pink">
@@ -72,10 +72,13 @@
     <collision>
       <geometry>
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP1.STL" scale="0.001 0.001 0.001"/>
-        <!-- <cylinder length="0.46" radius="0.05"/> -->
       </geometry>
       <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
     </collision>
+    <inertial>
+      <mass value="1.2"/>
+      <inertia ixx="0.024" ixy="0" ixz="0" iyy="0.024" iyz="0" izz="0.0024"/>
+    </inertial>
   </link>
 
   <joint name="joint_2" type="revolute">
@@ -90,7 +93,6 @@
   <link name="link_3">
     <visual>
       <geometry>
-        <!-- <cylinder length="0.340" radius="0.05"/> -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP2.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
@@ -100,11 +102,14 @@
     </visual>
     <collision>
       <geometry>
-          <!-- <cylinder length="0.680" radius="0.05"/> -->
           <mesh filename="package://sirius_description/meshes/manipulators/6DOF/GP2.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0 0 0" rpy="0.0 0.0 0.0"/>
     </collision>
+    <inertial>
+      <mass value="0.8"/>
+      <inertia ixx="0.012" ixy="0" ixz="0" iyy="0.012" iyz="0" izz="0.0016"/>
+    </inertial>
   </link>
 
   <joint name="joint_3" type="revolute">
@@ -118,7 +123,6 @@
   <link name="link_4">
     <visual>
       <geometry>
-        <!-- <cylinder length="0.07" radius="0.04"/> -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_base.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -128,11 +132,14 @@
     </visual>
     <collision>
       <geometry>
-          <!-- <cylinder length="0.07" radius="0.05"/> -->
           <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_base.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </collision>
+    <inertial>
+      <mass value="0.3"/>
+      <inertia ixx="0.0005" ixy="0" ixz="0" iyy="0.0005" iyz="0" izz="0.0003"/>
+    </inertial>
   </link>
 
   <joint name="joint_4" type="revolute">
@@ -146,7 +153,6 @@
   <link name="link_5">
     <visual>
       <geometry>
-        <!-- <box size="0.03 0.150 0.03"/> -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_output.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -156,11 +162,14 @@
     </visual>
     <collision>
       <geometry>
-        <!-- <box size="0.03 0.150 0.03"/>       -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/wrist_diff_output.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </collision>
+    <inertial>
+      <mass value="0.2"/>
+      <inertia ixx="0.0007" ixy="0" ixz="0" iyy="0.0001" iyz="0" izz="0.0007"/>
+    </inertial>
   </link>
 
   <joint name="joint_5" type="revolute">
@@ -176,7 +185,6 @@
   <link name="tcp_connector">
     <visual>
       <geometry>
-        <!-- <box size="0.01 0.01 0.1"/> -->
         <mesh filename="package://sirius_description/meshes/manipulators/6DOF/gripper.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -186,10 +194,14 @@
     </visual>
     <collision>
       <geometry>
-        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/gripper.STL" scale="0.001 0.001 0.001"/>     
+        <mesh filename="package://sirius_description/meshes/manipulators/6DOF/gripper.STL" scale="0.001 0.001 0.001"/>
       </geometry>
       <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
     </collision>
+    <inertial>
+      <mass value="0.3"/>
+      <inertia ixx="0.0003" ixy="0" ixz="0" iyy="0.0003" iyz="0" izz="0.0002"/>
+    </inertial>
   </link>
 
   <joint name="joint_6" type="revolute">

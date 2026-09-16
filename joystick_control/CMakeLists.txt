@@ -31,11 +31,6 @@ install(PROGRAMS
 )
 
 install(DIRECTORY
-  joystick_control/
-  DESTINATION lib/python3.12/site-packages/joystick_control
-)
-
-install(DIRECTORY
   config
   launch
   DESTINATION share/${PROJECT_NAME}

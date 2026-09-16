@@ -15,6 +15,16 @@
   <xacro:property name="arm2_home_angle" value="2.356194490192345"/>
   <xacro:property name="arm3_home_angle" value="0.5"/>
 
+  <!-- Minimal inertia for Gazebo simulation — physically plausible box estimates. -->
+  <xacro:macro name="box_inertia" params="m x y z">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(y*y+z*z)/12}" ixy="0" ixz="0"
+               iyy="${m*(x*x+z*z)/12}" iyz="0"
+               izz="${m*(x*x+y*y)/12}"/>
+    </inertial>
+  </xacro:macro>
+
 
   <link name="root_link">
   </link>
@@ -30,6 +40,7 @@
         <mesh filename="package://${package}/meshes/manipulators/5DOF/base.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
+    <xacro:box_inertia m="0.5" x="0.20" y="0.20" z="0.06"/>
   </link>
 
   <joint name="waist" type="continuous">
@@ -37,7 +48,7 @@
     <child link="cylinder"/>
     <origin xyz="0 0 ${base_length}"/>
     <axis xyz="0 0 1"/>
-  </joint>  
+  </joint>
 
   <link name="cylinder">
     <visual>
@@ -46,6 +57,7 @@
         <mesh filename="package://${package}/meshes/manipulators/5DOF/cyl.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
+    <xacro:box_inertia m="0.2" x="0.08" y="0.08" z="${cyl_length}"/>
   </link>
 
   <joint name="shoulder" type="revolute">
@@ -67,6 +79,7 @@
         <mesh filename="package://${package}/meshes/manipulators/5DOF/arm1.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
+    <xacro:box_inertia m="0.8" x="0.05" y="0.05" z="${arm1_length}"/>
   </link>
 
   <joint name="elbow" type="revolute">
@@ -88,6 +101,7 @@
         <mesh filename="package://${package}/meshes/manipulators/5DOF/arm2.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
+    <xacro:box_inertia m="0.6" x="0.05" y="0.05" z="${arm2_length}"/>
   </link>
 
   <joint name="wrist_lift" type="revolute">
@@ -109,6 +123,7 @@
         <mesh filename="package://${package}/meshes/manipulators/5DOF/arm3.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
+    <xacro:box_inertia m="0.2" x="0.05" y="0.05" z="${arm3_length}"/>
   </link>
 
   <joint name="wrist_turn" type="continuous">
@@ -119,6 +134,7 @@
   </joint>
 
   <link name="fake">
+    <xacro:box_inertia m="0.01" x="0.02" y="0.02" z="0.02"/>
   </link>
 
   <joint name="wrist_spin" type="continuous">
@@ -135,6 +151,7 @@
         <mesh filename="package://${package}/meshes/manipulators/5DOF/tool.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
+    <xacro:box_inertia m="0.3" x="0.10" y="0.10" z="${tool_length}"/>
   </link>
 
   <link name="virtual">

@@ -1,7 +1,19 @@
+#!/usr/bin/env python3
+"""
+Publishes a diagnostic summary of the Sirius rover's drive state.
+
+Subscribes to:
+  - joy_multiplexer/selected_output (std_msgs/String)
+  - relaxing_middleware/state       (std_msgs/String)
+
+Publishes:
+  - robot_status (diagnostic_msgs/DiagnosticArray)
+"""
+
 import rclpy
 from rclpy.node import Node
-from industrial_msgs.msg import RobotStatus, TriState, RobotMode
 from std_msgs.msg import String
+from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
 
 
 class SiriusStatus(Node):
@@ -9,67 +21,64 @@ class SiriusStatus(Node):
     def __init__(self):
         super().__init__('sirius_status')
 
-        self.initialize_robot_status()
-        
-        self.joy_subscription_ = self.create_subscription(
-        String,  'joy_multiplexer/selected_output', self.joy_multiplexer_callback, 10)
+        self._mode = 'UNKNOWN'       # UNKNOWN | MANUAL | AUTONOMOUS
+        self._drive_state = 'Idle'   # Idle | Running | Breaking | Relaxing | Locked
 
-        self.subscription_ = self.create_subscription(
-        String, 'relaxing_middleware/state', self.relaxing_middleware_callback, 10)
+        self.create_subscription(
+            String, 'joy_multiplexer/selected_output',
+            self._joy_cb, 10)
+        self.create_subscription(
+            String, 'relaxing_middleware/state',
+            self._relaxing_cb, 10)
 
-        self.publisher = self.create_publisher(RobotStatus, 'robot_status', 10)
-        
-    def initialize_robot_status(self):
-        self.robot_status = RobotStatus()
-        self.robot_status.e_stopped.val = TriState.FALSE
-        self.robot_status.drives_powered.val = TriState.TRUE
-        self.robot_status.motion_possible.val= TriState.TRUE
-        self.robot_status.in_motion.val = TriState.FALSE
-        self.robot_status.in_error.val = TriState.FALSE
-        self.robot_status.mode.val = RobotMode.UNKNOWN
-        self.robot_status.error_codes = []
+        self._pub = self.create_publisher(DiagnosticArray, 'robot_status', 10)
+        self.create_timer(0.5, self._publish)
 
+    def _joy_cb(self, msg: String):
+        if msg.data == '__none':
+            self._mode = 'UNKNOWN'
+        elif msg.data in ('joy_diff_drive', 'joy_5dof_manipulator'):
+            self._mode = 'MANUAL'
+        elif msg.data == 'autonomy':
+            self._mode = 'AUTONOMOUS'
+        self._publish()
 
-    def joy_multiplexer_callback(self, msg):
-        if msg.data == "__none":
-            self.robot_status.mode.val = RobotMode.UNKNOWN
+    def _relaxing_cb(self, msg: String):
+        self._drive_state = msg.data
+        self._publish()
 
-        elif msg.data == "joy_diff_drive":
-            self.robot_status.mode.val = RobotMode.MANUAL
+    def _publish(self, *_):
+        in_motion = self._drive_state in ('Running', 'Breaking', 'Relaxing')
+        drives_on = self._drive_state in ('Running', 'Breaking', 'Relaxing', 'Locked')
 
+        status = DiagnosticStatus()
+        status.name = 'sirius/drive'
+        status.level = (DiagnosticStatus.OK
+                        if drives_on else DiagnosticStatus.WARN)
+        status.message = self._drive_state
+        status.values = [
+            KeyValue(key='mode', value=self._mode),
+            KeyValue(key='drives_powered', value=str(drives_on)),
+            KeyValue(key='in_motion', value=str(in_motion)),
+            KeyValue(key='drive_state', value=self._drive_state),
+        ]
 
-        self.publish_sirius_status()
-
-    def relaxing_middleware_callback(self, msg):
-        if msg.data == "Locked":
-            self.robot_status.in_motion.val = TriState.FALSE
-            self.robot_status.drives_powered.val = TriState.TRUE
-
-        elif msg.data == "Idle":
-            self.robot_status.drives_powered.val= TriState.FALSE
-            self.robot_status.in_motion.val = TriState.FALSE
-
-        elif msg.data == "Running" or msg.data == "Breaking" or msg.data == "Relaxing":
-            self.robot_status.in_motion.val = TriState.TRUE
-            self.robot_status.drives_powered.val = TriState.TRUE
-
-        self.publish_sirius_status()
-        
-
-    def publish_sirius_status(self):
-        self.robot_status.header.stamp = self.get_clock().now().to_msg()
-        self.publisher.publish(self.robot_status)
+        arr = DiagnosticArray()
+        arr.header.stamp = self.get_clock().now().to_msg()
+        arr.status = [status]
+        self._pub.publish(arr)
 
 
 def main(args=None):
     rclpy.init(args=args)
-    sirius_status = SiriusStatus()
+    node = SiriusStatus()
     try:
-        rclpy.spin(sirius_status)
+        rclpy.spin(node)
     except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException):
         pass
     rclpy.try_shutdown()
-    sirius_status.destroy_node()
+    node.destroy_node()
+
 
 if __name__ == '__main__':
     main()

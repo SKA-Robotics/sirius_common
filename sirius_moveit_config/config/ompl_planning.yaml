@@ -1,0 +1,69 @@
+planning_plugins:
+  - ompl_interface/OMPLPlanner
+
+request_adapters:
+  - default_planning_request_adapters/ResolveConstraintFrames
+  - default_planning_request_adapters/ValidateWorkspaceBounds
+  - default_planning_request_adapters/CheckStartStateBounds
+  - default_planning_request_adapters/CheckStartStateCollision
+
+response_adapters:
+  - default_planning_response_adapters/AddTimeOptimalParameterization
+  - default_planning_response_adapters/ValidateSolution
+  - default_planning_response_adapters/DisplayMotionPath
+
+arm:
+  planner_configs:
+    - RRTConnect
+    - RRT
+    - RRTstar
+    - KPIECE
+    - BiEST
+    - ProjEST
+    - LazyPRM
+  default_planner_config: RRTConnect
+  longest_valid_segment_fraction: 0.005
+
+wrist:
+  planner_configs:
+    - RRTConnect
+    - RRT
+  default_planner_config: RRTConnect
+  longest_valid_segment_fraction: 0.01
+
+planner_configs:
+  RRTConnect:
+    type: geometric::RRTConnect
+    range: 0.0    # 0 → auto
+
+  RRT:
+    type: geometric::RRT
+    range: 0.0
+    goal_bias: 0.05
+
+  RRTstar:
+    type: geometric::RRTstar
+    range: 0.0
+    goal_bias: 0.05
+    delay_collision_checking: 1
+
+  KPIECE:
+    type: geometric::KPIECE1
+    range: 0.0
+    goal_bias: 0.05
+    border_fraction: 0.9
+    failed_expansion_score_factor: 0.5
+    min_valid_path_fraction: 0.5
+
+  BiEST:
+    type: geometric::BiEST
+    range: 0.0
+
+  ProjEST:
+    type: geometric::ProjEST
+    range: 0.0
+    goal_bias: 0.05
+
+  LazyPRM:
+    type: geometric::LazyPRM
+    range: 0.0

@@ -1,0 +1,10 @@
+jointstate_topic: /manipulator/joint_states
+
+motor_topics:
+  base_cyl: /roboclaw_driver/128/motor1/joint_state
+  cyl_arm1: /roboclaw_driver/129/motor1/joint_state
+  arm1_arm2: /roboclaw_driver/129/motor2/joint_state
+  arm2_arm3: /roboclaw_driver/130/motor1/joint_state
+  arm3_tool: /roboclaw_driver/130/motor2/joint_state
+
+publish_rate: 20.0

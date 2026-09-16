@@ -10,6 +10,8 @@
   <xacro:arg name="stereo_fps" default="30"/>
   <xacro:arg name="year" default=""/>
   <xacro:arg name="manipulator" default="none"/>
+  <!-- Set to 'true' to use real hardware interfaces instead of Gazebo simulation -->
+  <xacro:arg name="use_real_hardware" default="false"/>
 
   <xacro:property name="calibration_path" value="$(arg calibration_path)" /> 
   <xacro:if value="${calibration_path != ''}">
@@ -89,11 +91,25 @@
   <xacro:joint parent="platform" child="front_camera" xyz="${mechanical['front_camera_xyz']}" rpy="${mechanical['front_camera_rpy']}"/>
   <xacro:joint parent="platform" child="gnss" xyz="${mechanical['gnss_xyz']}" />
 
-  <ros2_control name="GazeboSystem" type="system">
+  <!-- ================================================================
+       Wheel drive system — switches between real hardware and Gazebo.
+       ================================================================ -->
+  <xacro:property name="use_real_hardware" value="$(arg use_real_hardware)"/>
+
+  <ros2_control name="SiriusWheelSystem" type="system">
     <hardware>
-      <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      <xacro:if value="${use_real_hardware}">
+        <!-- ODrive topic-bridge plugin (communicates via relaxing_middleware) -->
+        <plugin>sirius_hw_interfaces/SiriusWheelsHW</plugin>
+        <param name="driver_namespaces">
+          /wheels_left/motor0,/wheels_left/motor1,/wheels_right/motor0,/wheels_right/motor1
+        </param>
+      </xacro:if>
+      <xacro:unless value="${use_real_hardware}">
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </xacro:unless>
     </hardware>
-    
+
     <xacro:macro name="wheel_interface" params="name">
       <joint name="${name}_wheel_joint">
         <command_interface name="velocity">
@@ -102,6 +118,7 @@
         </command_interface>
         <state_interface name="velocity"/>
         <state_interface name="position"/>
+        <state_interface name="effort"/>
       </joint>
     </xacro:macro>
 
@@ -113,7 +130,116 @@
 
   <xacro:if value="${manipulator != 'none'}">
     <xacro:include filename="$(find sirius_description)/urdf/sirius/manipulators/$(arg manipulator).urdf.xacro" />
-    <xacro:joint parent="platform" child="root_link" xyz="${mechanical['suspension_separation_x']/2} 0 ${mechanical['suspension_z'] + 0.045}" rpy="0 0 0"/> 
+    <xacro:joint parent="platform" child="root_link" xyz="${mechanical['suspension_separation_x']/2} 0 ${mechanical['suspension_z'] + 0.045}" rpy="0 0 0"/>
+
+    <!-- Manipulator ros2_control system — real or simulated -->
+    <xacro:if value="${manipulator == '5DOF'}">
+      <ros2_control name="SiriusManipSystem" type="system">
+        <hardware>
+          <xacro:if value="${use_real_hardware}">
+            <plugin>sirius_hw_interfaces/SiriusManipHW</plugin>
+            <param name="state_topic">/manip/joint_states</param>
+            <param name="command_topic">/manip/set_joint_states</param>
+          </xacro:if>
+          <xacro:unless value="${use_real_hardware}">
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+          </xacro:unless>
+        </hardware>
+        <joint name="waist">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <command_interface name="effort"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+        <joint name="shoulder">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <command_interface name="effort"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+        <joint name="elbow">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <command_interface name="effort"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+        <joint name="wrist_lift">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <command_interface name="effort"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+        <joint name="wrist_turn">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <command_interface name="effort"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+        <joint name="wrist_spin">
+          <command_interface name="position"/>
+          <command_interface name="velocity"/>
+          <command_interface name="effort"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+      </ros2_control>
+    </xacro:if>
+
+    <xacro:if value="${manipulator == '6DOF'}">
+      <ros2_control name="SiriusManipSystem" type="system">
+        <hardware>
+          <xacro:if value="${use_real_hardware}">
+            <plugin>sirius_hw_interfaces/SiriusManipHW</plugin>
+            <param name="state_topic">/manip/joint_states</param>
+            <param name="command_topic">/manip/set_joint_states</param>
+          </xacro:if>
+          <xacro:unless value="${use_real_hardware}">
+            <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+          </xacro:unless>
+        </hardware>
+        <joint name="joint_1">
+          <command_interface name="position"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint_2">
+          <command_interface name="position"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint_3">
+          <command_interface name="position"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint_4">
+          <command_interface name="position"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint_5">
+          <command_interface name="position"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+        </joint>
+        <joint name="joint_6">
+          <command_interface name="position"/>
+          <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+          <state_interface name="velocity"/>
+        </joint>
+      </ros2_control>
+    </xacro:if>
   </xacro:if>
 
 <gazebo> 

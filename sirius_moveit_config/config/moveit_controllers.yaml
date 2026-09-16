@@ -1,0 +1,19 @@
+# MoveIt2 controller manager — maps planning groups to ros2_control controllers.
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - manip_controller
+
+  manip_controller:
+    type: FollowJointTrajectory
+    action_ns: follow_joint_trajectory
+    default: true
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+      # 5-DOF arm: [waist, shoulder, elbow, wrist_lift, wrist_turn, wrist_spin]

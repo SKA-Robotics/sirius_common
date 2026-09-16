@@ -1,7 +1,7 @@
 controller_manager:
   ros__parameters:
-    update_rate: 50  # Hz
-    use_sim_time: true
+    update_rate: 100  # Hz
+    # use_sim_time is set by the launch context (Gazebo sets it to true automatically)
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -9,36 +9,89 @@ controller_manager:
     sirius_base_controller:
       type: diff_drive_controller/DiffDriveController
 
+    manip_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    manip_joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+# ============================================================
+# Differential drive controller (wheels)
+# ============================================================
 sirius_base_controller:
   ros__parameters:
-    left_wheel_names: ["front_left_wheel_joint", "back_left_wheel_joint"]
+    left_wheel_names:  ["front_left_wheel_joint", "back_left_wheel_joint"]
     right_wheel_names: ["front_right_wheel_joint", "back_right_wheel_joint"]
 
-    wheel_separation: 0.577
-    wheel_radius: 0.110
+    wheel_separation: 0.577   # metres, track width between left and right wheels
+    wheel_radius:     0.110   # metres
 
     publish_rate: 30.0
-    odom_frame_id: odom
-    base_frame_id: base_link
-    pose_covariance_diagonal: [0.001, 0.001, 0.0, 0.0, 0.0, 0.01]
-    twist_covariance_diagonal: [0.2, 0.05, 0.05, 0.0, 0.0, 1.0]
+    odom_frame_id:  odom
+    base_frame_id:  base_link
+    pose_covariance_diagonal:  [0.001, 0.001, 0.0, 0.0, 0.0, 0.01]
+    twist_covariance_diagonal: [0.2,   0.05,  0.05, 0.0, 0.0, 1.0]
 
     cmd_vel_timeout: 1.0
+    enable_odom_tf: true
+    use_stamped_vel: false   # accept Twist (not TwistStamped) — compatible with teleop_twist_keyboard
 
     linear:
       x:
-        has_velocity_limits: true
-        max_velocity: 1.0
+        has_velocity_limits:    true
+        max_velocity:  1.0    # m/s
         min_velocity: -1.0
         has_acceleration_limits: true
         max_acceleration: 1.25
 
     angular:
       z:
-        has_velocity_limits: true
-        max_velocity: 1.0
+        has_velocity_limits:    true
+        max_velocity:  1.0    # rad/s
         min_velocity: -1.0
         has_acceleration_limits: true
         max_acceleration: 3.14
 
-    enable_odom_tf: false
+
+# ============================================================
+# Manipulator trajectory controller — 6-DOF (default)
+# Swap joint names to the 5-DOF list below when using 5DOF arm.
+# ============================================================
+manip_controller:
+  ros__parameters:
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+
+    command_interfaces:
+      - position
+
+    state_interfaces:
+      - position
+      - velocity
+
+
+    state_publish_rate: 50.0
+    action_monitor_rate: 20.0
+
+    allow_partial_joints_goal: false
+    open_loop_control: false
+
+    constraints:
+      stopped_velocity_tolerance: 0.05
+      goal_time: 0.0
+      joint_1: {trajectory: 0.1, goal: 0.05}
+      joint_2: {trajectory: 0.1, goal: 0.05}
+      joint_3: {trajectory: 0.1, goal: 0.05}
+      joint_4: {trajectory: 0.1, goal: 0.05}
+      joint_5: {trajectory: 0.1, goal: 0.05}
+      joint_6: {trajectory: 0.1, goal: 0.05}
+
+
+# 5-DOF variant — swap joints above to these when using 5DOF arm:
+#   joints: [waist, shoulder, elbow, wrist_lift, wrist_turn, wrist_spin]

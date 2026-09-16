@@ -1,0 +1,14 @@
+roboszpon_driver:
+  joints:
+    waist:
+      node_id: 3
+    shoulder:
+      node_id: 2
+    elbow:
+      node_id: 7
+    wrist_lift:
+      node_id: 6
+    wrist_turn:
+      node_id: 5
+    wrist_spin:
+      node_id: 4
