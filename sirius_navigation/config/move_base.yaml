@@ -20,14 +20,17 @@ recovery_patience: 45.0
 controller_frequency: 10
 
 planner_patience: 10.0
-planner_max_retries: 2
+planner_max_retries: 10
 
 controller_patience: 10.0
 controller_max_retries: 10
 
 robot_frame: 'base_link'
-dist_tolerance: 0.2
-angle_tolerance: 0.8
+dist_tolerance: 0.5
+angle_tolerance: 10
 
 global_planner:
-  lethal_cost: 200
+  lethal_cost: 20000000
+
+
+planner_frequency: 5.0

@@ -17,6 +17,29 @@
     <remap from="/ublox_gps/fix" to="/gps/fix"/>
     <remap from="/ublox_gps/fix_velocity" to="/gps/fix_velocity"/>
   </node>
+
+<!--  <node pkg="ntrip_client" type="ntrip_client" name="ntrip_client" output="screen">
+    <param host="91.198.76.2" />
+    <param port="8086"/>
+    <param authenticate="true" />
+    <param username="xomemij495" />
+    <param password="xomemij495@rappolo.com" />
+    <param mountpoint="RTK4G_MULTI_RTCM32" />
+  </node>
+-->
+
+
+    <include file="$(find ntrip_client)/launch/ntrip_client.launch">
+      <!--<arg name="host" value="system.asgeupos.pl"/>-->
+      <arg name="host" value="91.198.76.2"/>
+      <arg name="port" value="8086"/>
+      <arg name="authenticate" value="true"/>
+      <arg name="username" value="cocesa1892"/>
+      <arg name="password" value="cocesa1892"/>
+      <arg name="rtcm_message_package" value="rtcm_msgs"/>
+      <arg name="mountpoint" value="KRA1_RTCM_3_2"/>
+    </include>
+
   <!--<include file="$(find sirius_navigation)/launch/navsat_transform.launch">-->
     <!--<arg name="datum" value="$(arg datum)"/>-->
   <!--</include>-->

@@ -12,7 +12,10 @@
         <rosparam file="$(find sirius_navigation)/config/global_costmap.yaml" command="load" ns="global_costmap" /> 
         <rosparam file="$(find sirius_navigation)/config/base_local_planner.yaml" command="load" />
         <rosparam file="$(find sirius_navigation)/config/move_base.yaml" command="load" />
+
+        <remap from="/cmd_vel" to="/rev_cmd_vel"/>
     </node>
     
     <node pkg="sirius_navigation" type="simple_goal_relay.py" name="simple_goal_relay"/>
+    <node pkg="sirius_navigation" type="reverse_cmd_vel_relay.py" name="reverse_cmd_vel_relay"/>
 </launch>

@@ -21,6 +21,10 @@ import os
 
 # }
 
+AXIS_DEADZONE = 0.1
+
+def apply_deadzone(value: float, deadzone: float = AXIS_DEADZONE) -> float:
+    return 0.0 if abs(value) < deadzone else value
 
 class JoystickControl():
 
@@ -127,7 +131,7 @@ class JoystickControl():
         self._control_gripper(axes[self.Axis.GRIPPER])
 
     def _process_axes(self, input: Dict[str, float]) -> Dict[Axis, float]:
-        return {
+        axes = {
             self.Axis.LINEAR_X:
             -input["left_stick_vertical"],
             self.Axis.LINEAR_Y:
@@ -157,6 +161,10 @@ class JoystickControl():
             self.Axis.JOINT_6:
             input["left_stick_horizontal"],
         }
+
+        #return axes
+
+        return {axis: apply_deadzone(value) for axis, value in axes.items()}
 
     def _process_buttons(self, input: Dict[str, float]) -> Dict[Button, bool]:
         return {

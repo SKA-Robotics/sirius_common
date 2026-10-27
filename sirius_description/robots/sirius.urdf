@@ -171,7 +171,8 @@
     <visual>
       <material name="white"/>
       <geometry>
-        <mesh filename="package://sirius_description/meshes/sirius/rim.stl" scale="0.001 0.001 0.001"/>
+        <mesh filename="packa
+        e://sirius_description/meshes/sirius/rim.stl" scale="0.001 0.001 0.001"/>
       </geometry>
     </visual>
     <collision>

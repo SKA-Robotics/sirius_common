@@ -1,6 +1,6 @@
-image: marsyard_costmap.png
-resolution: 0.1
-origin: [-220.0, -220.0, 0.0]
+image: marsyard_2026_costmap.png
+resolution: 0.05
+origin: [-10.0, -25.0, 0.0]
 occupied_thresh: 0.65
 free_thresh: 0.196
 negate: 0

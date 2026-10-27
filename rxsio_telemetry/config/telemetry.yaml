@@ -198,3 +198,30 @@ topics:
             value: "$msg.longitude"
           - field: "latitude"
             value: "$msg.latitude"
+  - name: "/scales/weight1"
+    type: "std_msgs/Int32"
+    measurements:
+      - name: "scales"
+        fields:
+          - field: "weight"
+            value: "$msg.data"
+            tags:
+              scale: "1"
+  - name: "/scales/weight2"
+    type: "std_msgs/Int32"
+    measurements:
+      - name: "scales"
+        fields:
+          - field: "weight"
+            value: "$msg.data"
+            tags:
+              scale: "2"
+  - name: "/scales/weight3"
+    type: "std_msgs/Int32"
+    measurements:
+      - name: "scales"
+        fields:
+          - field: "weight"
+            value: "$msg.data"
+            tags:
+              scale: "3"

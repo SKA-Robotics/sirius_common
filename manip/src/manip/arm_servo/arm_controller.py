@@ -1,3 +1,4 @@
+
 import time
 import rospy
 import numpy as np
@@ -102,6 +103,7 @@ class ArmController:
             self.goal = sm.SE3(np.array(self.command.data))
 
             ev = self.pose_servo.compute_pose_control(self.goal.A)
+            ev = clamp_velocity(ev, self.config.max_ev)
 
             e_transform = self.ee_axes.inv() * self.goal
             rot_error = np.linalg.norm(e_transform.rpy() * np.pi / 180)

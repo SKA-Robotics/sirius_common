@@ -64,6 +64,9 @@ class TwistController:
                          lb=lb,
                          ub=ub,
                          solver="clarabel")
+        if qd is None:
+            print("Twist control QP has no solution, stopping the arm")
+            return np.zeros(n)
         return qd[:n]
 
 

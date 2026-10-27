@@ -4,16 +4,16 @@ command_timeout: 0.3
 servo_gain: [20.0, 20.0, 20.0, 10.0, 10.0, 10.0]
 max_setpoint_position_distance: 0.05
 max_setpoint_orientation_distance: 0.12
-trajectory_duration: 6.0
-max_ev: [0.2, 0.2, 0.2, 0.7, 0.4, 0.4] # Maximum cartesian velocity of the end effector
-max_qd: [0.3, 0.3, 0.3, 0.6, 0.6, 1.0] # Maximum velocity of each of the arm joints
+trajectory_duration: 2.0
+max_ev: [0.3, 0.3, 0.3, 0.6, 0.6, 0.6] # Maximum cartesian velocity of the end effector
+max_qd: [1, 1, 1, 3, 3, 3] # Maximum velocity of each of the arm joints
 
 # Robot parameters
 robot_urdf_path: "package://manip/urdf/sirius2_manip.urdf.xacro"
 robot_joint_names: ["joint1", "joint2", "joint3", "joint4", "joint5", "joint6"]
 base_frame_id: "base_link"
 ee_frame_id: "tool"
-twist_cmd_frame_id: "wrist_camera"
+twist_cmd_frame_id: "tool"
 
 # ROS topic names
 joy_topic: "/joy_5dof_manipulator"

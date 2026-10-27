@@ -93,7 +93,8 @@
 
   <!-- Define subcomponents joints -->
   <xacro:joint child="platform" 
-               xyz="0 0 ${mechanical['wheel_radius'] + mechanical['suspension_height'] - mechanical['suspension_z']}" />
+               xyz="0 0 ${mechanical['wheel_radius'] + mechanical['suspension_height'] - mechanical['suspension_z']}" 
+               rpy="0 0 3.14"/>
   <xacro:joint parent="platform" 
                child="back_left_suspension" 
                xyz="${-mechanical['suspension_separation_x']/2} ${mechanical['suspension_separation_y']/2} ${mechanical['suspension_z']}" />
@@ -121,8 +122,8 @@
                rpy="${mechanical['back_mast_camera_rpy']}"/>
   <xacro:joint parent="platform" 
                child="front_camera" 
-               xyz="${mechanical['front_camera_xyz']}" 
-               rpy="${mechanical['front_camera_rpy']}"/>
+               xyz="-0.574 0 0.936" 
+               rpy="0 0.699 3.14"/>
   <xacro:joint parent="platform"  child="gnss" xyz="${mechanical['gnss_xyz']}" />
 
   <!-- Gazebo plugins -->

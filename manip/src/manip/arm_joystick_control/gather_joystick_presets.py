@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import json
 import rospy
 from sensor_msgs.msg import JointState

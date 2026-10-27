@@ -30,7 +30,7 @@ traversability_map_filters:
     type: gridMapFilters/MathExpressionFilter
     params:
       output_layer: traversability
-      expression: (1.0 / 1.0) * (traversability_step)
+      expression: (1.0 / 3.0) * (traversability_step + traversability_slope + traversability_roughness)
   - name: deletionFilter
     type: gridMapFilters/DeletionFilter
     params:

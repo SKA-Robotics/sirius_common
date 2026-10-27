@@ -48,16 +48,20 @@ class RosCommandReceiver:
 
     def pose_callback(self, pose: PoseStamped):
         # TODO: Recalculate pose to correct frame
-        rotation = sm.Quaternion([
-            pose.pose.orientation.w, 
-            pose.pose.orientation.x, 
-            pose.pose.orientation.y, 
-            pose.pose.orientation.z])
+        try:
+            rotation = sm.UnitQuaternion([
+                pose.pose.orientation.w,
+                pose.pose.orientation.x,
+                pose.pose.orientation.y,
+                pose.pose.orientation.z])
+        except ValueError as e:
+            rospy.logwarn(f"Invalid pose command orientation: {e}")
+            return
         translation = sm.SE3.Trans(
             pose.pose.position.x,
             pose.pose.position.y,
             pose.pose.position.z)
-        pose_matrix = translation.A @ rotation.matrix
+        pose_matrix = (translation * rotation.SE3()).A
         with self.command_lock:
             self.command = Command(CommandType.END_EFFECTOR_POSE_CMD, pose_matrix, time.time())
 

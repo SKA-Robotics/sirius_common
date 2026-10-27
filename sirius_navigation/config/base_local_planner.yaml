@@ -17,7 +17,7 @@ local_planner:
   #  vtheta_samples: 30
   dwa: true
   holonomic_robot: false
-  yaw_goal_tolerance: 1.0
-  xy_goal_tolerance: 0.15 
+  yaw_goal_tolerance: 10.0
+  xy_goal_tolerance: 0.5
   #  latch_xy_goal_tolerance: true
   #  meter_scoring: trued

@@ -9,10 +9,10 @@ height: 30
 resolution: 0.05
 
 traversability:
-  map_topic: /global_costmap
+  map_topic: /combined_map
   first_map_only: false
   subscribe_to_updates: true
 
 inflation:
-  inflation_radius: 0.0
+  inflation_radius: 0.3
   cost_scaling_factor: 8.0

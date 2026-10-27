@@ -3,14 +3,15 @@ from manip.arm_joystick_control.utils import Debouncing
 
 
 class GripperController:
+
     def __init__(self):
         self.debouncer = Debouncing()
         self.gripper_cmd = 0
         self.pressed_time = time.time()
         self.hold_to_release_time = 0.6
-        self.release_cmd_value = -0.8692137
+        self.release_cmd_value = -1.0
         self.gripper_cmd_increment = 0.1
-    
+
     def step(self, value: float) -> float:
         self.debouncer.update(value)
         if self.debouncer.is_falling_edge:
